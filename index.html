@@ -3,7 +3,18 @@
   <head>
     <title>Aurora Hold Filter</title>
     <style>
+      .main {
+        display: flex;
+        justify-content: space-between;
+      }
+      .filter-board {
+        width: 40%;
+      }
+      .climb-board {
+        width: 40%;
+      }
       .button {
+        position: absolute;
         margin-top: 20px;
         padding: 10px 20px;
         background-color: #4caf50;
@@ -19,26 +30,61 @@
       .button:active {
         background-color: #3e8e41;
       }
+
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul li {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        padding: 5px;
+      }
+      ul li:hover {
+        background-color: #ccc;
+      }
     </style>
   </head>
   <body>
-    <div class="board-image">
-      <svg
-        id="board-svg"
-        viewbox="0 0 1477 1200"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <image
-          href="media/original-16x12-bolt-ons-v2.png"
-          height="100%"
-          width="100%"
-        />
-        <image
-          href="media/original-16x12-screw-ons-v2.png"
-          height="100%"
-          width="100%"
-        />
-      </svg>
+    <div class="main">
+      <div class="filter-board">
+        <svg
+          id="filter-svg"
+          viewbox="0 0 1477 1200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <image
+            href="media/original-16x12-bolt-ons-v2.png"
+            height="100%"
+            width="100%"
+          />
+          <image
+            href="media/original-16x12-screw-ons-v2.png"
+            height="100%"
+            width="100%"
+          />
+        </svg>
+      </div>
+      <div class="climb-board">
+        <svg
+          id="climb-svg"
+          viewbox="0 0 1477 1200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <image
+            href="media/original-16x12-bolt-ons-v2.png"
+            height="100%"
+            width="100%"
+          />
+          <image
+            href="media/original-16x12-screw-ons-v2.png"
+            height="100%"
+            width="100%"
+          />
+        </svg>
+      </div>
     </div>
     <div class="search-button">
       <button class="button" id="search-button">Search</button>
