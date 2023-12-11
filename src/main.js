@@ -57,8 +57,8 @@ function drawHoldCircles() {
   let yOffset = 1200;
   let ySpacing = 1200 / 156;
   for (const [hold_id, coords] of Object.entries(holds)) {
-    let x = coords.x * xSpacing + xOffset;
-    let y = yOffset - coords.y * ySpacing;
+    let x = coords[0] * xSpacing + xOffset;
+    let y = yOffset - coords[1] * ySpacing;
     drawFilterCircle(`filter-${hold_id}`, x, y, 30);
     drawClimbCircle(`climb-${hold_id}`, x, y, 30);
   }
@@ -97,7 +97,8 @@ document.getElementById("search-button").addEventListener("click", function () {
   subStrings.sort();
   let regexp = new RegExp(subStrings.join(".*"));
   let matchCount = 0;
-  for (const [climb_uuid, name, climb_string] of climbs) {
+  for (const [climb_uuid, climb_data] of Object.entries(climbs)) {
+    climb_string = climb_data[1];
     if (climb_string.match(regexp)) {
       let li = document.createElement("li");
       li.setAttribute("data-climb-string", climb_string);
@@ -106,7 +107,7 @@ document.getElementById("search-button").addEventListener("click", function () {
         eraseClimb();
         drawClimb(climb_string);
       });
-      li.appendChild(document.createTextNode(name));
+      li.appendChild(document.createTextNode(climb_data[0]));
       matchList.appendChild(li);
       matchCount++;
       if (matchCount >= maxMatches) {
