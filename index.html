@@ -2,6 +2,10 @@
 <html>
   <head>
     <title>Aurora Hold Filter</title>
+    <link
+      rel="stylesheet"
+      href="src/bootstrap/bootstrap-5.3.2-dist/css/bootstrap.min.css"
+    />
     <style>
       .main {
         display: flex;
@@ -21,29 +25,6 @@
         color: white;
         border: none;
         cursor: pointer;
-      }
-
-      .button:hover {
-        background-color: #45a049;
-      }
-
-      .button:active {
-        background-color: #3e8e41;
-      }
-
-      ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      ul li {
-        display: block;
-        width: 100%;
-        text-decoration: none;
-        padding: 5px;
-      }
-      ul li:hover {
-        background-color: #ccc;
       }
     </style>
   </head>
@@ -87,10 +68,10 @@
       </div>
     </div>
     <div class="search-button">
-      <button class="button" id="search-button">Search</button>
+      <button class="btn btn-primary" id="search-button">Search</button>
     </div>
-    <div class="match-list">
-      <ul id="match-list"></ul>
+    <div id="match-results">
+      <ul id="match-list" class="list-group"></ul>
     </div>
     <script src="src/data/climbs.js"></script>
     <script src="src/data/holds.js"></script>

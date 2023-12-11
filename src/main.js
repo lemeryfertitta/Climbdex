@@ -12,7 +12,9 @@ const stringToColors = {
   14: "#ff00ff",
 };
 const filteredHoldsToColors = {};
-const climbHolds = [];
+
+let climbHolds = [];
+let currentClimb;
 
 function getCircle(id, x, y, radius) {
   let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -88,8 +90,8 @@ function eraseClimb() {
 
 document.getElementById("search-button").addEventListener("click", function () {
   const maxMatches = 40;
-  const matchList = document.getElementById("match-list");
-  matchList.innerHTML = "";
+  const matchResults = document.getElementById("match-results");
+  matchResults.innerHTML = "";
   let subStrings = [];
   for (const [holdId, color] of Object.entries(filteredHoldsToColors)) {
     subStrings.push("p" + holdId + "r" + colorsToString[color]);
@@ -97,15 +99,23 @@ document.getElementById("search-button").addEventListener("click", function () {
   subStrings.sort();
   let regexp = new RegExp(subStrings.join(".*"));
   let matchCount = 0;
+  let matchList = document.createElement("ul");
+  matchList.setAttribute("class", "list-group");
   for (const [climb_uuid, climb_data] of Object.entries(climbs)) {
     climb_string = climb_data[1];
     if (climb_string.match(regexp)) {
       let li = document.createElement("li");
       li.setAttribute("data-climb-string", climb_string);
+      li.setAttribute("class", "list-group-item");
       li.addEventListener("click", function (event) {
+        if (currentClimb) {
+          currentClimb.setAttribute("class", "list-group-item");
+        }
+        event.target.setAttribute("class", "list-group-item active");
         const climb_string = event.target.getAttribute("data-climb-string");
         eraseClimb();
         drawClimb(climb_string);
+        currentClimb = event.target;
       });
       li.appendChild(document.createTextNode(climb_data[0]));
       matchList.appendChild(li);
@@ -114,6 +124,13 @@ document.getElementById("search-button").addEventListener("click", function () {
         break;
       }
     }
+  }
+  if (matchCount == 0) {
+    let pElement = document.createTextNode("p");
+    pElement.textContent = "No matches found";
+    matchResults.appendChild(pElement);
+  } else {
+    matchResults.appendChild(matchList);
   }
 });
 
