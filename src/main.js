@@ -66,7 +66,13 @@ function drawHoldCircles() {
   }
 }
 
-function drawClimb(climb_string) {
+function drawClimb(climb_uuid) {
+  const climb_data = climbs[climb_uuid];
+
+  const climbName = climb_data[0];
+  document.getElementById("climb-name").textContent = climbName;
+
+  const climb_string = climb_data[1];
   const hold_strings = climb_string.split("p");
   for (const hold_string of hold_strings) {
     if (hold_string.length > 0) {
@@ -78,6 +84,19 @@ function drawClimb(climb_string) {
       climbHolds.push(hold_id);
     }
   }
+
+  const numAngles = (climb_data.length - 3) / 4;
+  const climbStats = document.getElementById("climb-stats");
+  for (let angleIndex = 0; angleIndex < numAngles; angleIndex++) {
+    const tr = document.createElement("tr");
+    const dataIndexOffset = 2 + angleIndex * 4;
+    for (let dataOffset = 0; dataOffset < 4; dataOffset++) {
+      const td = document.createElement("td");
+      td.textContent = climb_data[dataOffset + dataIndexOffset];
+      tr.appendChild(td);
+    }
+    climbStats.appendChild(tr);
+  }
 }
 
 function eraseClimb() {
@@ -86,6 +105,18 @@ function eraseClimb() {
     circle.setAttribute("stroke-opacity", 0.0);
   }
   climbHolds.length = 0;
+  document.getElementById("climb-name").textContent = "";
+}
+
+function resetFilter() {
+  for (const hold_id of Object.keys(filteredHoldsToColors)) {
+    const circle = document.getElementById(`filter-${hold_id}`);
+    circle.setAttribute("stroke-opacity", 0.0);
+    circle.setAttribute("stroke", "black");
+    delete filteredHoldsToColors[hold_id];
+  }
+  document.getElementById("match-results").innerHTML = "";
+  eraseClimb();
 }
 
 document.getElementById("search-button").addEventListener("click", function () {
@@ -99,26 +130,33 @@ document.getElementById("search-button").addEventListener("click", function () {
   subStrings.sort();
   let regexp = new RegExp(subStrings.join(".*"));
   let matchCount = 0;
-  let matchList = document.createElement("ul");
-  matchList.setAttribute("class", "list-group");
   for (const [climb_uuid, climb_data] of Object.entries(climbs)) {
     climb_string = climb_data[1];
     if (climb_string.match(regexp)) {
-      let li = document.createElement("li");
-      li.setAttribute("data-climb-string", climb_string);
-      li.setAttribute("class", "list-group-item");
-      li.addEventListener("click", function (event) {
+      let listButton = document.createElement("button");
+      listButton.setAttribute("data-climb-uuid", climb_uuid);
+      listButton.setAttribute(
+        "class",
+        "list-group-item list-group-item-action"
+      );
+      listButton.addEventListener("click", function (event) {
         if (currentClimb) {
-          currentClimb.setAttribute("class", "list-group-item");
+          currentClimb.setAttribute(
+            "class",
+            "list-group-item list-group-item-action"
+          );
         }
-        event.target.setAttribute("class", "list-group-item active");
-        const climb_string = event.target.getAttribute("data-climb-string");
+        event.target.setAttribute(
+          "class",
+          "list-group-item list-group-item-action active"
+        );
+        const climb_uuid = event.target.getAttribute("data-climb-uuid");
         eraseClimb();
-        drawClimb(climb_string);
+        drawClimb(climb_uuid);
         currentClimb = event.target;
       });
-      li.appendChild(document.createTextNode(climb_data[0]));
-      matchList.appendChild(li);
+      listButton.appendChild(document.createTextNode(climb_data[0]));
+      matchResults.appendChild(listButton);
       matchCount++;
       if (matchCount >= maxMatches) {
         break;
@@ -129,9 +167,9 @@ document.getElementById("search-button").addEventListener("click", function () {
     let pElement = document.createTextNode("p");
     pElement.textContent = "No matches found";
     matchResults.appendChild(pElement);
-  } else {
-    matchResults.appendChild(matchList);
   }
 });
+
+document.getElementById("reset-button").addEventListener("click", resetFilter);
 
 drawHoldCircles();

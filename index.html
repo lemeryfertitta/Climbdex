@@ -4,75 +4,103 @@
     <title>Aurora Hold Filter</title>
     <link
       rel="stylesheet"
-      href="src/bootstrap/bootstrap-5.3.2-dist/css/bootstrap.min.css"
+      href="lib/bootstrap-5.3.2-dist/css/bootstrap.min.css"
     />
-    <style>
-      .main {
-        display: flex;
-        justify-content: space-between;
-      }
-      .filter-board {
-        width: 40%;
-      }
-      .climb-board {
-        width: 40%;
-      }
-      .button {
-        position: absolute;
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
-    </style>
   </head>
   <body>
-    <div class="main">
-      <div class="filter-board">
-        <svg
-          id="filter-svg"
-          viewbox="0 0 1477 1200"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <image
-            href="media/original-16x12-bolt-ons-v2.png"
-            height="100%"
-            width="100%"
-          />
-          <image
-            href="media/original-16x12-screw-ons-v2.png"
-            height="100%"
-            width="100%"
-          />
-        </svg>
+    <div class="container text-center">
+      <div class="row align-items-start row-gap-3">
+        <div class="row">
+          <div class="col">
+            <h1 class="display-4">Filter</h1>
+          </div>
+          <div class="col">
+            <h1 class="display-4" id="climb-name"></h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <svg
+              id="filter-svg"
+              viewbox="0 0 1477 1200"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <image
+                href="media/original-16x12-bolt-ons-v2.png"
+                height="100%"
+                width="100%"
+              />
+              <image
+                href="media/original-16x12-screw-ons-v2.png"
+                height="100%"
+                width="100%"
+              />
+            </svg>
+          </div>
+          <div class="col">
+            <svg
+              id="climb-svg"
+              viewbox="0 0 1477 1200"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <image
+                href="media/original-16x12-bolt-ons-v2.png"
+                height="100%"
+                width="100%"
+              />
+              <image
+                href="media/original-16x12-screw-ons-v2.png"
+                height="100%"
+                width="100%"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-primary" id="search-button">Search</button>
+            <button class="btn btn-warning" id="reset-button">Reset</button>
+          </div>
+          <div class="col">
+            <div class="dropdown">
+              <button
+                class="btn btn-primary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+              >
+                Angle
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div id="match-results" class="list-group"></div>
+          </div>
+          <div class="col">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Angle (°)</th>
+                  <th scope="col">Difficulty</th>
+                  <th scope="col">Ascents</th>
+                  <th scope="col">Quality</th>
+                </tr>
+              </thead>
+              <tbody id="climb-stats"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="climb-board">
-        <svg
-          id="climb-svg"
-          viewbox="0 0 1477 1200"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <image
-            href="media/original-16x12-bolt-ons-v2.png"
-            height="100%"
-            width="100%"
-          />
-          <image
-            href="media/original-16x12-screw-ons-v2.png"
-            height="100%"
-            width="100%"
-          />
-        </svg>
-      </div>
     </div>
-    <div class="search-button">
-      <button class="btn btn-primary" id="search-button">Search</button>
-    </div>
-    <div id="match-results">
-      <ul id="match-list" class="list-group"></ul>
-    </div>
+    <script src="lib/bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
     <script src="src/data/climbs.js"></script>
     <script src="src/data/holds.js"></script>
     <script src="src/main.js"></script>
