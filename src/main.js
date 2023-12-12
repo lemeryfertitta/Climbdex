@@ -87,6 +87,7 @@ function drawClimb(climb_uuid) {
 
   const numAngles = (climb_data.length - 3) / 4;
   const climbStats = document.getElementById("climb-stats");
+  climbStats.innerHTML = "";
   for (let angleIndex = 0; angleIndex < numAngles; angleIndex++) {
     const tr = document.createElement("tr");
     const dataIndexOffset = 2 + angleIndex * 4;
@@ -106,6 +107,7 @@ function eraseClimb() {
   }
   climbHolds.length = 0;
   document.getElementById("climb-name").textContent = "";
+  document.getElementById("climb-stats").innerHTML = "";
 }
 
 function resetFilter() {
@@ -170,6 +172,26 @@ document.getElementById("search-button").addEventListener("click", function () {
   }
 });
 
+function getAngleListItem(angle) {
+  let li = document.createElement("li");
+  li.setAttribute("class", "dropdown-item");
+  li.appendChild(document.createTextNode(angle));
+  li.addEventListener("click", function () {
+    const angleButton = document.getElementById("angle-filter");
+    angleButton.textContent = "Angle: " + angle;
+  });
+  return li;
+}
+
+function populateAngleFilter() {
+  const angleList = document.getElementById("angle-list");
+  for (const angle of angles) {
+    angleList.appendChild(getAngleListItem(angle));
+  }
+  angleList.appendChild(getAngleListItem("Any"));
+}
+
 document.getElementById("reset-button").addEventListener("click", resetFilter);
 
 drawHoldCircles();
+populateAngleFilter();

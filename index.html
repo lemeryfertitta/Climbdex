@@ -6,6 +6,18 @@
       rel="stylesheet"
       href="lib/bootstrap-5.3.2-dist/css/bootstrap.min.css"
     />
+    <style>
+      .list-group {
+        max-height: 200px;
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+      .table {
+        max-height: 200px;
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
   </head>
   <body>
     <div class="container text-center">
@@ -58,27 +70,26 @@
         </div>
         <div class="row">
           <div class="col">
-            <button class="btn btn-primary" id="search-button">Search</button>
-            <button class="btn btn-warning" id="reset-button">Reset</button>
-          </div>
-          <div class="col">
             <div class="dropdown">
               <button
                 class="btn btn-primary dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
+                id="angle-filter"
               >
-                Angle
+                Angle: Any
               </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                </li>
-              </ul>
+              <ul class="dropdown-menu" id="angle-list"></ul>
             </div>
           </div>
+          <div class="col"></div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-primary" id="search-button">Search</button>
+            <button class="btn btn-warning" id="reset-button">Reset</button>
+          </div>
+          <div class="col"></div>
         </div>
         <div class="row">
           <div class="col">
@@ -88,7 +99,7 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th scope="col">Angle (°)</th>
+                  <th scope="col">Angle</th>
                   <th scope="col">Difficulty</th>
                   <th scope="col">Ascents</th>
                   <th scope="col">Quality</th>
@@ -101,6 +112,7 @@
       </div>
     </div>
     <script src="lib/bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/data/angles.js"></script>
     <script src="src/data/climbs.js"></script>
     <script src="src/data/holds.js"></script>
     <script src="src/main.js"></script>

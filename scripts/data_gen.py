@@ -34,6 +34,12 @@ ON placements.hole_id=holes.id
 WHERE placements.layout_id=1
 """
 
+ANGLE_SQL = """
+SELECT angle
+FROM products_angles
+WHERE product_id=1
+"""
+
 
 def write_data_to_js(data, var_name, output_path):
     json_data = json.dumps(data)
@@ -75,6 +81,18 @@ def write_hold_data_to_js(db_path, output_path):
     write_data_to_js(holds, "holds", output_path)
 
 
+def write_angle_data_to_js(db_path, output_path):
+    LOGGER.info(f"Querying for angle data at {db_path}")
+    angles = []
+    with sqlite3.connect(db_path) as connection:
+        result = connection.execute(ANGLE_SQL)
+        for row in result:
+            angles.append(row[0])
+
+    LOGGER.info(f"Writing angle data to minified JS")
+    write_data_to_js(angles, "angles", output_path)
+
+
 def main():
     db_path = pathlib.Path("tmp/kilter.sqlite3")
     db_path.parent.mkdir(exist_ok=True)
@@ -88,6 +106,7 @@ def main():
 
     write_climb_data_to_js(db_path, "src/data/climbs.js")
     write_hold_data_to_js(db_path, "src/data/holds.js")
+    write_angle_data_to_js(db_path, "src/data/angles.js")
 
 
 if __name__ == "__main__":
