@@ -286,7 +286,7 @@ function setDefaultFilterOptions() {
     .querySelector(`option[value="${maxGrade}"`).selected = true;
 
   document.getElementById("min-quality-filter").value = 1.0;
-  document.getElementById("min-ascents-filter").value = 1;
+  document.getElementById("min-ascents-filter").value = 5;
 }
 
 document.getElementById("reset-button").addEventListener("click", resetFilter);
