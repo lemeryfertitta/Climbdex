@@ -1,9 +1,12 @@
 # Aurora Hold Filter
 
-Aurora Hold Filter is a web app designed with goal of adding the missing "search by hold" functionality to Aurora-based board software (Kilter, Tension, etc.).
+The Aurora Hold Filter is a webpage designed with the goal of adding missing search functionality to climbing boards that utilize [Aurora Climbing](https://auroraclimbing.com/), such as Kilter, 
+Tension, and Decoy. The primary missing feature provided by this page is a "filter by hold" feature to find climbs with specific sets of holds. There are some additional improvements to other options for filtering and sorting through climbs as well.
 
 Try it out [here](https://lemeryfertitta.github.io/AuroraHoldFilter/). Currently, only the original 16x12 Kilter layout is supported. The goal is to extend this project to cover all layouts and boards that run Aurora Climbing software.
 
-## Data Population
+This app was partially inspired by Tim Parkin's excellent [Moonboard Search Engine](http://mb.timparkin.net/).
 
-All data is populated via a Python script which utilizes [BoardLib](https://github.com/lemeryfertitta/BoardLib) to download and query the climb databases. The data is stored in minified JS files to utilize the free Github Pages hosting service. See [data_gen.py](scripts/data_gen.py) for details.
+## Data
+
+All data is populated via [a Python script](scripts/data_gen.py) which utilizes [BoardLib](https://github.com/lemeryfertitta/BoardLib) to download and query the climb databases for each board. Currently, the data is stored in minified JS files to keep the website static for Github Pages, but the eventual goal would be a hosted app which maintains and serves the data. 
