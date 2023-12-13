@@ -24,7 +24,7 @@
       <div class="row align-items-start row-gap-3">
         <div class="row">
           <div class="col">
-            <h1 class="display-4">Filter</h1>
+            <h1 class="display-4">Hold Filter</h1>
           </div>
           <div class="col">
             <h1 class="display-4" id="climb-name"></h1>
@@ -70,30 +70,82 @@
         </div>
         <div class="row">
           <div class="col">
-            <div class="dropdown">
-              <button
-                class="btn btn-primary dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                id="angle-filter"
-              >
-                Angle: Any
-              </button>
-              <ul class="dropdown-menu" id="angle-list"></ul>
+            <div class="row justify-content-md-center g-2">
+              <div class="col-md-auto">
+                <div class="dropdown">
+                  <button
+                    class="btn btn-primary dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    id="filters"
+                  >
+                    Additional Filters
+                  </button>
+                  <form class="dropdown-menu p-4">
+                    <div class="mb-3">
+                      <label for="angle-filter" class="form-label">Angle</label>
+                      <select class="form-select" id="angle-filter">
+                        <option value="Any">Any</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="min-ascents-filter" class="form-label"
+                        >Min Ascents</label
+                      >
+                      <input
+                        class="form-control"
+                        type="number"
+                        id="min-ascents-filter"
+                        value="1"
+                        min="0"
+                      />
+                    </div>
+                    <div class="mb-3">
+                      <label for="difficulty-filter-min" class="form-label"
+                        >Min Grade</label
+                      >
+                      <select
+                        class="form-select"
+                        id="difficulty-filter-min"
+                      ></select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="difficulty-filter-max" class="form-label"
+                        >Max Grade</label
+                      >
+                      <select
+                        class="form-select"
+                        id="difficulty-filter-max"
+                      ></select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="min-quality-filter" class="form-label"
+                        >Min Quality</label
+                      >
+                      <input
+                        class="form-control"
+                        type="number"
+                        id="min-quality-filter"
+                        value="1.0"
+                        min="1.0"
+                        max="3.0"
+                        step="0.1"
+                      />
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="col-md-auto">
+                <button class="btn btn-success" id="search-button">
+                  Search
+                </button>
+              </div>
+              <div class="col-md-auto">
+                <button class="btn btn-warning" id="reset-button">
+                  Reset All Filters
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="col"></div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <button class="btn btn-primary" id="search-button">Search</button>
-            <button class="btn btn-warning" id="reset-button">Reset</button>
-          </div>
-          <div class="col"></div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <div id="match-results" class="list-group"></div>
           </div>
           <div class="col">
             <table class="table">
@@ -108,6 +160,12 @@
               <tbody id="climb-stats"></tbody>
             </table>
           </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div id="match-results" class="list-group"></div>
+          </div>
+          <div class="col"></div>
         </div>
       </div>
     </div>

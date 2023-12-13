@@ -172,23 +172,14 @@ document.getElementById("search-button").addEventListener("click", function () {
   }
 });
 
-function getAngleListItem(angle) {
-  let li = document.createElement("li");
-  li.setAttribute("class", "dropdown-item");
-  li.appendChild(document.createTextNode(angle));
-  li.addEventListener("click", function () {
-    const angleButton = document.getElementById("angle-filter");
-    angleButton.textContent = "Angle: " + angle;
-  });
-  return li;
-}
-
 function populateAngleFilter() {
-  const angleList = document.getElementById("angle-list");
+  const angleFilter = document.getElementById("angle-filter");
   for (const angle of angles) {
-    angleList.appendChild(getAngleListItem(angle));
+    let option = document.createElement("option");
+    option.value = angle;
+    option.text = angle;
+    angleFilter.appendChild(option);
   }
-  angleList.appendChild(getAngleListItem("Any"));
 }
 
 document.getElementById("reset-button").addEventListener("click", resetFilter);
