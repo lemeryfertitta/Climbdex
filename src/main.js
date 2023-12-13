@@ -93,7 +93,11 @@ function drawClimb(climb_uuid) {
     const dataIndexOffset = 2 + angleIndex * 4;
     for (let dataOffset = 0; dataOffset < 4; dataOffset++) {
       const td = document.createElement("td");
-      td.textContent = climb_data[dataOffset + dataIndexOffset];
+      let text = climb_data[dataOffset + dataIndexOffset];
+      if (dataOffset == 1) {
+        text = grades[Math.round(Number(text))];
+      }
+      td.textContent = text;
       tr.appendChild(td);
     }
     climbStats.appendChild(tr);
@@ -119,6 +123,42 @@ function resetFilter() {
   }
   document.getElementById("match-results").innerHTML = "";
   eraseClimb();
+  setDefaultFilterOptions();
+}
+
+function matchesFilters(
+  climbData,
+  angle,
+  minGrade,
+  maxGrade,
+  minAscents,
+  minQuality
+) {
+  const numAngles = (climbData.length - 3) / 4;
+  for (let angleIndex = 0; angleIndex < numAngles; angleIndex++) {
+    const dataIndexOffset = 2 + angleIndex * 4;
+    const grade = climbData[dataIndexOffset + 1];
+    const numAscents = climbData[dataIndexOffset + 2];
+    const quality = climbData[dataIndexOffset + 3];
+    if (angle == climbData[dataIndexOffset]) {
+      return (
+        grade >= minGrade &&
+        grade <= maxGrade &&
+        numAscents >= minAscents &&
+        quality >= minQuality
+      );
+    } else if (angle == "Any") {
+      if (
+        grade >= minGrade &&
+        grade <= maxGrade &&
+        numAscents >= minAscents &&
+        quality >= minQuality
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 document.getElementById("search-button").addEventListener("click", function () {
@@ -132,9 +172,24 @@ document.getElementById("search-button").addEventListener("click", function () {
   subStrings.sort();
   let regexp = new RegExp(subStrings.join(".*"));
   let matchCount = 0;
+  const angle = document.getElementById("angle-filter").value;
+  const minGrade = document.getElementById("min-grade-filter").value;
+  const maxGrade = document.getElementById("max-grade-filter").value;
+  const minAscents = document.getElementById("min-ascents-filter").value;
+  const minQuality = document.getElementById("min-quality-filter").value;
   for (const [climb_uuid, climb_data] of Object.entries(climbs)) {
     climb_string = climb_data[1];
-    if (climb_string.match(regexp)) {
+    if (
+      climb_string.match(regexp) &&
+      matchesFilters(
+        climb_data,
+        angle,
+        minGrade,
+        maxGrade,
+        minAscents,
+        minQuality
+      )
+    ) {
       let listButton = document.createElement("button");
       listButton.setAttribute("data-climb-uuid", climb_uuid);
       listButton.setAttribute(
@@ -172,7 +227,25 @@ document.getElementById("search-button").addEventListener("click", function () {
   }
 });
 
-function populateAngleFilter() {
+function updateMaxOnMinChange(event) {
+  const minGradeFilter = event.target;
+  const maxGradeFilter = document.getElementById("max-grade-filter");
+  if (minGradeFilter.value > maxGradeFilter.value) {
+    maxGradeFilter.value = minGradeFilter.value;
+    maxGradeFilter.text = minGradeFilter.text;
+  }
+}
+
+function updateMinOnMaxChange(event) {
+  const minGradeFilter = document.getElementById("min-grade-filter");
+  const maxGradeFilter = event.target;
+  if (minGradeFilter.value > maxGradeFilter.value) {
+    minGradeFilter.value = maxGradeFilter.value;
+    minGradeFilter.text = maxGradeFilter.text;
+  }
+}
+
+function populateFilterOptions() {
   const angleFilter = document.getElementById("angle-filter");
   for (const angle of angles) {
     let option = document.createElement("option");
@@ -180,9 +253,43 @@ function populateAngleFilter() {
     option.text = angle;
     angleFilter.appendChild(option);
   }
+
+  const minGradeFilter = document.getElementById("min-grade-filter");
+  const maxGradeFilter = document.getElementById("max-grade-filter");
+
+  for (const [difficulty, boulder_name] of Object.entries(grades)) {
+    let option = document.createElement("option");
+    option.value = difficulty;
+    option.text = boulder_name;
+    minGradeFilter.appendChild(option);
+    maxGradeFilter.appendChild(option.cloneNode(true));
+  }
+
+  minGradeFilter.addEventListener("change", updateMaxOnMinChange);
+  maxGradeFilter.addEventListener("change", updateMinOnMaxChange);
+  setDefaultFilterOptions();
+}
+
+function setDefaultFilterOptions() {
+  document
+    .getElementById("angle-filter")
+    .querySelector("option[value='Any']").selected = true;
+
+  const sortedGrades = Object.keys(grades).map(Number).sort();
+  const minGrade = sortedGrades[0];
+  const maxGrade = sortedGrades[sortedGrades.length - 1];
+  document
+    .getElementById("min-grade-filter")
+    .querySelector(`option[value="${minGrade}"`).selected = true;
+  document
+    .getElementById("max-grade-filter")
+    .querySelector(`option[value="${maxGrade}"`).selected = true;
+
+  document.getElementById("min-quality-filter").value = 1.0;
+  document.getElementById("min-ascents-filter").value = 1;
 }
 
 document.getElementById("reset-button").addEventListener("click", resetFilter);
 
 drawHoldCircles();
-populateAngleFilter();
+populateFilterOptions();

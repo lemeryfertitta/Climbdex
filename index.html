@@ -85,7 +85,7 @@
                     <div class="mb-3">
                       <label for="angle-filter" class="form-label">Angle</label>
                       <select class="form-select" id="angle-filter">
-                        <option value="Any">Any</option>
+                        <option value="Any" selected>Any</option>
                       </select>
                     </div>
                     <div class="mb-3">
@@ -98,24 +98,25 @@
                         id="min-ascents-filter"
                         value="1"
                         min="0"
+                        step="10"
                       />
                     </div>
                     <div class="mb-3">
-                      <label for="difficulty-filter-min" class="form-label"
+                      <label for="min-grade-filter" class="form-label"
                         >Min Grade</label
                       >
                       <select
                         class="form-select"
-                        id="difficulty-filter-min"
+                        id="min-grade-filter"
                       ></select>
                     </div>
                     <div class="mb-3">
-                      <label for="difficulty-filter-max" class="form-label"
+                      <label for="max-grade-filter" class="form-label"
                         >Max Grade</label
                       >
                       <select
                         class="form-select"
-                        id="difficulty-filter-max"
+                        id="max-grade-filter"
                       ></select>
                     </div>
                     <div class="mb-3">
@@ -168,6 +169,7 @@
     <script src="src/data/angles.js"></script>
     <script src="src/data/climbs.js"></script>
     <script src="src/data/holds.js"></script>
+    <script src="src/data/grades.js"></script>
     <script src="src/main.js"></script>
   </body>
 </html>
