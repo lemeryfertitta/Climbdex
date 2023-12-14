@@ -137,6 +137,36 @@
                 </div>
               </div>
               <div class="col-md-auto">
+                <div class="dropdown">
+                  <button
+                    class="btn btn-primary dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    id="filters"
+                  >
+                    Sort By
+                  </button>
+                  <form class="dropdown-menu p-4">
+                    <div class="mb-3">
+                      <label for="sort-category">Category: </label>
+                      <select class="form-select" id="sort-category">
+                        <option value="ascents" selected>Ascents</option>
+                        <option value="difficulty">Difficulty</option>
+                        <option value="name">Name</option>
+                        <option value="quality">Quality</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="sort-category">Order: </label>
+                      <select class="form-select" id="sort-order">
+                        <option value="asc">Asc</option>
+                        <option value="desc" selected>Desc</option>
+                      </select>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="col-md-auto">
                 <button class="btn btn-success" id="search-button">
                   Search
                 </button>

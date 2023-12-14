@@ -161,10 +161,8 @@ function matchesFilters(
   return false;
 }
 
-document.getElementById("search-button").addEventListener("click", function () {
+function filterClimbs() {
   const maxMatches = 40;
-  const matchResults = document.getElementById("match-results");
-  matchResults.innerHTML = "";
   let subStrings = [];
   for (const [holdId, color] of Object.entries(filteredHoldsToColors)) {
     subStrings.push("p" + holdId + "r" + colorsToString[color]);
@@ -177,12 +175,13 @@ document.getElementById("search-button").addEventListener("click", function () {
   const maxGrade = document.getElementById("max-grade-filter").value;
   const minAscents = document.getElementById("min-ascents-filter").value;
   const minQuality = document.getElementById("min-quality-filter").value;
-  for (const [climb_uuid, climb_data] of Object.entries(climbs)) {
-    climb_string = climb_data[1];
+  const filteredClimbs = [];
+  for (const [climbUuid, climbData] of Object.entries(climbs)) {
+    climb_string = climbData[1];
     if (
       climb_string.match(regexp) &&
       matchesFilters(
-        climb_data,
+        climbData,
         angle,
         minGrade,
         maxGrade,
@@ -190,37 +189,124 @@ document.getElementById("search-button").addEventListener("click", function () {
         minQuality
       )
     ) {
-      let listButton = document.createElement("button");
-      listButton.setAttribute("data-climb-uuid", climb_uuid);
-      listButton.setAttribute(
-        "class",
-        "list-group-item list-group-item-action"
-      );
-      listButton.addEventListener("click", function (event) {
-        if (currentClimb) {
-          currentClimb.setAttribute(
-            "class",
-            "list-group-item list-group-item-action"
-          );
-        }
-        event.target.setAttribute(
-          "class",
-          "list-group-item list-group-item-action active"
-        );
-        const climb_uuid = event.target.getAttribute("data-climb-uuid");
-        eraseClimb();
-        drawClimb(climb_uuid);
-        currentClimb = event.target;
-      });
-      listButton.appendChild(document.createTextNode(climb_data[0]));
-      matchResults.appendChild(listButton);
+      filteredClimbs.push([climbUuid].concat(climbData));
       matchCount++;
       if (matchCount >= maxMatches) {
         break;
       }
     }
   }
-  if (matchCount == 0) {
+  return filteredClimbs;
+}
+
+function getTotalAscents(climbData, angle) {
+  const numAngles = (climbData.length - 3) / 4;
+  let totalAscents = 0;
+  for (let angleIndex = 0; angleIndex < numAngles; angleIndex++) {
+    const dataIndexOffset = 3 + angleIndex * 4;
+    if (angle != "Any" && angle != climbData[dataIndexOffset]) {
+      continue;
+    }
+    totalAscents += climbData[dataIndexOffset + 2];
+  }
+  console.log(climbData[1], totalAscents);
+  return totalAscents;
+}
+
+function getAverageQuality(climbData, angle) {
+  const numAngles = (climbData.length - 3) / 4;
+  const totalAscents = getTotalAscents(climbData, angle);
+  let averageQuality = 0;
+  for (let angleIndex = 0; angleIndex < numAngles; angleIndex++) {
+    const dataIndexOffset = 3 + angleIndex * 4;
+    if (angle == "Any" || angle == climbData[dataIndexOffset]) {
+      const angleAscents = climbData[dataIndexOffset + 2];
+      averageQuality +=
+        climbData[dataIndexOffset + 3] * (angleAscents / totalAscents);
+    }
+  }
+  return averageQuality;
+}
+
+function getExtremeDifficulty(climbData, angle, isMax) {
+  const numAngles = (climbData.length - 3) / 4;
+  let extremeDifficulty;
+  for (let angleIndex = 0; angleIndex < numAngles; angleIndex++) {
+    const dataIndexOffset = 3 + angleIndex * 4;
+    const difficulty = climbData[dataIndexOffset + 1];
+    if (
+      (angle == "Any" || angle == climbData[dataIndexOffset]) &&
+      (extremeDifficulty == undefined ||
+        (difficulty < extremeDifficulty && !isMax) ||
+        (difficulty > extremeDifficulty && isMax))
+    ) {
+      extremeDifficulty = difficulty;
+    }
+  }
+  console.log(extremeDifficulty, climbData);
+  return extremeDifficulty;
+}
+
+function getNormalizedName(climbData) {
+  console.log(climbData[1].toUpperCase());
+  return climbData[1].toUpperCase();
+}
+
+function sortClimbs(climbList) {
+  const sortCategory = document.getElementById("sort-category").value;
+  const reverse = document.getElementById("sort-order").value == "desc";
+  const angle = document.getElementById("angle-filter").value;
+  const valueFunc = {
+    name: getNormalizedName,
+    ascents: getTotalAscents,
+    difficulty: getExtremeDifficulty,
+    quality: getAverageQuality,
+  }[sortCategory];
+  climbList.sort(function (a, b) {
+    if (sortCategory == "name") {
+      return (
+        valueFunc(a, angle, reverse).localeCompare(
+          valueFunc(b, angle, reverse)
+        ) * (reverse ? -1 : 1)
+      );
+    } else {
+      return (
+        (valueFunc(a, angle, reverse) - valueFunc(b, angle, reverse)) *
+        (reverse ? -1 : 1)
+      );
+    }
+  });
+}
+
+document.getElementById("search-button").addEventListener("click", function () {
+  const matchResults = document.getElementById("match-results");
+  matchResults.innerHTML = "";
+  const filteredClimbs = filterClimbs();
+  sortClimbs(filteredClimbs);
+  for (const climb of filteredClimbs) {
+    let listButton = document.createElement("button");
+    listButton.setAttribute("data-climb-uuid", climb[0]);
+    listButton.setAttribute("class", "list-group-item list-group-item-action");
+    listButton.addEventListener("click", function (event) {
+      if (currentClimb) {
+        currentClimb.setAttribute(
+          "class",
+          "list-group-item list-group-item-action"
+        );
+      }
+      event.target.setAttribute(
+        "class",
+        "list-group-item list-group-item-action active"
+      );
+      const climb_uuid = event.target.getAttribute("data-climb-uuid");
+      eraseClimb();
+      drawClimb(climb_uuid);
+      currentClimb = event.target;
+    });
+    listButton.appendChild(document.createTextNode(climb[1]));
+    matchResults.appendChild(listButton);
+  }
+  if (filteredClimbs.length == 0) {
     let pElement = document.createTextNode("p");
     pElement.textContent = "No matches found";
     matchResults.appendChild(pElement);
