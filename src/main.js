@@ -70,7 +70,12 @@ function drawClimb(climb_uuid) {
   const climb_data = climbs[climb_uuid];
 
   const climbName = climb_data[0];
-  document.getElementById("climb-name").textContent = climbName;
+  const climbLink = document.createElement("a");
+  climbLink.textContent = climbName;
+  climbLink.href = `https://kilterboardapp.com/climbs/${climb_uuid}`;
+  climbLink.target = "_blank";
+  climbLink.rel = "noopener noreferrer";
+  document.getElementById("climb-name").innerHTML = climbLink.outerHTML;
 
   const climb_string = climb_data[1];
   const hold_strings = climb_string.split("p");
