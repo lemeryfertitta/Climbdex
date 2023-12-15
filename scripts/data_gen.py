@@ -6,7 +6,6 @@ import sqlite3
 
 import boardlib.api.aurora
 import boardlib.db.aurora
-import rjsmin
 
 LOGGER = logging.getLogger(__name__)
 
