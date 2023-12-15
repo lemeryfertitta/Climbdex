@@ -19,7 +19,8 @@ SELECT
     climbs.edge_bottom,
     climbs.edge_top
 FROM climbs
-WHERE climbs.layout_id=1;
+WHERE climbs.layout_id=1
+AND climbs.frames_count=1;
 """
 
 CLIMB_STATS_SQL = """
@@ -33,6 +34,7 @@ FROM climbs
 LEFT JOIN climb_stats
 ON climbs.uuid=climb_stats.climb_uuid
 WHERE climbs.layout_id=1
+AND climbs.frames_count=1
 AND climb_stats.angle IS NOT NULL;
 """
 
