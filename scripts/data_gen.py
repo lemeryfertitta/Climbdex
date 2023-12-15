@@ -3,6 +3,7 @@ import logging
 import pathlib
 import sqlite3
 
+import boardlib.api.aurora
 import boardlib.db.aurora
 import rjsmin
 
@@ -13,6 +14,17 @@ SELECT
     climbs.uuid,
     climbs.name,
     climbs.frames,
+    climbs.edge_left,
+    climbs.edge_right,
+    climbs.edge_bottom,
+    climbs.edge_top
+FROM climbs
+WHERE climbs.layout_id=1;
+"""
+
+CLIMB_STATS_SQL = """
+SELECT
+    climbs.uuid,
     climb_stats.angle,
     climb_stats.display_difficulty,
     climb_stats.ascensionist_count,
@@ -20,7 +32,8 @@ SELECT
 FROM climbs
 LEFT JOIN climb_stats
 ON climbs.uuid=climb_stats.climb_uuid
-WHERE climbs.layout_id=1;
+WHERE climbs.layout_id=1
+AND climb_stats.angle IS NOT NULL;
 """
 
 HOLD_SQL = """
@@ -46,6 +59,28 @@ FROM difficulty_grades
 WHERE is_listed=1
 """
 
+PRODUCT_SQL = """
+SELECT 
+    product_sizes_layouts_sets.product_size_id,
+    product_sizes.name,
+    product_sizes.edge_left,
+    product_sizes.edge_right,
+    product_sizes.edge_bottom,
+    product_sizes.edge_top
+FROM product_sizes
+JOIN product_sizes_layouts_sets
+ON product_sizes.id=product_sizes_layouts_sets.product_size_id
+WHERE product_id=1;
+"""
+
+PRODUCT_IMAGE_SQL = """
+SELECT product_sizes_layouts_sets.product_size_id, product_sizes_layouts_sets.image_filename
+FROM product_sizes_layouts_sets
+JOIN product_sizes
+ON product_sizes.id=product_sizes_layouts_sets.product_size_id
+WHERE product_id=1;
+"""
+
 
 def write_data_to_js(data, var_name, output_path):
     json_data = json.dumps(data)
@@ -61,18 +96,24 @@ def write_climb_data_to_js(db_path, output_path):
     with sqlite3.connect(db_path) as connection:
         result = connection.execute(CLIMB_SQL)
         for row in result:
-            climb_data = climbs.get(row[0])
-            if climb_data is None:
-                climb_data = list(row[1:3])
-
-            if row[3] is not None:
-                climb_data.extend(row[3:7])
-
-            climbs[row[0]] = climb_data
+            climbs[row[0]] = row[1:]
 
     LOGGER.info(f"Writing climb data to minified JS")
     write_data_to_js(climbs, "climbs", output_path)
-    LOGGER.info(f"Successfully wrote data for {len(climbs)} climbs to {output_path}")
+
+
+def write_climb_stats_data_to_js(db_path, output_path):
+    LOGGER.info(f"Querying for climb stats data at {db_path}")
+    climb_stats = {}
+    with sqlite3.connect(db_path) as connection:
+        result = connection.execute(CLIMB_STATS_SQL)
+        for row in result:
+            stats = climb_stats.get(row[0], {})
+            stats[row[1]] = row[2:]
+            climb_stats[row[0]] = stats
+
+    LOGGER.info(f"Writing climb stats data to minified JS")
+    write_data_to_js(climb_stats, "climbStats", output_path)
 
 
 def write_hold_data_to_js(db_path, output_path):
@@ -115,6 +156,56 @@ def write_grade_data_to_js(db_path, output_path):
     )
 
 
+def write_product_data_to_js(db_path, output_path):
+    LOGGER.info(f"Querying for product data at {db_path}")
+    products = {}
+    with sqlite3.connect(db_path) as connection:
+        result = connection.execute(PRODUCT_SQL)
+        for row in result:
+            products[row[0]] = {
+                "name": row[1],
+                "edge_left": row[2],
+                "edge_right": row[3],
+                "edge_bottom": row[4],
+                "edge_top": row[5],
+            }
+
+    LOGGER.info(f"Writing product data to minified JS")
+    write_data_to_js(
+        products,
+        "products",
+        output_path,
+    )
+
+
+def download_product_images(db_path, image_dir_path):
+    LOGGER.info(f"Querying for product image data at {db_path}")
+    product_size_images = {}
+    with sqlite3.connect(db_path) as connection:
+        result = connection.execute(PRODUCT_IMAGE_SQL)
+        for row in result:
+            image_filenames = product_size_images.get(row[0], [])
+            image_filenames.append(row[1])
+            product_size_images[row[0]] = image_filenames
+
+    LOGGER.info(f"Downloading product images to {image_dir_path}")
+    for product_size_id, image_filenames in product_size_images.items():
+        for image_index, image_filename in enumerate(image_filenames):
+            output_path = image_dir_path.joinpath(
+                f"{product_size_id}/{image_index}.png"
+            )
+            output_path.parent.mkdir(exist_ok=True, parents=True)
+            if output_path.exists():
+                LOGGER.info(f"Skipping {image_filename} as it already exists")
+            else:
+                LOGGER.info(f"Downloading {image_filename} to {output_path}")
+                boardlib.api.aurora.download_image(
+                    "kilter",
+                    image_filename,
+                    output_path,
+                )
+
+
 def main():
     db_path = pathlib.Path("tmp/kilter.sqlite3")
     db_path.parent.mkdir(exist_ok=True)
@@ -127,9 +218,12 @@ def main():
     boardlib.db.aurora.sync_shared_tables("kilter", db_path)
 
     write_climb_data_to_js(db_path, "src/data/climbs.js")
+    write_climb_stats_data_to_js(db_path, "src/data/climbStats.js")
     write_hold_data_to_js(db_path, "src/data/holds.js")
     write_angle_data_to_js(db_path, "src/data/angles.js")
     write_grade_data_to_js(db_path, "src/data/grades.js")
+    write_product_data_to_js(db_path, "src/data/products.js")
+    download_product_images(db_path, pathlib.Path("media"))
 
 
 if __name__ == "__main__":
