@@ -1,3 +1,4 @@
+import gzip
 import json
 import logging
 import pathlib
@@ -84,15 +85,12 @@ WHERE product_id=1;
 """
 
 
-def write_data_to_js(data, var_name, output_path):
-    json_data = json.dumps(data)
-    minified_js = rjsmin.jsmin(f"const {var_name} = {json_data}")
-    pathlib.Path(output_path).parent.mkdir(exist_ok=True, parents=True)
-    with open(output_path, "wt", encoding="utf-8") as output_file:
-        output_file.write(minified_js)
+def write_data(data, output_path):
+    with gzip.open(output_path, "wt", encoding="utf-8") as output_file:
+        output_file.write(json.dumps(data))
 
 
-def write_climb_data_to_js(db_path, output_path):
+def write_climbs(db_path, output_path):
     LOGGER.info(f"Querying for climb data at {db_path}")
     climbs = {}
     with sqlite3.connect(db_path) as connection:
@@ -100,11 +98,11 @@ def write_climb_data_to_js(db_path, output_path):
         for row in result:
             climbs[row[0]] = row[1:]
 
-    LOGGER.info(f"Writing climb data to minified JS")
-    write_data_to_js(climbs, "climbs", output_path)
+    LOGGER.info(f"Writing climb data to compressed JSON")
+    write_data(climbs, output_path)
 
 
-def write_climb_stats_data_to_js(db_path, output_path):
+def write_climb_stats(db_path, output_path):
     LOGGER.info(f"Querying for climb stats data at {db_path}")
     climb_stats = {}
     with sqlite3.connect(db_path) as connection:
@@ -114,11 +112,11 @@ def write_climb_stats_data_to_js(db_path, output_path):
             stats[row[1]] = row[2:]
             climb_stats[row[0]] = stats
 
-    LOGGER.info(f"Writing climb stats data to minified JS")
-    write_data_to_js(climb_stats, "climbStats", output_path)
+    LOGGER.info(f"Writing climb stats data to compressed JSON")
+    write_data(climb_stats, output_path)
 
 
-def write_hold_data_to_js(db_path, output_path):
+def write_holds(db_path, output_path):
     LOGGER.info(f"Querying for hold data at {db_path}")
     holds = {}
     with sqlite3.connect(db_path) as connection:
@@ -126,11 +124,11 @@ def write_hold_data_to_js(db_path, output_path):
         for row in result:
             holds[row[0]] = row[1:]
 
-    LOGGER.info(f"Writing hold data to minified JS")
-    write_data_to_js(holds, "holds", output_path)
+    LOGGER.info(f"Writing hold data to compressed JSON")
+    write_data(holds, output_path)
 
 
-def write_angle_data_to_js(db_path, output_path):
+def write_angles(db_path, output_path):
     LOGGER.info(f"Querying for angle data at {db_path}")
     angles = []
     with sqlite3.connect(db_path) as connection:
@@ -138,11 +136,11 @@ def write_angle_data_to_js(db_path, output_path):
         for row in result:
             angles.append(row[0])
 
-    LOGGER.info(f"Writing angle data to minified JS")
-    write_data_to_js(angles, "angles", output_path)
+    LOGGER.info(f"Writing angle data to compressed JSON")
+    write_data(angles, output_path)
 
 
-def write_grade_data_to_js(db_path, output_path):
+def write_grades(db_path, output_path):
     LOGGER.info(f"Querying for grade data at {db_path}")
     grades = {}
     with sqlite3.connect(db_path) as connection:
@@ -150,15 +148,11 @@ def write_grade_data_to_js(db_path, output_path):
         for row in result:
             grades[row[0]] = row[1]
 
-    LOGGER.info(f"Writing grade data to minified JS")
-    write_data_to_js(
-        grades,
-        "grades",
-        output_path,
-    )
+    LOGGER.info(f"Writing grade data to compressed JSON")
+    write_data(grades, output_path)
 
 
-def write_product_data_to_js(db_path, output_path):
+def write_products(db_path, output_path):
     LOGGER.info(f"Querying for product data at {db_path}")
     products = {}
     with sqlite3.connect(db_path) as connection:
@@ -172,12 +166,8 @@ def write_product_data_to_js(db_path, output_path):
                 "edge_top": row[5],
             }
 
-    LOGGER.info(f"Writing product data to minified JS")
-    write_data_to_js(
-        products,
-        "products",
-        output_path,
-    )
+    LOGGER.info(f"Writing product data to compressed JSON")
+    write_data(products, output_path)
 
 
 def download_product_images(db_path, image_dir_path):
@@ -219,12 +209,12 @@ def main():
     LOGGER.info(f"Syncing the database at {db_path}")
     boardlib.db.aurora.sync_shared_tables("kilter", db_path)
 
-    write_climb_data_to_js(db_path, "src/data/climbs.js")
-    write_climb_stats_data_to_js(db_path, "src/data/climbStats.js")
-    write_hold_data_to_js(db_path, "src/data/holds.js")
-    write_angle_data_to_js(db_path, "src/data/angles.js")
-    write_grade_data_to_js(db_path, "src/data/grades.js")
-    write_product_data_to_js(db_path, "src/data/products.js")
+    write_climbs(db_path, "data/climbs.json.gz")
+    write_climb_stats(db_path, "data/climbStats.json.gz")
+    write_holds(db_path, "data/holds.json.gz")
+    write_angles(db_path, "data/angles.json.gz")
+    write_grades(db_path, "data/grades.json.gz")
+    write_products(db_path, "data/products.json.gz")
     download_product_images(db_path, pathlib.Path("media"))
 
 

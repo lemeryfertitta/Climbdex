@@ -17,6 +17,43 @@ let climbHolds = [];
 let currentClimb = null;
 let productDimensions = {};
 
+async function fetchCompressedJson(url) {
+  const response = await fetch(url);
+  const decodedStream = response.body
+    .pipeThrough(new DecompressionStream("gzip"))
+    .pipeThrough(new TextDecoderStream());
+  const reader = decodedStream.getReader();
+  let jsonString = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    } else {
+      jsonString += value;
+    }
+  }
+  return JSON.parse(jsonString);
+}
+
+function getData(dataName) {
+  let cachedJson = {};
+  return async function () {
+    if (cachedJson[dataName] == undefined) {
+      cachedJson[dataName] = await fetchCompressedJson(
+        `data/${dataName}.json.gz`
+      );
+    }
+    return cachedJson[dataName];
+  };
+}
+
+const fetchAngles = getData("angles");
+const fetchClimbs = getData("climbs");
+const fetchClimbStats = getData("climbStats");
+const fetchGrades = getData("grades");
+const fetchHolds = getData("holds");
+const fetchProducts = getData("products");
+
 function getCircle(id, x, y, radius) {
   let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   circle.setAttribute("id", id);
@@ -54,7 +91,7 @@ function drawClimbCircle(id, x, y, radius) {
   document.getElementById("climb-svg").appendChild(circle);
 }
 
-function drawHoldCircles(imageWidth, imageHeight, productData) {
+function drawHoldCircles(holds, imageWidth, imageHeight, productData) {
   let xSpacing = imageWidth / (productData.edge_right - productData.edge_left);
   let ySpacing = imageHeight / (productData.edge_top - productData.edge_bottom);
   for (const [hold_id, coords] of Object.entries(holds)) {
@@ -73,9 +110,7 @@ function drawHoldCircles(imageWidth, imageHeight, productData) {
   }
 }
 
-function drawClimb(climbUuid) {
-  const climbData = climbs[climbUuid];
-
+function drawClimb(climbUuid, climbData, climbAngles, grades) {
   const climbName = climbData[0];
   const climbLink = document.createElement("a");
   climbLink.textContent = climbName;
@@ -99,7 +134,6 @@ function drawClimb(climbUuid) {
 
   const climbStatsTable = document.getElementById("climb-stats-table");
   climbStatsTable.innerHTML = "";
-  const climbAngles = climbStats[climbUuid];
   if (climbAngles != undefined) {
     for (const [angle, angleData] of Object.entries(climbAngles)) {
       const tr = document.createElement("tr");
@@ -145,18 +179,19 @@ function resetFilter() {
   }
   document.getElementById("match-results").innerHTML = "";
   eraseClimb();
-  setDefaultFilterOptions();
+  fetchGrades().then((grades) => {
+    setDefaultFilterOptions(grades);
+  });
 }
 
 function matchesFilters(
-  climbUuid,
+  climbAngles,
   angle,
   minGrade,
   maxGrade,
   minAscents,
   minQuality
 ) {
-  const climbAngles = climbStats[climbUuid];
   if (climbAngles == undefined) {
     return angle == "Any" && minAscents == 0;
   } else if (angle == "Any") {
@@ -194,7 +229,7 @@ function fitsProductSize(climbData) {
   );
 }
 
-function filterClimbs() {
+function filterClimbs(climbs, climbStats) {
   const maxMatches = 40;
   let subStrings = [];
   for (const [holdId, color] of Object.entries(filteredHoldsToColors)) {
@@ -215,7 +250,7 @@ function filterClimbs() {
       climb_string.match(regexp) &&
       fitsProductSize(climbData) &&
       matchesFilters(
-        climbUuid,
+        climbStats[climbUuid],
         angle,
         minGrade,
         maxGrade,
@@ -233,8 +268,7 @@ function filterClimbs() {
   return filteredClimbs;
 }
 
-function getTotalAscents(climbUuid, angle) {
-  const climbAngles = climbStats[climbUuid];
+function getTotalAscents(climbAngles, angle) {
   if (climbAngles == undefined) {
     return 0;
   } else if (angle == "Any") {
@@ -248,8 +282,7 @@ function getTotalAscents(climbUuid, angle) {
   }
 }
 
-function getAverageQuality(climbUuid, angle) {
-  const climbAngles = climbStats[climbUuid];
+function getAverageQuality(climbAngles, angle) {
   if (climbAngles == undefined) {
     return undefined;
   } else if (angle == "Any") {
@@ -264,8 +297,7 @@ function getAverageQuality(climbUuid, angle) {
   }
 }
 
-function getExtremeDifficulty(climbUuid, angle, isMax) {
-  const climbAngles = climbStats[climbUuid];
+function getExtremeDifficulty(climbAngles, angle, isMax) {
   if (climbAngles == undefined) {
     return undefined;
   } else if (angle == "Any") {
@@ -284,7 +316,7 @@ function getExtremeDifficulty(climbUuid, angle, isMax) {
   }
 }
 
-function sortClimbs(climbList) {
+function sortClimbs(climbList, climbStats) {
   const sortCategory = document.getElementById("sort-category").value;
   const reverse = document.getElementById("sort-order").value == "desc";
   const angle = document.getElementById("angle-filter").value;
@@ -301,7 +333,8 @@ function sortClimbs(climbList) {
       );
     } else {
       return (
-        (valueFunc(a[0], angle, reverse) - valueFunc(b[0], angle, reverse)) *
+        (valueFunc(climbStats[a[0]], angle, reverse) -
+          valueFunc(climbStats[b[0]], angle, reverse)) *
         (reverse ? -1 : 1)
       );
     }
@@ -309,38 +342,52 @@ function sortClimbs(climbList) {
 }
 
 document.getElementById("search-button").addEventListener("click", function () {
-  const matchResults = document.getElementById("match-results");
-  matchResults.innerHTML = "";
-  const filteredClimbs = filterClimbs();
-  sortClimbs(filteredClimbs);
-  for (const climb of filteredClimbs) {
-    let listButton = document.createElement("button");
-    listButton.setAttribute("data-climb-uuid", climb[0]);
-    listButton.setAttribute("class", "list-group-item list-group-item-action");
-    listButton.addEventListener("click", function (event) {
-      if (currentClimb) {
-        currentClimb.setAttribute(
-          "class",
-          "list-group-item list-group-item-action"
-        );
-      }
-      event.target.setAttribute(
-        "class",
-        "list-group-item list-group-item-action active"
-      );
-      const climb_uuid = event.target.getAttribute("data-climb-uuid");
-      eraseClimb();
-      drawClimb(climb_uuid);
-      currentClimb = event.target;
+  fetchClimbs().then((climbs) => {
+    fetchClimbStats().then((climbStats) => {
+      fetchGrades().then((grades) => {
+        const matchResults = document.getElementById("match-results");
+        matchResults.innerHTML = "";
+        const filteredClimbs = filterClimbs(climbs, climbStats);
+        sortClimbs(filteredClimbs, climbStats);
+        for (const climb of filteredClimbs) {
+          let listButton = document.createElement("button");
+          listButton.setAttribute("data-climb-uuid", climb[0]);
+          listButton.setAttribute(
+            "class",
+            "list-group-item list-group-item-action"
+          );
+          listButton.addEventListener("click", function (event) {
+            if (currentClimb) {
+              currentClimb.setAttribute(
+                "class",
+                "list-group-item list-group-item-action"
+              );
+            }
+            event.target.setAttribute(
+              "class",
+              "list-group-item list-group-item-action active"
+            );
+            const climbUuid = event.target.getAttribute("data-climb-uuid");
+            eraseClimb();
+            drawClimb(
+              climbUuid,
+              climbs[climbUuid],
+              climbStats[climbUuid],
+              grades
+            );
+            currentClimb = event.target;
+          });
+          listButton.appendChild(document.createTextNode(climb[1]));
+          matchResults.appendChild(listButton);
+        }
+        if (filteredClimbs.length == 0) {
+          let pElement = document.createTextNode("p");
+          pElement.textContent = "No matches found";
+          matchResults.appendChild(pElement);
+        }
+      });
     });
-    listButton.appendChild(document.createTextNode(climb[1]));
-    matchResults.appendChild(listButton);
-  }
-  if (filteredClimbs.length == 0) {
-    let pElement = document.createTextNode("p");
-    pElement.textContent = "No matches found";
-    matchResults.appendChild(pElement);
-  }
+  });
 });
 
 function updateMaxOnMinChange(event) {
@@ -361,7 +408,7 @@ function updateMinOnMaxChange(event) {
   }
 }
 
-function populateFilterOptions() {
+function populateFilterOptions(angles, grades) {
   const angleFilter = document.getElementById("angle-filter");
   for (const angle of angles) {
     let option = document.createElement("option");
@@ -383,7 +430,7 @@ function populateFilterOptions() {
 
   minGradeFilter.addEventListener("change", updateMaxOnMinChange);
   maxGradeFilter.addEventListener("change", updateMinOnMaxChange);
-  setDefaultFilterOptions();
+  setDefaultFilterOptions(grades);
 }
 
 function getImageElement(imageDir, imageIndex) {
@@ -392,7 +439,7 @@ function getImageElement(imageDir, imageIndex) {
   return image;
 }
 
-function updateProductSize(productSizeId) {
+function updateProductSize(products, holds, productSizeId) {
   const productData = products[productSizeId];
   const imageDir = `media/${productSizeId}`;
   const filterSvg = document.getElementById("filter-svg");
@@ -408,7 +455,7 @@ function updateProductSize(productSizeId) {
   image.onload = function () {
     filterSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
     climbSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
-    drawHoldCircles(image.width, image.height, productData);
+    drawHoldCircles(holds, image.width, image.height, productData);
   };
   image.src = `${imageDir}/0.png`;
 
@@ -426,21 +473,25 @@ function updateProductSize(productSizeId) {
   resetFilter();
 }
 
-function populateProductSizes() {
+function populateProductSizes(products, holds) {
   const productSizes = document.getElementById("product-sizes");
   for (const [productId, productData] of Object.entries(products)) {
     let listItem = document.createElement("li");
     listItem.setAttribute("class", "dropdown-item");
     listItem.setAttribute("data-product-size-id", productId);
     listItem.addEventListener("click", function (event) {
-      updateProductSize(event.target.getAttribute("data-product-size-id"));
+      updateProductSize(
+        products,
+        holds,
+        event.target.getAttribute("data-product-size-id")
+      );
     });
     listItem.appendChild(document.createTextNode(productData.name));
     productSizes.appendChild(listItem);
   }
 }
 
-function setDefaultFilterOptions() {
+function setDefaultFilterOptions(grades) {
   document
     .getElementById("angle-filter")
     .querySelector("option[value='Any']").selected = true;
@@ -461,6 +512,15 @@ function setDefaultFilterOptions() {
 
 document.getElementById("reset-button").addEventListener("click", resetFilter);
 
-populateFilterOptions();
-populateProductSizes();
-updateProductSize(10);
+fetchAngles().then((angles) => {
+  fetchGrades().then((grades) => {
+    populateFilterOptions(angles, grades);
+  });
+});
+
+fetchProducts().then((products) => {
+  fetchHolds().then((holds) => {
+    populateProductSizes(products, holds);
+    updateProductSize(products, holds, 10);
+  });
+});
