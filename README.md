@@ -9,4 +9,4 @@ This app was partially inspired by Tim Parkin's excellent [Moonboard Search Engi
 
 ## Data
 
-All data is populated via [a Python script](scripts/data_gen.py) which utilizes [BoardLib](https://github.com/lemeryfertitta/BoardLib) to download and query the climb databases for each board. Currently, the data is stored in minified JS files to keep the website static for Github Pages, but the eventual goal would be a hosted app which maintains and serves the data. 
+All data is populated via [a Python script](scripts/data_gen.py) which utilizes [BoardLib](https://github.com/lemeryfertitta/BoardLib) to download and query the climb databases for each board. Currently, the data is stored directly in the repository in compressed JSON files to keep the website static for Github Pages. The data must be refreshed manually by running the script and committing to the repository.
