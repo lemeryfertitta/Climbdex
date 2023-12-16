@@ -159,10 +159,10 @@ def write_products(db_path, output_path):
         for row in result:
             products[row[0]] = {
                 "name": row[1],
-                "edge_left": row[2],
-                "edge_right": row[3],
-                "edge_bottom": row[4],
-                "edge_top": row[5],
+                "edgeLeft": row[2],
+                "edgeRight": row[3],
+                "edgeBottom": row[4],
+                "edgeTop": row[5],
             }
 
     LOGGER.info(f"Writing product data to compressed JSON")

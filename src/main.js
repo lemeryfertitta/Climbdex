@@ -11,37 +11,26 @@ const stringToColors = {
   15: "#fbe400",
   14: "#ff00ff",
 };
-const filteredHoldsToColors = {};
-
-let climbHolds = [];
-let currentClimb = null;
-let productDimensions = {};
-
-async function fetchCompressedJson(url) {
-  const response = await fetch(url);
-  const decodedStream = response.body
-    .pipeThrough(new DecompressionStream("gzip"))
-    .pipeThrough(new TextDecoderStream());
-  const reader = decodedStream.getReader();
-  let jsonString = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
-    } else {
-      jsonString += value;
-    }
-  }
-  return JSON.parse(jsonString);
-}
 
 function getData(dataName) {
   let cachedJson = {};
   return async function () {
     if (cachedJson[dataName] == undefined) {
-      cachedJson[dataName] = await fetchCompressedJson(
-        `data/${dataName}.json.gz`
-      );
+      const response = await fetch(`data/${dataName}.json.gz`);
+      const decodedStream = response.body
+        .pipeThrough(new DecompressionStream("gzip"))
+        .pipeThrough(new TextDecoderStream());
+      const reader = decodedStream.getReader();
+      let jsonString = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        } else {
+          jsonString += value;
+        }
+      }
+      cachedJson[dataName] = JSON.parse(jsonString);
     }
     return cachedJson[dataName];
   };
@@ -72,15 +61,12 @@ function drawFilterCircle(id, x, y, radius) {
     const currentColor = event.target.getAttribute("stroke");
     let currentIndex = colors.indexOf(currentColor);
     let nextIndex = currentIndex + 1;
-    let holdId = event.target.id.split("-")[1];
     if (nextIndex >= colors.length) {
       event.target.setAttribute("stroke-opacity", 0.0);
       event.target.setAttribute("stroke", "black");
-      delete filteredHoldsToColors[holdId];
     } else {
       event.target.setAttribute("stroke", colors[nextIndex]);
       event.target.setAttribute("stroke-opacity", 1.0);
-      filteredHoldsToColors[holdId] = colors[nextIndex];
     }
   };
   document.getElementById("filter-svg").appendChild(circle);
@@ -92,33 +78,25 @@ function drawClimbCircle(id, x, y, radius) {
 }
 
 function drawHoldCircles(holds, imageWidth, imageHeight, productData) {
-  let xSpacing = imageWidth / (productData.edge_right - productData.edge_left);
-  let ySpacing = imageHeight / (productData.edge_top - productData.edge_bottom);
+  let xSpacing = imageWidth / (productData.edgeRight - productData.edgeLeft);
+  let ySpacing = imageHeight / (productData.edgeTop - productData.edgeBottom);
   for (const [hold_id, coords] of Object.entries(holds)) {
     if (
-      coords[0] < productData.edge_left ||
-      coords[0] > productData.edge_right ||
-      coords[1] < productData.edge_bottom ||
-      coords[1] > productData.edge_top
+      coords[0] < productData.edgeLeft ||
+      coords[0] > productData.edgeRight ||
+      coords[1] < productData.edgeBottom ||
+      coords[1] > productData.edgeTop
     ) {
       continue;
     }
-    let x = (coords[0] - productData.edge_left) * xSpacing;
-    let y = imageHeight - (coords[1] - productData.edge_bottom) * ySpacing;
+    let x = (coords[0] - productData.edgeLeft) * xSpacing;
+    let y = imageHeight - (coords[1] - productData.edgeBottom) * ySpacing;
     drawFilterCircle(`filter-${hold_id}`, x, y, xSpacing * 4);
     drawClimbCircle(`climb-${hold_id}`, x, y, xSpacing * 4);
   }
 }
 
 function drawClimb(climbUuid, climbData, climbAngles, grades) {
-  const climbName = climbData[0];
-  const climbLink = document.createElement("a");
-  climbLink.textContent = climbName;
-  climbLink.href = `https://kilterboardapp.com/climbs/${climbUuid}`;
-  climbLink.target = "_blank";
-  climbLink.rel = "noopener noreferrer";
-  document.getElementById("climb-name").innerHTML = climbLink.outerHTML;
-
   const climbString = climbData[1];
   const holdStrings = climbString.split("p");
   for (const holdString of holdStrings) {
@@ -128,7 +106,6 @@ function drawClimb(climbUuid, climbData, climbAngles, grades) {
       const circle = document.getElementById(`climb-${holdId}`);
       circle.setAttribute("stroke", color);
       circle.setAttribute("stroke-opacity", 1.0);
-      climbHolds.push(holdId);
     }
   }
 
@@ -156,32 +133,68 @@ function drawClimb(climbUuid, climbData, climbAngles, grades) {
       climbStatsTable.appendChild(tr);
     }
   }
+
+  const climbRow = document.getElementById("climb-row");
+  climbRow.hidden = false;
+
+  document.getElementById("climb-stats-row").hidden = false;
+  const climbName = climbData[0];
+  const climbLink = document.createElement("a");
+  climbLink.textContent = climbName;
+  climbLink.href = `https://kilterboardapp.com/climbs/${climbUuid}`;
+  climbLink.target = "_blank";
+  climbLink.rel = "noopener noreferrer";
+  const climbNameElement = document.getElementById("climb-name");
+  climbNameElement.innerHTML = climbLink.outerHTML;
+  climbNameElement.scrollIntoView(true);
 }
 
-function eraseClimb() {
-  for (const hold_id of climbHolds) {
-    const circle = document.getElementById(`climb-${hold_id}`);
-    if (circle != null) {
-      circle.setAttribute("stroke-opacity", 0.0);
-    }
+function getActiveClimb() {
+  const matchResults = document.getElementById("match-results");
+  return matchResults.getElementsByClassName("active")[0];
+}
+
+function eraseActiveClimb() {
+  const activeClimb = getActiveClimb();
+  if (activeClimb) {
+    fetchClimbs().then((climbs) => {
+      const climbUuid = activeClimb.getAttribute("data-climb-uuid");
+      const climbData = climbs[climbUuid];
+      const climbString = climbData[1];
+      const holdStrings = climbString.split("p");
+      for (const holdString of holdStrings) {
+        if (holdString.length > 0) {
+          const holdId = holdString.split("r")[0];
+          const circle = document.getElementById(`climb-${holdId}`);
+          if (circle != null) {
+            circle.setAttribute("stroke-opacity", 0.0);
+          }
+        }
+      }
+    });
+    document.getElementById("climb-name").textContent = "";
+    document.getElementById("climb-stats-table").innerHTML = "";
   }
-  climbHolds.length = 0;
-  document.getElementById("climb-name").textContent = "";
-  document.getElementById("climb-stats-table").innerHTML = "";
+}
+
+function getFilteredHoldCircles() {
+  const filterSvg = document.getElementById("filter-svg");
+  return filterSvg.querySelectorAll("circle[stroke-opacity='1']");
 }
 
 function resetFilter() {
-  for (const hold_id of Object.keys(filteredHoldsToColors)) {
-    const circle = document.getElementById(`filter-${hold_id}`);
+  eraseActiveClimb();
+  for (const circle of getFilteredHoldCircles()) {
     circle.setAttribute("stroke-opacity", 0.0);
     circle.setAttribute("stroke", "black");
-    delete filteredHoldsToColors[hold_id];
   }
   document.getElementById("match-results").innerHTML = "";
-  eraseClimb();
   fetchGrades().then((grades) => {
     setDefaultFilterOptions(grades);
   });
+  document.getElementById("climb-stats-row").hidden = true;
+  document.getElementById("climb-row").hidden = true;
+  document.getElementById("results-pages").hidden = true;
 }
 
 function matchesFilters(
@@ -220,24 +233,24 @@ function matchesFilters(
   }
 }
 
-function fitsProductSize(climbData) {
+function fitsProductSize(product, climbData) {
   return (
-    climbData[2] >= productDimensions.edgeLeft &&
-    climbData[3] <= productDimensions.edgeRight &&
-    climbData[4] >= productDimensions.edgeBottom &&
-    climbData[5] <= productDimensions.edgeTop
+    climbData[2] >= product.edgeLeft &&
+    climbData[3] <= product.edgeRight &&
+    climbData[4] >= product.edgeBottom &&
+    climbData[5] <= product.edgeTop
   );
 }
 
-function filterClimbs(climbs, climbStats) {
-  const maxMatches = 40;
+function filterClimbs(climbs, climbStats, product) {
   let subStrings = [];
-  for (const [holdId, color] of Object.entries(filteredHoldsToColors)) {
+  for (const cirlce of getFilteredHoldCircles()) {
+    const holdId = cirlce.getAttribute("id").split("-")[1];
+    const color = cirlce.getAttribute("stroke");
     subStrings.push("p" + holdId + "r" + colorsToString[color]);
   }
   subStrings.sort();
   let regexp = new RegExp(subStrings.join(".*"));
-  let matchCount = 0;
   const angle = document.getElementById("angle-filter").value;
   const minGrade = document.getElementById("min-grade-filter").value;
   const maxGrade = document.getElementById("max-grade-filter").value;
@@ -248,7 +261,7 @@ function filterClimbs(climbs, climbStats) {
     climb_string = climbData[1];
     if (
       climb_string.match(regexp) &&
-      fitsProductSize(climbData) &&
+      fitsProductSize(product, climbData) &&
       matchesFilters(
         climbStats[climbUuid],
         angle,
@@ -259,10 +272,6 @@ function filterClimbs(climbs, climbStats) {
       )
     ) {
       filteredClimbs.push([climbUuid].concat(climbData));
-      matchCount++;
-      if (matchCount >= maxMatches) {
-        break;
-      }
     }
   }
   return filteredClimbs;
@@ -341,50 +350,127 @@ function sortClimbs(climbList, climbStats) {
   });
 }
 
+function getActiveProductSizeId() {
+  return document
+    .getElementById("product-name")
+    .getAttribute("data-product-size-id");
+}
+
+function drawResultsPage(
+  pageNumber,
+  resultsPerPage,
+  results,
+  climbs,
+  climbStats,
+  grades
+) {
+  const startIndex = pageNumber * resultsPerPage;
+  const matchResults = document.getElementById("match-results");
+  const matchResultsPage = document.getElementById("match-results-page");
+  matchResults.appendChild(matchResultsPage);
+  matchResultsPage.innerHTML = "";
+  for (
+    let resultIndex = startIndex;
+    resultIndex < startIndex + resultsPerPage && resultIndex < results.length;
+    resultIndex++
+  ) {
+    const climb = results[resultIndex];
+    let listButton = document.createElement("button");
+    listButton.setAttribute("data-climb-uuid", climb[0]);
+    listButton.setAttribute("class", "list-group-item list-group-item-action");
+    listButton.addEventListener("click", function (event) {
+      const currentClimb = getActiveClimb();
+      if (currentClimb) {
+        if (currentClimb == event.target) {
+          return;
+        }
+        eraseActiveClimb();
+        currentClimb.classList.remove("active");
+      }
+      event.target.setAttribute(
+        "class",
+        "list-group-item list-group-item-action active"
+      );
+      const climbUuid = event.target.getAttribute("data-climb-uuid");
+      drawClimb(climbUuid, climbs[climbUuid], climbStats[climbUuid], grades);
+    });
+    listButton.appendChild(document.createTextNode(climb[1]));
+    matchResultsPage.appendChild(listButton);
+
+    const numPages = Math.ceil(results.length / resultsPerPage);
+    document.getElementById("page-number").textContent = `${
+      pageNumber + 1
+    } of ${numPages}`;
+    const drawFunc = function (pageNumber) {
+      return function () {
+        drawResultsPage(
+          pageNumber,
+          resultsPerPage,
+          results,
+          climbs,
+          climbStats,
+          grades
+        );
+      };
+    };
+    document.getElementById("first-page").onclick = drawFunc(0);
+    document.getElementById("prev-page").onclick = drawFunc(
+      Math.max(0, pageNumber - 1)
+    );
+    document.getElementById("next-page").onclick = drawFunc(
+      Math.min(pageNumber + 1, numPages - 1)
+    );
+    document.getElementById("last-page").onclick = drawFunc(numPages - 1);
+    document.getElementById("results-pages").hidden = false;
+  }
+}
+
 document.getElementById("search-button").addEventListener("click", function () {
+  const resultsPerPage = 10;
   fetchClimbs().then((climbs) => {
     fetchClimbStats().then((climbStats) => {
       fetchGrades().then((grades) => {
-        const matchResults = document.getElementById("match-results");
-        matchResults.innerHTML = "";
-        const filteredClimbs = filterClimbs(climbs, climbStats);
-        sortClimbs(filteredClimbs, climbStats);
-        for (const climb of filteredClimbs) {
-          let listButton = document.createElement("button");
-          listButton.setAttribute("data-climb-uuid", climb[0]);
-          listButton.setAttribute(
-            "class",
-            "list-group-item list-group-item-action"
+        fetchProducts().then((products) => {
+          const matchResults = document.getElementById("match-results");
+          matchResults.innerHTML = "";
+          const matchResultsPage = document.createElement("div");
+          matchResultsPage.id = "match-results-page";
+          matchResults.appendChild(matchResultsPage);
+          const filteredClimbs = filterClimbs(
+            climbs,
+            climbStats,
+            products[getActiveProductSizeId()]
           );
-          listButton.addEventListener("click", function (event) {
-            if (currentClimb) {
-              currentClimb.setAttribute(
-                "class",
-                "list-group-item list-group-item-action"
-              );
-            }
-            event.target.setAttribute(
-              "class",
-              "list-group-item list-group-item-action active"
-            );
-            const climbUuid = event.target.getAttribute("data-climb-uuid");
-            eraseClimb();
-            drawClimb(
-              climbUuid,
-              climbs[climbUuid],
-              climbStats[climbUuid],
-              grades
-            );
-            currentClimb = event.target;
-          });
-          listButton.appendChild(document.createTextNode(climb[1]));
-          matchResults.appendChild(listButton);
-        }
-        if (filteredClimbs.length == 0) {
-          let pElement = document.createTextNode("p");
-          pElement.textContent = "No matches found";
-          matchResults.appendChild(pElement);
-        }
+          const angleFilter = document.getElementById("angle-filter").value;
+          let filterListElement = document.createElement("h6");
+          filterListElement.textContent = `Filters: ${
+            getFilteredHoldCircles().length
+          } holds, ${
+            angleFilter == "Any" ? "any angle" : angleFilter + "\xB0"
+          }, between ${
+            grades[document.getElementById("min-grade-filter").value]
+          } and ${grades[document.getElementById("max-grade-filter").value]}, ${
+            document.getElementById("min-ascents-filter").value
+          }+ ascents, and ${
+            document.getElementById("min-quality-filter").value
+          }+ stars.`;
+          matchResults.appendChild(filterListElement);
+          let matchCountElement = document.createElement("h5");
+          matchCountElement.textContent = `Found ${filteredClimbs.length} climbs matching filters`;
+          matchResults.appendChild(matchCountElement);
+          matchResults.appendChild(filterListElement);
+
+          sortClimbs(filteredClimbs, climbStats);
+          drawResultsPage(
+            0,
+            resultsPerPage,
+            filteredClimbs,
+            climbs,
+            climbStats,
+            grades
+          );
+          matchResults.scrollIntoView(true);
+        });
       });
     });
   });
@@ -430,7 +516,6 @@ function populateFilterOptions(angles, grades) {
 
   minGradeFilter.addEventListener("change", updateMaxOnMinChange);
   maxGradeFilter.addEventListener("change", updateMinOnMaxChange);
-  setDefaultFilterOptions(grades);
 }
 
 function getImageElement(imageDir, imageIndex) {
@@ -459,16 +544,9 @@ function updateProductSize(products, holds, productSizeId) {
   };
   image.src = `${imageDir}/0.png`;
 
-  document.getElementById(
-    "product-name"
-  ).textContent = `Product Size: ${productData.name}`;
-
-  productDimensions = {
-    edgeLeft: productData.edge_left,
-    edgeRight: productData.edge_right,
-    edgeBottom: productData.edge_bottom,
-    edgeTop: productData.edge_top,
-  };
+  const productName = document.getElementById("product-name");
+  productName.setAttribute("data-product-size-id", productSizeId);
+  productName.textContent = `Product Size: ${productData.name}`;
 
   resetFilter();
 }
@@ -510,17 +588,29 @@ function setDefaultFilterOptions(grades) {
   document.getElementById("min-ascents-filter").value = 5;
 }
 
+document
+  .getElementById("hold-filter-button")
+  .addEventListener("click", function (event) {
+    const holdFilter = document.getElementById("filter-row");
+    holdFilter.hidden = !holdFilter.hidden;
+    event.target.textContent = `${
+      holdFilter.hidden ? "Show" : "Hide"
+    } Hold Filter`;
+  });
 document.getElementById("reset-button").addEventListener("click", resetFilter);
 
+// Load data and populate UI. Data which does not affect the UI is loaded last
 fetchAngles().then((angles) => {
   fetchGrades().then((grades) => {
     populateFilterOptions(angles, grades);
-  });
-});
-
-fetchProducts().then((products) => {
-  fetchHolds().then((holds) => {
-    populateProductSizes(products, holds);
-    updateProductSize(products, holds, 10);
+    setDefaultFilterOptions(grades);
+    fetchProducts().then((products) => {
+      fetchHolds().then((holds) => {
+        populateProductSizes(products, holds);
+        updateProductSize(products, holds, 10);
+        fetchClimbs().then();
+        fetchClimbStats().then();
+      });
+    });
   });
 });
