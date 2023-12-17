@@ -8,217 +8,191 @@
     />
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                id="product-name"
-              >
-                Product: ?
-              </a>
-              <ul class="dropdown-menu" id="product-sizes"></ul>
-            </li>
-          </ul>
+    <div class="container text-center">
+      <div class="row justify-content-md-center g-1 mt-2">
+        <div class="col-md-auto">
+          <div class="dropdown">
+            <button
+              class="btn btn-primary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="product-name"
+            ></button>
+            <ul class="dropdown-menu" id="product-sizes"></ul>
+          </div>
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-primary" id="hold-filter-button">
+            Show Hold Filter
+          </button>
+        </div>
+        <div class="col-md-auto">
+          <div class="dropdown">
+            <button
+              class="btn btn-primary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="filters"
+            >
+              Additional Filters
+            </button>
+            <form class="dropdown-menu p-4">
+              <div class="mb-3">
+                <label for="angle-filter" class="form-label">Angle</label>
+                <select class="form-select" id="angle-filter">
+                  <option value="Any" selected>Any</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="min-ascents-filter" class="form-label"
+                  >Min Ascents</label
+                >
+                <input
+                  class="form-control"
+                  type="number"
+                  id="min-ascents-filter"
+                  value="1"
+                  min="0"
+                  step="10"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="min-grade-filter" class="form-label"
+                  >Min Grade</label
+                >
+                <select class="form-select" id="min-grade-filter"></select>
+              </div>
+              <div class="mb-3">
+                <label for="max-grade-filter" class="form-label"
+                  >Max Grade</label
+                >
+                <select class="form-select" id="max-grade-filter"></select>
+              </div>
+              <div class="mb-3">
+                <label for="min-quality-filter" class="form-label"
+                  >Min Quality</label
+                >
+                <input
+                  class="form-control"
+                  type="number"
+                  id="min-quality-filter"
+                  value="1.0"
+                  min="1.0"
+                  max="3.0"
+                  step="0.1"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="col-md-auto">
+          <div class="dropdown">
+            <button
+              class="btn btn-primary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              id="filters"
+            >
+              Sort By
+            </button>
+            <form class="dropdown-menu p-4">
+              <div class="mb-3">
+                <label for="sort-category">Category: </label>
+                <select class="form-select" id="sort-category">
+                  <option value="ascents" selected>Ascents</option>
+                  <option value="difficulty">Difficulty</option>
+                  <option value="name">Name</option>
+                  <option value="quality">Quality</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="sort-category">Order: </label>
+                <select class="form-select" id="sort-order">
+                  <option value="asc">Asc</option>
+                  <option value="desc" selected>Desc</option>
+                </select>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </nav>
-    <div class="container text-center">
-      <div class="row align-items-start row-gap-3">
-        <div class="row">
-          <div class="col">
-            <div class="row justify-content-md-center g-2">
-              <div class="col-md-auto">
-                <button class="btn btn-primary" id="hold-filter-button">
-                  Show Hold Filter
-                </button>
-              </div>
-              <div class="col-md-auto">
-                <div class="dropdown">
-                  <button
-                    class="btn btn-primary dropdown-toggle"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    id="filters"
-                  >
-                    Additional Filters
-                  </button>
-                  <form class="dropdown-menu p-4">
-                    <div class="mb-3">
-                      <label for="angle-filter" class="form-label">Angle</label>
-                      <select class="form-select" id="angle-filter">
-                        <option value="Any" selected>Any</option>
-                      </select>
-                    </div>
-                    <div class="mb-3">
-                      <label for="min-ascents-filter" class="form-label"
-                        >Min Ascents</label
-                      >
-                      <input
-                        class="form-control"
-                        type="number"
-                        id="min-ascents-filter"
-                        value="1"
-                        min="0"
-                        step="10"
-                      />
-                    </div>
-                    <div class="mb-3">
-                      <label for="min-grade-filter" class="form-label"
-                        >Min Grade</label
-                      >
-                      <select
-                        class="form-select"
-                        id="min-grade-filter"
-                      ></select>
-                    </div>
-                    <div class="mb-3">
-                      <label for="max-grade-filter" class="form-label"
-                        >Max Grade</label
-                      >
-                      <select
-                        class="form-select"
-                        id="max-grade-filter"
-                      ></select>
-                    </div>
-                    <div class="mb-3">
-                      <label for="min-quality-filter" class="form-label"
-                        >Min Quality</label
-                      >
-                      <input
-                        class="form-control"
-                        type="number"
-                        id="min-quality-filter"
-                        value="1.0"
-                        min="1.0"
-                        max="3.0"
-                        step="0.1"
-                      />
-                    </div>
-                  </form>
-                </div>
-              </div>
-              <div class="col-md-auto">
-                <div class="dropdown">
-                  <button
-                    class="btn btn-primary dropdown-toggle"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    id="filters"
-                  >
-                    Sort By
-                  </button>
-                  <form class="dropdown-menu p-4">
-                    <div class="mb-3">
-                      <label for="sort-category">Category: </label>
-                      <select class="form-select" id="sort-category">
-                        <option value="ascents" selected>Ascents</option>
-                        <option value="difficulty">Difficulty</option>
-                        <option value="name">Name</option>
-                        <option value="quality">Quality</option>
-                      </select>
-                    </div>
-                    <div class="mb-3">
-                      <label for="sort-category">Order: </label>
-                      <select class="form-select" id="sort-order">
-                        <option value="asc">Asc</option>
-                        <option value="desc" selected>Desc</option>
-                      </select>
-                    </div>
-                  </form>
-                </div>
-              </div>
-              <div class="col-md-auto">
-                <button class="btn btn-success" id="search-button">
-                  Search
-                </button>
-              </div>
-              <div class="col-md-auto">
-                <button class="btn btn-warning" id="reset-button">
-                  Reset All Filters
-                </button>
-              </div>
-            </div>
+      <div class="row justify-content-md-center g-2 mt-2">
+        <div class="col-md-auto">
+          <button class="btn btn-success" id="search-button">Search</button>
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-warning" id="reset-button">
+            Reset All Filters
+          </button>
+        </div>
+      </div>
+      <div class="row justify-content-md-center" id="filter-row" hidden="true">
+        <div class="col-md-5">
+          <svg
+            id="filter-svg"
+            viewbox="0 0 0 0"
+            xmlns="http://www.w3.org/2000/svg"
+          ></svg>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h4 id="results-count"></h4>
+          <div id="match-results" class="list-group"></div>
+        </div>
+      </div>
+      <div class="row justify-content-md-center">
+        <div class="col-md-auto">
+          <div id="results-pages" hidden="true">
+            <nav>
+              <ul class="pagination">
+                <li class="page-item" id="first-page">
+                  <a class="page-link">|&lt;</a>
+                </li>
+                <li class="page-item" id="prev-page">
+                  <a class="page-link">&lt;</a>
+                </li>
+                <li class="page-item disabled">
+                  <a class="page-link" id="page-number">? of ?</a>
+                </li>
+                <li class="page-item" id="next-page">
+                  <a class="page-link">&gt;</a>
+                </li>
+                <li class="page-item" id="last-page">
+                  <a class="page-link">&gt;|</a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
-        <div
-          class="row justify-content-md-center"
-          id="filter-row"
-          hidden="true"
-        >
-          <div class="col-md-5">
-            <svg
-              id="filter-svg"
-              viewbox="0 0 0 0"
-              xmlns="http://www.w3.org/2000/svg"
-            ></svg>
-          </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h4 id="climb-name"></h4>
         </div>
-        <div class="row">
-          <div class="col">
-            <h4 id="results-count"></h4>
-            <div id="match-results" class="list-group"></div>
-          </div>
+      </div>
+      <div class="row justify-content-md-center" id="climb-row" hidden="true">
+        <div class="col-md-5">
+          <svg
+            id="climb-svg"
+            viewbox="0 0 0 0"
+            xmlns="http://www.w3.org/2000/svg"
+          ></svg>
         </div>
-        <div class="row justify-content-md-center">
-          <div class="col-md-auto">
-            <div id="results-pages" hidden="true">
-              <nav>
-                <ul class="pagination">
-                  <li class="page-item" id="first-page">
-                    <a class="page-link">|&lt;</a>
-                  </li>
-                  <li class="page-item" id="prev-page">
-                    <a class="page-link">&lt;</a>
-                  </li>
-                  <li class="page-item disabled">
-                    <a class="page-link" id="page-number">? of ?</a>
-                  </li>
-                  <li class="page-item" id="next-page">
-                    <a class="page-link">&gt;</a>
-                  </li>
-                  <li class="page-item" id="last-page">
-                    <a class="page-link">&gt;|</a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <h4 id="climb-name"></h4>
-          </div>
-        </div>
-        <div class="row justify-content-md-center" id="climb-row" hidden="true">
-          <div class="col-md-5">
-            <svg
-              id="climb-svg"
-              viewbox="0 0 0 0"
-              xmlns="http://www.w3.org/2000/svg"
-            ></svg>
-          </div>
-        </div>
-        <div class="row" id="climb-stats-row" hidden="true">
-          <div class="col">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Angle</th>
-                  <th scope="col">Difficulty</th>
-                  <th scope="col">Ascents</th>
-                  <th scope="col">Quality</th>
-                </tr>
-              </thead>
-              <tbody id="climb-stats-table"></tbody>
-            </table>
-          </div>
+      </div>
+      <div class="row" id="climb-stats-row" hidden="true">
+        <div class="col">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Angle</th>
+                <th scope="col">Difficulty</th>
+                <th scope="col">Ascents</th>
+                <th scope="col">Quality</th>
+              </tr>
+            </thead>
+            <tbody id="climb-stats-table"></tbody>
+          </table>
         </div>
       </div>
     </div>

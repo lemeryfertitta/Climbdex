@@ -82,10 +82,10 @@ function drawHoldCircles(holds, imageWidth, imageHeight, productData) {
   let ySpacing = imageHeight / (productData.edgeTop - productData.edgeBottom);
   for (const [hold_id, coords] of Object.entries(holds)) {
     if (
-      coords[0] < productData.edgeLeft ||
-      coords[0] > productData.edgeRight ||
-      coords[1] < productData.edgeBottom ||
-      coords[1] > productData.edgeTop
+      coords[0] <= productData.edgeLeft ||
+      coords[0] >= productData.edgeRight ||
+      coords[1] <= productData.edgeBottom ||
+      coords[1] >= productData.edgeTop
     ) {
       continue;
     }
@@ -396,33 +396,33 @@ function drawResultsPage(
     });
     listButton.appendChild(document.createTextNode(climb[1]));
     matchResultsPage.appendChild(listButton);
-
-    const numPages = Math.ceil(results.length / resultsPerPage);
-    document.getElementById("page-number").textContent = `${
-      pageNumber + 1
-    } of ${numPages}`;
-    const drawFunc = function (pageNumber) {
-      return function () {
-        drawResultsPage(
-          pageNumber,
-          resultsPerPage,
-          results,
-          climbs,
-          climbStats,
-          grades
-        );
-      };
-    };
-    document.getElementById("first-page").onclick = drawFunc(0);
-    document.getElementById("prev-page").onclick = drawFunc(
-      Math.max(0, pageNumber - 1)
-    );
-    document.getElementById("next-page").onclick = drawFunc(
-      Math.min(pageNumber + 1, numPages - 1)
-    );
-    document.getElementById("last-page").onclick = drawFunc(numPages - 1);
-    document.getElementById("results-pages").hidden = false;
   }
+
+  const numPages = Math.ceil(results.length / resultsPerPage);
+  document.getElementById("page-number").textContent = `${
+    numPages == 0 ? 0 : pageNumber + 1
+  } of ${numPages}`;
+  const drawFunc = function (pageNumber) {
+    return function () {
+      drawResultsPage(
+        pageNumber,
+        resultsPerPage,
+        results,
+        climbs,
+        climbStats,
+        grades
+      );
+    };
+  };
+  document.getElementById("first-page").onclick = drawFunc(0);
+  document.getElementById("prev-page").onclick = drawFunc(
+    Math.max(0, pageNumber - 1)
+  );
+  document.getElementById("next-page").onclick = drawFunc(
+    Math.min(pageNumber + 1, numPages - 1)
+  );
+  document.getElementById("last-page").onclick = drawFunc(numPages - 1);
+  document.getElementById("results-pages").hidden = false;
 }
 
 document.getElementById("search-button").addEventListener("click", function () {
@@ -546,7 +546,7 @@ function updateProductSize(products, holds, productSizeId) {
 
   const productName = document.getElementById("product-name");
   productName.setAttribute("data-product-size-id", productSizeId);
-  productName.textContent = `Product Size: ${productData.name}`;
+  productName.textContent = productData.name;
 
   resetFilter();
 }
