@@ -335,6 +335,20 @@ function sortClimbs(climbList, climbStats) {
   });
 }
 
+function getFilters() {
+  return {
+    angle: document.getElementById("select-angle"),
+    board: document.getElementById("select-board"),
+    holds: getFilteredHoldCircles(),
+    maxGrade: document.getElementById("select-max-grade"),
+    minGrade: document.getElementById("select-min-grade"),
+    minAscents: document.getElementById("input-min-ascents"),
+    minRating: document.getElementById("input-min-rating"),
+    sortBy: document.getElementById("select-sort-by"),
+    sortOrder: document.getElementById("select-sort-order"),
+  };
+}
+
 function drawResultsPage(
   pageNumber,
   resultsPerPage,
@@ -432,19 +446,24 @@ document
             matchResults.appendChild(matchCountElement);
 
             let filterListElement = document.createElement("p");
+            let filters = getFilters();
             filterListElement.textContent = `Showing problems with ${
-              getFilteredHoldCircles().length
-            } selected holds, at ${
-              angleFilter == "Any" ? "any angle" : angleFilter + "\xB0"
-            }, between ${
-              grades[document.getElementById("select-min-grade").value]
+              filters.holds.length
+            } selected hold(s), at ${filters.angle.options[
+              filters.angle.selectedIndex
+            ].text.toLowerCase()} degrees, between ${
+              filters.minGrade.options[filters.minGrade.selectedIndex].text
             } and ${
-              grades[document.getElementById("select-max-grade").value]
+              filters.maxGrade.options[filters.maxGrade.selectedIndex].text
             }, with at least ${
-              document.getElementById("input-min-ascents").value
-            }+ ascents and ${
-              document.getElementById("input-min-rating").value
-            }+ stars.`;
+              filters.minAscents.value
+            } ascents and an average rating of ${
+              filters.minRating.value
+            } star(s) or more, sorted by ${filters.sortBy.options[
+              filters.sortBy.selectedIndex
+            ].text.toLowerCase()}, ${filters.sortOrder.options[
+              filters.sortOrder.selectedIndex
+            ].text.toLowerCase()}.`;
             matchResults.appendChild(filterListElement);
 
             sortClimbs(filteredClimbs, climbStats);
