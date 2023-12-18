@@ -69,12 +69,12 @@ function drawFilterCircle(id, x, y, radius) {
       event.target.setAttribute("stroke-opacity", 1.0);
     }
   };
-  document.getElementById("filter-svg").appendChild(circle);
+  document.getElementById("svg-hold-filter").appendChild(circle);
 }
 
 function drawClimbCircle(id, x, y, radius) {
   let circle = getCircle(id, x, y, radius);
-  document.getElementById("climb-svg").appendChild(circle);
+  document.getElementById("svg-climb").appendChild(circle);
 }
 
 function drawHoldCircles(holds, imageWidth, imageHeight, productData) {
@@ -109,7 +109,7 @@ function drawClimb(climbUuid, climbData, climbAngles, grades) {
     }
   }
 
-  const climbStatsTable = document.getElementById("climb-stats-table");
+  const climbStatsTable = document.getElementById("tbody-climb-stats");
   climbStatsTable.innerHTML = "";
   if (climbAngles != undefined) {
     for (const [angle, angleData] of Object.entries(climbAngles)) {
@@ -134,23 +134,23 @@ function drawClimb(climbUuid, climbData, climbAngles, grades) {
     }
   }
 
-  const climbRow = document.getElementById("climb-row");
-  climbRow.hidden = false;
-
-  document.getElementById("climb-stats-row").hidden = false;
+  document.getElementById("svg-climb").classList.replace("d-none", "d-flex");
+  document
+    .getElementById("div-climb-stats")
+    .classList.replace("d-none", "d-flex");
   const climbName = climbData[0];
   const climbLink = document.createElement("a");
   climbLink.textContent = climbName;
   climbLink.href = `https://kilterboardapp.com/climbs/${climbUuid}`;
   climbLink.target = "_blank";
   climbLink.rel = "noopener noreferrer";
-  const climbNameElement = document.getElementById("climb-name");
-  climbNameElement.innerHTML = climbLink.outerHTML;
-  climbNameElement.scrollIntoView(true);
+  const climbNameHeader = document.getElementById("header-climb-name");
+  climbNameHeader.innerHTML = climbLink.outerHTML;
+  climbNameHeader.scrollIntoView(true);
 }
 
 function getActiveClimb() {
-  const matchResults = document.getElementById("match-results");
+  const matchResults = document.getElementById("div-results-list");
   return matchResults.getElementsByClassName("active")[0];
 }
 
@@ -172,29 +172,14 @@ function eraseActiveClimb() {
         }
       }
     });
-    document.getElementById("climb-name").textContent = "";
-    document.getElementById("climb-stats-table").innerHTML = "";
   }
+  document.getElementById("header-climb-name").textContent = "";
+  document.getElementById("tbody-climb-stats").innerHTML = "";
 }
 
 function getFilteredHoldCircles() {
-  const filterSvg = document.getElementById("filter-svg");
+  const filterSvg = document.getElementById("svg-hold-filter");
   return filterSvg.querySelectorAll("circle[stroke-opacity='1']");
-}
-
-function resetFilter() {
-  eraseActiveClimb();
-  for (const circle of getFilteredHoldCircles()) {
-    circle.setAttribute("stroke-opacity", 0.0);
-    circle.setAttribute("stroke", "black");
-  }
-  document.getElementById("match-results").innerHTML = "";
-  fetchGrades().then((grades) => {
-    setDefaultFilterOptions(grades);
-  });
-  document.getElementById("climb-stats-row").hidden = true;
-  document.getElementById("climb-row").hidden = true;
-  document.getElementById("results-pages").hidden = true;
 }
 
 function matchesFilters(
@@ -251,11 +236,11 @@ function filterClimbs(climbs, climbStats, product) {
   }
   subStrings.sort();
   let regexp = new RegExp(subStrings.join(".*"));
-  const angle = document.getElementById("angle-filter").value;
-  const minGrade = document.getElementById("min-grade-filter").value;
-  const maxGrade = document.getElementById("max-grade-filter").value;
-  const minAscents = document.getElementById("min-ascents-filter").value;
-  const minQuality = document.getElementById("min-quality-filter").value;
+  const angle = document.getElementById("select-angle").value;
+  const minGrade = document.getElementById("select-min-grade").value;
+  const maxGrade = document.getElementById("select-max-grade").value;
+  const minAscents = document.getElementById("input-min-ascents").value;
+  const minQuality = document.getElementById("input-min-rating").value;
   const filteredClimbs = [];
   for (const [climbUuid, climbData] of Object.entries(climbs)) {
     climb_string = climbData[1];
@@ -326,16 +311,16 @@ function getExtremeDifficulty(climbAngles, angle, isMax) {
 }
 
 function sortClimbs(climbList, climbStats) {
-  const sortCategory = document.getElementById("sort-category").value;
-  const reverse = document.getElementById("sort-order").value == "desc";
-  const angle = document.getElementById("angle-filter").value;
+  const sortBy = document.getElementById("select-sort-by").value;
+  const reverse = document.getElementById("select-sort-order").value == "desc";
+  const angle = document.getElementById("select-angle").value;
   const valueFunc = {
     ascents: getTotalAscents,
     difficulty: getExtremeDifficulty,
     quality: getAverageQuality,
-  }[sortCategory];
+  }[sortBy];
   climbList.sort(function (a, b) {
-    if (sortCategory == "name") {
+    if (sortBy == "name") {
       return (
         a[1].toUpperCase().localeCompare(b[1].toUpperCase()) *
         (reverse ? -1 : 1)
@@ -350,12 +335,6 @@ function sortClimbs(climbList, climbStats) {
   });
 }
 
-function getActiveProductSizeId() {
-  return document
-    .getElementById("product-name")
-    .getAttribute("data-product-size-id");
-}
-
 function drawResultsPage(
   pageNumber,
   resultsPerPage,
@@ -365,10 +344,10 @@ function drawResultsPage(
   grades
 ) {
   const startIndex = pageNumber * resultsPerPage;
-  const matchResults = document.getElementById("match-results");
-  const matchResultsPage = document.getElementById("match-results-page");
-  matchResults.appendChild(matchResultsPage);
-  matchResultsPage.innerHTML = "";
+  const resultsList = document.getElementById("div-results-list");
+  const resultsListPage = document.getElementById("div-results-list-page");
+  resultsList.appendChild(resultsListPage);
+  resultsListPage.innerHTML = "";
   for (
     let resultIndex = startIndex;
     resultIndex < startIndex + resultsPerPage && resultIndex < results.length;
@@ -395,7 +374,7 @@ function drawResultsPage(
       drawClimb(climbUuid, climbs[climbUuid], climbStats[climbUuid], grades);
     });
     listButton.appendChild(document.createTextNode(climb[1]));
-    matchResultsPage.appendChild(listButton);
+    resultsListPage.appendChild(listButton);
   }
 
   const numPages = Math.ceil(results.length / resultsPerPage);
@@ -422,59 +401,67 @@ function drawResultsPage(
     Math.min(pageNumber + 1, numPages - 1)
   );
   document.getElementById("last-page").onclick = drawFunc(numPages - 1);
-  document.getElementById("results-pages").hidden = false;
+  document
+    .getElementById("div-results-pagination")
+    .classList.replace("d-none", "d-inline-block");
 }
 
-document.getElementById("search-button").addEventListener("click", function () {
-  const resultsPerPage = 10;
-  fetchClimbs().then((climbs) => {
-    fetchClimbStats().then((climbStats) => {
-      fetchGrades().then((grades) => {
-        fetchProducts().then((products) => {
-          const matchResults = document.getElementById("match-results");
-          matchResults.innerHTML = "";
-          const matchResultsPage = document.createElement("div");
-          matchResultsPage.id = "match-results-page";
-          matchResults.appendChild(matchResultsPage);
-          const filteredClimbs = filterClimbs(
-            climbs,
-            climbStats,
-            products[getActiveProductSizeId()]
-          );
-          const angleFilter = document.getElementById("angle-filter").value;
-          let filterListElement = document.createElement("h6");
-          filterListElement.textContent = `Filters: ${
-            getFilteredHoldCircles().length
-          } holds, ${
-            angleFilter == "Any" ? "any angle" : angleFilter + "\xB0"
-          }, between ${
-            grades[document.getElementById("min-grade-filter").value]
-          } and ${grades[document.getElementById("max-grade-filter").value]}, ${
-            document.getElementById("min-ascents-filter").value
-          }+ ascents, and ${
-            document.getElementById("min-quality-filter").value
-          }+ stars.`;
-          matchResults.appendChild(filterListElement);
-          let matchCountElement = document.createElement("h5");
-          matchCountElement.textContent = `Found ${filteredClimbs.length} climbs matching filters`;
-          matchResults.appendChild(matchCountElement);
-          matchResults.appendChild(filterListElement);
+document
+  .getElementById("form-search")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+    const resultsPerPage = 10;
+    fetchClimbs().then((climbs) => {
+      fetchClimbStats().then((climbStats) => {
+        fetchGrades().then((grades) => {
+          fetchProducts().then((products) => {
+            const matchResults = document.getElementById("div-results-list");
+            matchResults.innerHTML = "";
+            const matchResultsPage = document.createElement("div");
+            matchResultsPage.id = "div-results-list-page";
+            matchResults.appendChild(matchResultsPage);
+            const productSizeId = document.getElementById("select-board");
+            const filteredClimbs = filterClimbs(
+              climbs,
+              climbStats,
+              products[productSizeId.value]
+            );
+            const angleFilter = document.getElementById("select-angle").value;
+            let matchCountElement = document.createElement("h5");
+            matchCountElement.textContent = `Found ${filteredClimbs.length} matching climbs`;
+            matchResults.appendChild(matchCountElement);
 
-          sortClimbs(filteredClimbs, climbStats);
-          drawResultsPage(
-            0,
-            resultsPerPage,
-            filteredClimbs,
-            climbs,
-            climbStats,
-            grades
-          );
-          matchResults.scrollIntoView(true);
+            let filterListElement = document.createElement("p");
+            filterListElement.textContent = `Showing problems with ${
+              getFilteredHoldCircles().length
+            } selected holds, at ${
+              angleFilter == "Any" ? "any angle" : angleFilter + "\xB0"
+            }, between ${
+              grades[document.getElementById("select-min-grade").value]
+            } and ${
+              grades[document.getElementById("select-max-grade").value]
+            }, with at least ${
+              document.getElementById("input-min-ascents").value
+            }+ ascents and ${
+              document.getElementById("input-min-rating").value
+            }+ stars.`;
+            matchResults.appendChild(filterListElement);
+
+            sortClimbs(filteredClimbs, climbStats);
+            drawResultsPage(
+              0,
+              resultsPerPage,
+              filteredClimbs,
+              climbs,
+              climbStats,
+              grades
+            );
+            matchResults.scrollIntoView(true);
+          });
         });
       });
     });
   });
-});
 
 function updateMaxOnMinChange(event) {
   const minGradeFilter = event.target;
@@ -494,28 +481,42 @@ function updateMinOnMaxChange(event) {
   }
 }
 
-function populateFilterOptions(angles, grades) {
-  const angleFilter = document.getElementById("angle-filter");
+function populateFilters(angles, grades, holds, products) {
+  const boardSelect = document.getElementById("select-board");
+  for (const [productId, productData] of Object.entries(products)) {
+    let option = document.createElement("option");
+    option.text = productData.name;
+    option.value = productId;
+    option.addEventListener("change", function (event) {
+      updateProductSize(products, holds, event.target.value);
+    });
+    boardSelect.appendChild(option);
+  }
+  boardSelect.addEventListener("change", function (event) {
+    updateProductSize(holds, products, event.target.value);
+  });
+
+  const angleSelect = document.getElementById("select-angle");
   for (const angle of angles) {
     let option = document.createElement("option");
     option.value = angle;
     option.text = angle;
-    angleFilter.appendChild(option);
+    angleSelect.appendChild(option);
   }
 
-  const minGradeFilter = document.getElementById("min-grade-filter");
-  const maxGradeFilter = document.getElementById("max-grade-filter");
+  const minGradeSelect = document.getElementById("select-min-grade");
+  const maxGradeSelect = document.getElementById("select-max-grade");
 
   for (const [difficulty, boulderName] of Object.entries(grades)) {
     let option = document.createElement("option");
     option.value = difficulty;
     option.text = boulderName;
-    minGradeFilter.appendChild(option);
-    maxGradeFilter.appendChild(option.cloneNode(true));
+    minGradeSelect.appendChild(option);
+    maxGradeSelect.appendChild(option.cloneNode(true));
   }
 
-  minGradeFilter.addEventListener("change", updateMaxOnMinChange);
-  maxGradeFilter.addEventListener("change", updateMinOnMaxChange);
+  minGradeSelect.addEventListener("change", updateMaxOnMinChange);
+  maxGradeSelect.addEventListener("change", updateMinOnMaxChange);
 }
 
 function getImageElement(imageDir, imageIndex) {
@@ -524,90 +525,58 @@ function getImageElement(imageDir, imageIndex) {
   return image;
 }
 
-function updateProductSize(products, holds, productSizeId) {
+function updateProductSize(holds, products, productSizeId) {
   const productData = products[productSizeId];
   const imageDir = `media/${productSizeId}`;
-  const filterSvg = document.getElementById("filter-svg");
-  filterSvg.innerHTML = "";
-  filterSvg.appendChild(getImageElement(imageDir, 0));
-  filterSvg.appendChild(getImageElement(imageDir, 1));
-  const climbSvg = document.getElementById("climb-svg");
+  const holdFilterSvg = document.getElementById("svg-hold-filter");
+  holdFilterSvg.innerHTML = "";
+  holdFilterSvg.appendChild(getImageElement(imageDir, 0));
+  holdFilterSvg.appendChild(getImageElement(imageDir, 1));
+  const climbSvg = document.getElementById("svg-climb");
   climbSvg.innerHTML = "";
   climbSvg.appendChild(getImageElement(imageDir, 0));
   climbSvg.appendChild(getImageElement(imageDir, 1));
 
   const image = new Image();
   image.onload = function () {
-    filterSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
+    holdFilterSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
     climbSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
     drawHoldCircles(holds, image.width, image.height, productData);
   };
   image.src = `${imageDir}/0.png`;
-
-  const productName = document.getElementById("product-name");
-  productName.setAttribute("data-product-size-id", productSizeId);
-  productName.textContent = productData.name;
-
-  resetFilter();
 }
 
-function populateProductSizes(products, holds) {
-  const productSizes = document.getElementById("product-sizes");
-  for (const [productId, productData] of Object.entries(products)) {
-    let listItem = document.createElement("li");
-    listItem.setAttribute("class", "dropdown-item");
-    listItem.setAttribute("data-product-size-id", productId);
-    listItem.addEventListener("click", function (event) {
-      updateProductSize(
-        products,
-        holds,
-        event.target.getAttribute("data-product-size-id")
-      );
-    });
-    listItem.appendChild(document.createTextNode(productData.name));
-    productSizes.appendChild(listItem);
-  }
-}
+function setFilterDefaults(grades, holds, products) {
+  const boardSelect = document.getElementById("select-board");
+  boardSelect.value = "10";
+  updateProductSize(holds, products, "10");
 
-function setDefaultFilterOptions(grades) {
-  document
-    .getElementById("angle-filter")
-    .querySelector("option[value='Any']").selected = true;
+  const angleSelect = document.getElementById("select-angle");
+  angleSelect.value = "Any";
 
-  const sortedGrades = Object.keys(grades).map(Number).sort();
-  const minGrade = sortedGrades[0];
-  const maxGrade = sortedGrades[sortedGrades.length - 1];
-  document
-    .getElementById("min-grade-filter")
-    .querySelector(`option[value="${minGrade}"`).selected = true;
-  document
-    .getElementById("max-grade-filter")
-    .querySelector(`option[value="${maxGrade}"`).selected = true;
+  const gradeNumbers = Object.keys(grades).map(Number);
+  gradeNumbers.sort();
 
-  document.getElementById("min-quality-filter").value = 1.0;
-  document.getElementById("min-ascents-filter").value = 5;
+  const minGradeSelect = document.getElementById("select-min-grade");
+  minGradeSelect.value = gradeNumbers[0];
+
+  const maxGradeSelect = document.getElementById("select-max-grade");
+  maxGradeSelect.value = gradeNumbers[gradeNumbers.length - 1];
 }
 
 document
-  .getElementById("hold-filter-button")
-  .addEventListener("click", function (event) {
-    const holdFilter = document.getElementById("filter-row");
-    holdFilter.hidden = !holdFilter.hidden;
-    event.target.textContent = `${
-      holdFilter.hidden ? "Show" : "Hide"
-    } Hold Filter`;
+  .getElementById("div-hold-filter")
+  .addEventListener("shown.bs.collapse", function (event) {
+    event.target.scrollIntoView(true);
   });
-document.getElementById("reset-button").addEventListener("click", resetFilter);
 
 // Load data and populate UI. Data which does not affect the UI is loaded last
 fetchAngles().then((angles) => {
   fetchGrades().then((grades) => {
-    populateFilterOptions(angles, grades);
-    setDefaultFilterOptions(grades);
     fetchProducts().then((products) => {
       fetchHolds().then((holds) => {
-        populateProductSizes(products, holds);
-        updateProductSize(products, holds, 10);
+        populateFilters(angles, grades, holds, products);
+        setFilterDefaults(grades, holds, products);
         fetchClimbs().then();
         fetchClimbStats().then();
       });
