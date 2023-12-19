@@ -66,6 +66,7 @@ function updateProductSize(holds, products, productSizeId) {
     );
   };
   image.src = `${imageDir}/0.png`;
+  document.getElementById("input-hold-filter").value = "";
 }
 
 function populateFilters(angles, grades, holds, products) {
