@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Climbdex</title>
+    <link rel="icon" type="image/x-icon" href="media/icon/icon.svg" />
+    <link
+      rel="stylesheet"
+      href="lib/bootstrap-5.3.2-dist/css/bootstrap.min.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div class="container-sm text-center">
+      <h1 class="display-1">Climbdex</h1>
+      <p>Search Engine for Interactive Climbing Training Boards</p>
+      <div class="row justify-content-md-center">
+        <div class="col-md-5 card p-3 g-2">
+          <h5 id="header-results-count"></h5>
+          <p id="paragraph-filters"></p>
+          <div id="div-results-list" class="list-group"></div>
+          <div id="div-results-pagination"">
+            <nav class="nav justify-content-center">
+              <ul class="pagination">
+                <li class="page-item" id="first-page">
+                  <a class="page-link">|&lt;</a>
+                </li>
+                <li class="page-item" id="prev-page">
+                  <a class="page-link">&lt;</a>
+                </li>
+                <li class="page-item disabled">
+                  <a class="page-link" id="page-number">? of ?</a>
+                </li>
+                <li class="page-item" id="next-page">
+                  <a class="page-link">&gt;</a>
+                </li>
+                <li class="page-item" id="last-page">
+                  <a class="page-link">&gt;|</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+        <div class="col-md-5 card p-3 g-2">
+          <h4 id="header-climb-name"></h4>
+          <svg
+            id="svg-climb"
+            viewbox="0 0 0 0"
+            xmlns="http://www.w3.org/2000/svg"
+          ></svg>
+          <div class="p-3" id="div-climb-stats">
+            <table
+              class="table table-striped table-bordered"
+              id="table-climb-stats"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">Angle</th>
+                  <th scope="col">Difficulty</th>
+                  <th scope="col">Ascents</th>
+                  <th scope="col">Quality</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-climb-stats"></tbody>
+            </table>
+          </div>
+        </div>
+        <footer>
+          <a
+            class="fs-6 fw-light"
+            href="https://github.com/lemeryfertitta/Climbdex"
+            ><img
+              src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
+              width="32px"
+              height="32px"
+            />Source Code</a
+          >
+        </footer>
+      </div>
+    </div>
+  </body>
+  <script src="src/common.js"></script>
+  <script src="src/results.js"></script>
+</html>
