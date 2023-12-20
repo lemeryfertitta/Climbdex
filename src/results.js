@@ -1,18 +1,3 @@
-function drawBoard(products, holds, productSizeId) {
-  const productData = products[productSizeId];
-  const imageDir = `media/${productSizeId}`;
-  const climbSvg = document.getElementById("svg-climb");
-  climbSvg.appendChild(getImageElement(imageDir, 0));
-  climbSvg.appendChild(getImageElement(imageDir, 1));
-
-  const image = new Image();
-  image.onload = function () {
-    climbSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
-    drawHoldCircles(climbSvg, holds, image.width, image.height, productData);
-  };
-  image.src = `${imageDir}/0.png`;
-}
-
 function getActiveClimb() {
   const matchResults = document.getElementById("div-results-list");
   return matchResults.getElementsByClassName("active")[0];
@@ -291,58 +276,68 @@ function sortClimbs(climbList, climbStats, params) {
 
 const resultsPerPage = 10;
 const params = new URLSearchParams(window.location.search);
-
-getData("products")().then((products) => {
-  getData("holds")().then((holds) => {
-    drawBoard(products, holds, params.get("board"));
-    getData("climbs")().then((climbs) => {
-      getData("climbStats")().then((climbStats) => {
-        getData("grades")().then((grades) => {
-          const filteredClimbs = filterClimbs(
-            params,
-            climbs,
-            climbStats,
-            products[params.get("board")]
-          );
-          let resultsCountHeader = document.getElementById(
-            "header-results-count"
-          );
-          resultsCountHeader.textContent = `Found ${filteredClimbs.length} matching climbs`;
-
-          let filtersParagraph = document.getElementById("paragraph-filters");
-          filtersParagraph.textContent = `Showing problems with ${
-            params.get("holds").split("p").length - 1
-          } selected hold(s), at ${params.get("angle")} degrees, between ${
-            grades[params.get("minGrade")]
-          } and ${grades[params.get("maxGrade")]}, with at least ${params.get(
-            "minAscents"
-          )} ascents and an average rating of ${params.get(
-            "minRating"
-          )} star(s) or more, sorted by ${params.get("sortBy")}, ${params.get(
-            "sortOrder"
-          )}.`;
-
-          sortClimbs(filteredClimbs, climbStats, params);
-          drawResultsPage(
-            0,
-            resultsPerPage,
-            filteredClimbs,
-            climbs,
-            climbStats,
-            grades
-          );
-          if (filteredClimbs.length > 0) {
-            drawClimb(
-              filteredClimbs[0][0],
-              climbs[filteredClimbs[0][0]],
-              climbStats[filteredClimbs[0][0]],
-              grades
-            );
-            const matchResults = document.getElementById("div-results-list");
-            matchResults.children[0].classList.add("active");
-          }
-        });
-      });
-    });
-  });
+console.log(params.get);
+getDatabase("kilter").then((db) => {
+  drawBoard(
+    document.getElementById("svg-climb"),
+    db,
+    params.get("layout"),
+    params.get("size"),
+    params.getAll("set")
+  );
 });
+
+// getData("products")().then((products) => {
+//   getData("holds")().then((holds) => {
+//     drawBoard(products, holds, params.get("board"));
+//     getData("climbs")().then((climbs) => {
+//       getData("climbStats")().then((climbStats) => {
+//         getData("grades")().then((grades) => {
+//           const filteredClimbs = filterClimbs(
+//             params,
+//             climbs,
+//             climbStats,
+//             products[params.get("board")]
+//           );
+//           let resultsCountHeader = document.getElementById(
+//             "header-results-count"
+//           );
+//           resultsCountHeader.textContent = `Found ${filteredClimbs.length} matching climbs`;
+
+//           let filtersParagraph = document.getElementById("paragraph-filters");
+//           filtersParagraph.textContent = `Showing problems with ${
+//             params.get("holds").split("p").length - 1
+//           } selected hold(s), at ${params.get("angle")} degrees, between ${
+//             grades[params.get("minGrade")]
+//           } and ${grades[params.get("maxGrade")]}, with at least ${params.get(
+//             "minAscents"
+//           )} ascents and an average rating of ${params.get(
+//             "minRating"
+//           )} star(s) or more, sorted by ${params.get("sortBy")}, ${params.get(
+//             "sortOrder"
+//           )}.`;
+
+//           sortClimbs(filteredClimbs, climbStats, params);
+//           drawResultsPage(
+//             0,
+//             resultsPerPage,
+//             filteredClimbs,
+//             climbs,
+//             climbStats,
+//             grades
+//           );
+//           if (filteredClimbs.length > 0) {
+//             drawClimb(
+//               filteredClimbs[0][0],
+//               climbs[filteredClimbs[0][0]],
+//               climbStats[filteredClimbs[0][0]],
+//               grades
+//             );
+//             const matchResults = document.getElementById("div-results-list");
+//             matchResults.children[0].classList.add("active");
+//           }
+//         });
+//       });
+//     });
+//   });
+// });

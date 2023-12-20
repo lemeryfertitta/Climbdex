@@ -16,28 +16,6 @@ WHERE is_listed = 1
 ORDER BY difficulty ASC
 `;
 
-const HOLDS_SQL = `
-SELECT 
-  placements.id,
-  holes.x,
-  holes.y
-FROM placements
-INNER JOIN holes
-ON placements.hole_id=holes.id
-WHERE placements.layout_id = $layoutId
-AND placements.set_id = $setId
-`;
-
-const PRODUCT_SIZES_SQL = `
-SELECT
-  edge_left,
-  edge_right,
-  edge_bottom,
-  edge_top
-FROM product_sizes
-WHERE id = $productSizeId
-`;
-
 function onFilterCircleClick(event) {
   const holdId = event.target.id.split("-")[1];
   const currentColor = event.target.getAttribute("stroke");
@@ -85,54 +63,6 @@ function updateMinOnMaxChange(event) {
   }
 }
 
-function populateHoldFilter(db, layoutId, productSizeId, setIds) {
-  const holdFilterSvg = document.getElementById("svg-hold-filter");
-  const imageBaseUrl = `https://api.kilterboardapp.com/img`;
-  console.log(setIds.join(","));
-  const IMAGES_SQL = `
-    SELECT 
-      set_id,
-      image_filename
-    FROM product_sizes_layouts_sets
-    WHERE layout_id = $layoutId
-    AND product_size_id = $productSizeId
-    AND set_id IN (${setIds})
-  `;
-  const results = db.exec(IMAGES_SQL, {
-    $layoutId: layoutId,
-    $productSizeId: productSizeId,
-  });
-
-  for (const [setId, imageFilename] of results[0].values) {
-    const imageUrl = `${imageBaseUrl}/${imageFilename}`;
-    holdFilterSvg.appendChild(getImageElement(imageUrl));
-    const image = new Image();
-    image.onload = function () {
-      holdFilterSvg.setAttribute(
-        "viewBox",
-        `0 0 ${image.width} ${image.height}`
-      );
-      const holdsResults = db.exec(HOLDS_SQL, {
-        $layoutId: layoutId,
-        $setId: setId,
-      });
-      const productSizesResults = db.exec(PRODUCT_SIZES_SQL, {
-        $productSizeId: productSizeId,
-      });
-      drawHoldCircles(
-        holdFilterSvg,
-        holdsResults[0].values,
-        image.width,
-        image.height,
-        productSizesResults[0].values[0],
-        onFilterCircleClick
-      );
-    };
-
-    image.src = imageUrl;
-  }
-}
-
 function populateAngleSelect(db, layoutId) {
   const results = db.exec(ANGLES_SQL, { $layoutId: layoutId });
   const angleSelect = document.getElementById("select-angle");
@@ -176,14 +106,25 @@ document
   });
 
 const params = new URLSearchParams(window.location.search);
+const indexParamsInputDiv = document.getElementById("div-index-params-inputs");
+for (const [key, value] of params) {
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = key;
+  input.value = value;
+  indexParamsInputDiv.appendChild(input);
+}
+
 getDatabase("kilter").then((db) => {
   console.log(params.getAll("set"));
   populateAngleSelect(db, params.get("layout"));
   populateGradeSelects(db);
-  populateHoldFilter(
+  drawBoard(
+    document.getElementById("svg-hold-filter"),
     db,
     params.get("layout"),
     params.get("size"),
-    params.getAll("set")
+    params.getAll("set"),
+    onFilterCircleClick
   );
 });

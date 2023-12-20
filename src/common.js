@@ -51,41 +51,99 @@ function getData(dataName) {
   };
 }
 
-function drawHoldCircles(
-  boardSvg,
-  holds,
-  imageWidth,
-  imageHeight,
-  productDimensions,
-  onClick
+function drawBoard(
+  svgElement,
+  db,
+  layoutId,
+  productSizeId,
+  setIds,
+  onCircleClick
 ) {
-  const edgeLeft = productDimensions[0];
-  const edgeRight = productDimensions[1];
-  const edgeBottom = productDimensions[2];
-  const edgeTop = productDimensions[3];
+  const imageFilenameSql = `
+    SELECT 
+      set_id,
+      image_filename
+    FROM product_sizes_layouts_sets
+    WHERE layout_id = $layoutId
+    AND product_size_id = $productSizeId
+    AND set_id IN (${setIds})
+  `;
 
-  let xSpacing = imageWidth / (edgeRight - edgeLeft);
-  let ySpacing = imageHeight / (edgeTop - edgeBottom);
-  for (const [holdId, x, y] of holds) {
-    if (x <= edgeLeft || x >= edgeRight || y <= edgeBottom || y >= edgeTop) {
-      continue;
-    }
-    let xPixel = (x - edgeLeft) * xSpacing;
-    let yPixel = imageHeight - (y - edgeBottom) * ySpacing;
-    let circle = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle"
-    );
-    circle.setAttribute("id", `hold-${holdId}`);
-    circle.setAttribute("cx", xPixel);
-    circle.setAttribute("cy", yPixel);
-    circle.setAttribute("r", xSpacing * 4);
-    circle.setAttribute("fill-opacity", 0.0);
-    circle.setAttribute("stroke-opacity", 0.0);
-    circle.setAttribute("stroke-width", 6);
-    if (onClick) {
-      circle.onclick = onClick;
-    }
-    boardSvg.appendChild(circle);
+  const imageFilenameResults = db.exec(imageFilenameSql, {
+    $layoutId: layoutId,
+    $productSizeId: productSizeId,
+  });
+
+  const productSizesSql = `
+    SELECT
+      edge_left,
+      edge_right,
+      edge_bottom,
+      edge_top
+    FROM product_sizes
+    WHERE id = $productSizeId
+  `;
+
+  const productSizesResults = db.exec(productSizesSql, {
+    $productSizeId: productSizeId,
+  });
+  const [edgeLeft, edgeRight, edgeBottom, edgeTop] =
+    productSizesResults[0].values[0];
+
+  const imageBaseUrl = `https://api.kilterboardapp.com/img`;
+  const holdsSql = `
+    SELECT 
+      placements.id,
+      holes.x,
+      holes.y
+    FROM placements
+    INNER JOIN holes
+    ON placements.hole_id=holes.id
+    WHERE placements.layout_id = $layoutId
+    AND placements.set_id = $setId
+  `;
+  for (const [setId, imageFilename] of imageFilenameResults[0].values) {
+    const imageUrl = `${imageBaseUrl}/${imageFilename}`;
+    svgElement.appendChild(getImageElement(imageUrl));
+
+    const holdsResults = db.exec(holdsSql, {
+      $layoutId: layoutId,
+      $setId: setId,
+    });
+
+    const image = new Image();
+    image.onload = function () {
+      svgElement.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
+      let xSpacing = image.width / (edgeRight - edgeLeft);
+      let ySpacing = image.height / (edgeTop - edgeBottom);
+      for (const [holdId, x, y] of holdsResults[0].values) {
+        if (
+          x <= edgeLeft ||
+          x >= edgeRight ||
+          y <= edgeBottom ||
+          y >= edgeTop
+        ) {
+          continue;
+        }
+        let xPixel = (x - edgeLeft) * xSpacing;
+        let yPixel = image.height - (y - edgeBottom) * ySpacing;
+        let circle = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+        circle.setAttribute("id", `hold-${holdId}`);
+        circle.setAttribute("cx", xPixel);
+        circle.setAttribute("cy", yPixel);
+        circle.setAttribute("r", xSpacing * 4);
+        circle.setAttribute("fill-opacity", 0.0);
+        circle.setAttribute("stroke-opacity", 0.0);
+        circle.setAttribute("stroke-width", 6);
+        if (onCircleClick) {
+          circle.onclick = onCircleClick;
+        }
+        svgElement.appendChild(circle);
+      }
+    };
+    image.src = imageUrl;
   }
 }
