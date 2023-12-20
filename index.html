@@ -6,11 +6,11 @@
       rel="stylesheet"
       href="lib/bootstrap-5.3.2-dist/css/bootstrap.min.css"
     />
-    <link rel="icon" type="image/x-icon" href="media/icon/icon.svg" />
+    <link rel="icon" type="image/x-icon" href="media/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       .input-group-text {
-        width: 125px;
+        width: 175px;
       }
     </style>
   </head>
@@ -20,104 +20,45 @@
       <p>Search Engine for Interactive Climbing Training Boards</p>
       <div class="row justify-content-md-center">
         <div class="col-md-6">
-          <form
-            class="card p-3 bg-light"
-            id="form-search"
-            action="results.html"
-          >
+          <form class="card p-3 bg-light" action="search.html">
             <div class="input-group mb-3">
               <span class="input-group-text">Board</span>
-              <select
-                class="form-select"
-                id="select-board"
-                name="board"
-              ></select>
-            </div>
-            <div class="input-group mb-3">
-              <span class="input-group-text">Angle</span>
-              <select class="form-select" id="select-angle" name="angle">
-                <option value="any" selected>Any</option>
+              <select class="form-select" id="select-board" name="board">
+                <option value="aurora" disabled>Aurora (coming soon!)</option>
+                <option value="decoy" disabled>Decoy (coming soon!)</option>
+                <option value="decoy" disabled>
+                  Grasshopper (coming soon!)
+                </option>
+                <option value="kilter" selected>Kilter</option>
+                <option value="tension" disabled>Tension (coming soon!)</option>
+                <option value="touchstone" disabled>
+                  Touchstone (coming soon!)
+                </option>
               </select>
             </div>
             <div class="input-group mb-3">
-              <span class="input-group-text">Min Ascents</span>
-              <input
-                type="number"
-                class="form-control"
-                id="input-min-ascents"
-                value="5"
-                min="0"
-                name="minAscents"
-              />
-            </div>
-            <div class="input-group mb-3">
-              <span class="input-group-text">Min Rating</span>
-              <input
-                type="number"
-                ,
-                class="form-control"
-                id="input-min-rating"
-                value="1.0"
-                min="1.0"
-                max="3.0"
-                step="0.1"
-                name="minRating"
-              />
-            </div>
-            <div class="input-group mb-3">
-              <span class="input-group-text">Min Grade</span>
+              <span class="input-group-text">Layout</span>
               <select
                 class="form-select"
-                id="select-min-grade"
-                name="minGrade"
+                id="select-layout"
+                name="layout"
               ></select>
             </div>
             <div class="input-group mb-3">
-              <span class="input-group-text">Max Grade</span>
-              <select
-                class="form-select"
-                id="select-max-grade"
-                name="maxGrade"
-              ></select>
+              <span class="input-group-text">Size</span>
+              <select class="form-select" id="select-size" name="size"></select>
             </div>
-            <div class="input-group mb-3">
-              <span class="input-group-text">Sort By</span>
-              <select class="form-select" id="select-sort-by" name="sortBy">
-                <option value="ascents" selected>Ascents</option>
-                <option value="difficulty">Difficulty</option>
-                <option value="name">Name</option>
-                <option value="quality">Quality</option>
-              </select>
-              <select
-                class="form-select"
-                id="select-sort-order"
-                name="sortOrder"
-              >
-                <option value="desc" selected>Descending</option>
-                <option value="asc">Ascending</option>
-              </select>
-            </div>
+            <div id="div-sets"></div>
+            <div id="div-sets-inputs"></div>
             <div class="input-group mb-3 d-grid gap-2">
               <button
-                class="btn btn-secondary"
-                id="hold-filter-button"
-                data-bs-toggle="collapse"
-                data-bs-target="#div-hold-filter"
-                type="button"
+                class="btn btn-primary"
+                type="submit"
+                id="button-next"
+                disabled
               >
-                Holds
+                Next
               </button>
-              <input type="hidden" id="input-hold-filter" name="holds" />
-              <div class="collapse" id="div-hold-filter">
-                <svg
-                  id="svg-hold-filter"
-                  viewbox="0 0 0 0"
-                  xmlns="http://www.w3.org/2000/svg"
-                ></svg>
-              </div>
-            </div>
-            <div class="input-group mb-3 d-grid gap-2">
-              <button class="btn btn-primary" type="submit">Search</button>
             </div>
           </form>
         </div>
@@ -144,7 +85,7 @@
         </footer>
       </div>
     </div>
-    <script src="lib/bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/sqljs-wasm/sql-wasm.js"></script>
     <script src="src/common.js"></script>
     <script src="src/index.js"></script>
   </body>

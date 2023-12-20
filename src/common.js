@@ -12,10 +12,19 @@ const stringToColors = {
   14: "#ff00ff",
 };
 
-function getImageElement(imageDir, imageIndex) {
+function getImageElement(imagePath) {
   const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-  image.setAttribute("href", `${imageDir}/${imageIndex}.png`);
+  image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", imagePath);
   return image;
+}
+
+async function getDatabase(databaseName) {
+  const sqlJs = await initSqlJs({
+    locateFile: (filename) => `/lib/sqljs-wasm/${filename}`,
+  });
+  const response = await fetch(`tmp/${databaseName}.sqlite3`);
+  const arrayBuffer = await response.arrayBuffer();
+  return new sqlJs.Database(new Uint8Array(arrayBuffer));
 }
 
 function getData(dataName) {
@@ -47,29 +56,29 @@ function drawHoldCircles(
   holds,
   imageWidth,
   imageHeight,
-  productData,
+  productDimensions,
   onClick
 ) {
-  let xSpacing = imageWidth / (productData.edgeRight - productData.edgeLeft);
-  let ySpacing = imageHeight / (productData.edgeTop - productData.edgeBottom);
-  for (const [holdId, coords] of Object.entries(holds)) {
-    if (
-      coords[0] <= productData.edgeLeft ||
-      coords[0] >= productData.edgeRight ||
-      coords[1] <= productData.edgeBottom ||
-      coords[1] >= productData.edgeTop
-    ) {
+  const edgeLeft = productDimensions[0];
+  const edgeRight = productDimensions[1];
+  const edgeBottom = productDimensions[2];
+  const edgeTop = productDimensions[3];
+
+  let xSpacing = imageWidth / (edgeRight - edgeLeft);
+  let ySpacing = imageHeight / (edgeTop - edgeBottom);
+  for (const [holdId, x, y] of holds) {
+    if (x <= edgeLeft || x >= edgeRight || y <= edgeBottom || y >= edgeTop) {
       continue;
     }
-    let x = (coords[0] - productData.edgeLeft) * xSpacing;
-    let y = imageHeight - (coords[1] - productData.edgeBottom) * ySpacing;
+    let xPixel = (x - edgeLeft) * xSpacing;
+    let yPixel = imageHeight - (y - edgeBottom) * ySpacing;
     let circle = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "circle"
     );
     circle.setAttribute("id", `hold-${holdId}`);
-    circle.setAttribute("cx", x);
-    circle.setAttribute("cy", y);
+    circle.setAttribute("cx", xPixel);
+    circle.setAttribute("cy", yPixel);
     circle.setAttribute("r", xSpacing * 4);
     circle.setAttribute("fill-opacity", 0.0);
     circle.setAttribute("stroke-opacity", 0.0);

@@ -1,143 +1,118 @@
-function onFilterCircleClick(event) {
-  const holdId = event.target.id.split("-")[1];
-  const currentColor = event.target.getAttribute("stroke");
-  let currentIndex = colors.indexOf(currentColor);
-  let nextIndex = currentIndex + 1;
-  const holdFilterInput = document.getElementById("input-hold-filter");
-  if (nextIndex >= colors.length) {
-    event.target.setAttribute("stroke-opacity", 0.0);
-    event.target.setAttribute("stroke", "black");
-    holdFilterInput.value = holdFilterInput.value.replace(
-      `p${holdId}r${colorsToString[currentColor]}`,
-      ""
-    );
-  } else {
-    event.target.setAttribute("stroke", colors[nextIndex]);
-    event.target.setAttribute("stroke-opacity", 1.0);
-    if (currentIndex == -1) {
-      holdFilterInput.value += `p${holdId}r${
-        colorsToString[colors[nextIndex]]
-      }`;
-    } else {
-      holdFilterInput.value = holdFilterInput.value.replace(
-        `p${holdId}r${colorsToString[currentColor]}`,
-        `p${holdId}r${colorsToString[colors[nextIndex]]}`
-      );
+const LAYOUTS_SQL = `
+SELECT id, name
+FROM layouts
+WHERE is_listed=1
+AND password IS NULL;
+`;
+
+const PRODUCT_SIZES_SQL = `
+SELECT 
+    product_sizes.id,
+    product_sizes.name,
+    product_sizes.description
+FROM product_sizes
+INNER JOIN layouts
+ON product_sizes.product_id = layouts.product_id
+WHERE layouts.id = $layoutId
+`;
+
+const SETS_SQL = `
+SELECT 
+    sets.id,
+    sets.name
+FROM sets
+INNER JOIN product_sizes_layouts_sets psls on sets.id = psls.set_id
+WHERE psls.product_size_id = $productSizeId
+AND psls.layout_id = $layoutId
+`;
+
+function populateLayouts(db) {
+  const results = db.exec(LAYOUTS_SQL);
+  const layoutSelect = document.getElementById("select-layout");
+  for (const [layoutId, layoutName] of results[0].values) {
+    let option = document.createElement("option");
+    option.text = layoutName;
+    option.value = layoutId;
+    layoutSelect.appendChild(option);
+  }
+  layoutSelect.addEventListener("change", function (event) {
+    populateSizes(db, event.target.value);
+  });
+  populateSizes(db, layoutSelect.value);
+}
+
+function populateSizes(db, layoutId) {
+  const results = db.exec(PRODUCT_SIZES_SQL, { $layoutId: layoutId });
+  const sizeSelect = document.getElementById("select-size");
+  sizeSelect.innerHTML = "";
+  for (const [sizeId, sizeName, sizeDescription] of results[0].values) {
+    let option = document.createElement("option");
+    option.text = `${sizeName} ${sizeDescription}`;
+    option.value = sizeId;
+    sizeSelect.appendChild(option);
+  }
+  sizeSelect.addEventListener("change", function (event) {
+    populateSets(db, layoutId, event.target.value);
+  });
+  populateSets(db, layoutId, sizeSelect.value);
+}
+
+function populateSets(db, layoutId, productSizeId) {
+  const results = db.exec(SETS_SQL, {
+    $layoutId: layoutId,
+    $productSizeId: productSizeId,
+  });
+  console.log(results);
+  const setsDiv = document.getElementById("div-sets");
+  setsDiv.innerHTML = "";
+  for (const [setId, setName] of results[0].values) {
+    const inputGroupDiv = document.createElement("div");
+    inputGroupDiv.className = "input-group mb-3";
+    setsDiv.appendChild(inputGroupDiv);
+
+    const span = document.createElement("span");
+    span.className = "input-group-text";
+    span.textContent = setName;
+    inputGroupDiv.appendChild(span);
+
+    const select = document.createElement("select");
+    select.className = "form-select";
+    select.setAttribute("data-set-id", setId);
+    select.addEventListener("change", updateSetsInput);
+    inputGroupDiv.appendChild(select);
+
+    const optionEnabled = document.createElement("option");
+    optionEnabled.text = "Enabled";
+    optionEnabled.value = true;
+    optionEnabled.selected = true;
+    select.appendChild(optionEnabled);
+
+    const optionDisabled = document.createElement("option");
+    optionDisabled.text = "Disabled";
+    optionDisabled.value = false;
+    select.appendChild(optionDisabled);
+  }
+  updateSetsInput();
+}
+
+function updateSetsInput() {
+  const setsDiv = document.getElementById("div-sets");
+  const setsInputsDiv = document.getElementById("div-sets-inputs");
+  setsInputsDiv.innerHTML = "";
+  let isOneSetEnabled = false;
+  for (const select of setsDiv.querySelectorAll("select")) {
+    if (select.value === "true") {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "set";
+      input.value = select.getAttribute("data-set-id");
+      setsInputsDiv.appendChild(input);
+      isOneSetEnabled = true;
     }
   }
+  document.getElementById("button-next").disabled = !isOneSetEnabled;
 }
 
-function updateMaxOnMinChange(event) {
-  const minGradeFilter = event.target;
-  const maxGradeFilter = document.getElementById("max-grade-filter");
-  if (minGradeFilter.value > maxGradeFilter.value) {
-    maxGradeFilter.value = minGradeFilter.value;
-    maxGradeFilter.text = minGradeFilter.text;
-  }
-}
-
-function updateMinOnMaxChange(event) {
-  const minGradeFilter = document.getElementById("min-grade-filter");
-  const maxGradeFilter = event.target;
-  if (minGradeFilter.value > maxGradeFilter.value) {
-    minGradeFilter.value = maxGradeFilter.value;
-    minGradeFilter.text = maxGradeFilter.text;
-  }
-}
-
-function updateProductSize(holds, products, productSizeId) {
-  const productData = products[productSizeId];
-  const imageDir = `media/${productSizeId}`;
-  const holdFilterSvg = document.getElementById("svg-hold-filter");
-  holdFilterSvg.innerHTML = "";
-  holdFilterSvg.appendChild(getImageElement(imageDir, 0));
-  holdFilterSvg.appendChild(getImageElement(imageDir, 1));
-
-  const image = new Image();
-  image.onload = function () {
-    holdFilterSvg.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
-    drawHoldCircles(
-      holdFilterSvg,
-      holds,
-      image.width,
-      image.height,
-      productData,
-      onFilterCircleClick
-    );
-  };
-  image.src = `${imageDir}/0.png`;
-  document.getElementById("input-hold-filter").value = "";
-}
-
-function populateFilters(angles, grades, holds, products) {
-  const boardSelect = document.getElementById("select-board");
-  for (const [productId, productData] of Object.entries(products)) {
-    let option = document.createElement("option");
-    option.text = productData.name;
-    option.value = productId;
-    option.addEventListener("change", function (event) {
-      updateProductSize(products, holds, event.target.value);
-    });
-    boardSelect.appendChild(option);
-  }
-  boardSelect.addEventListener("change", function (event) {
-    updateProductSize(holds, products, event.target.value);
-  });
-
-  const angleSelect = document.getElementById("select-angle");
-  for (const angle of angles) {
-    let option = document.createElement("option");
-    option.value = angle;
-    option.text = angle;
-    angleSelect.appendChild(option);
-  }
-
-  const minGradeSelect = document.getElementById("select-min-grade");
-  const maxGradeSelect = document.getElementById("select-max-grade");
-
-  for (const [difficulty, boulderName] of Object.entries(grades)) {
-    let option = document.createElement("option");
-    option.value = difficulty;
-    option.text = boulderName;
-    minGradeSelect.appendChild(option);
-    maxGradeSelect.appendChild(option.cloneNode(true));
-  }
-
-  minGradeSelect.addEventListener("change", updateMaxOnMinChange);
-  maxGradeSelect.addEventListener("change", updateMinOnMaxChange);
-}
-
-function setFilterDefaults(grades, holds, products) {
-  const boardSelect = document.getElementById("select-board");
-  boardSelect.value = "10";
-  updateProductSize(holds, products, "10");
-
-  const angleSelect = document.getElementById("select-angle");
-  angleSelect.value = "any";
-
-  const gradeNumbers = Object.keys(grades).map(Number);
-  gradeNumbers.sort();
-
-  const minGradeSelect = document.getElementById("select-min-grade");
-  minGradeSelect.value = gradeNumbers[0];
-
-  const maxGradeSelect = document.getElementById("select-max-grade");
-  maxGradeSelect.value = gradeNumbers[gradeNumbers.length - 1];
-}
-
-document
-  .getElementById("div-hold-filter")
-  .addEventListener("shown.bs.collapse", function (event) {
-    event.target.scrollIntoView(true);
-  });
-
-getData("angles")().then((angles) => {
-  getData("grades")().then((grades) => {
-    getData("products")().then((products) => {
-      getData("holds")().then((holds) => {
-        populateFilters(angles, grades, holds, products);
-        setFilterDefaults(grades, holds, products);
-      });
-    });
-  });
+getDatabase("kilter").then((db) => {
+  populateLayouts(db);
 });
