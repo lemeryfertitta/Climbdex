@@ -1,17 +1,3 @@
-const colors = ["#4cf0fd", "#00ff00", "#fbe400", "#ff00ff"];
-const colorsToString = {
-  "#4cf0fd": "13",
-  "#00ff00": "12",
-  "#fbe400": "15",
-  "#ff00ff": "14",
-};
-const stringToColors = {
-  13: "#4cf0fd",
-  12: "#00ff00",
-  15: "#fbe400",
-  14: "#ff00ff",
-};
-
 function getImageElement(imagePath) {
   const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
   image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", imagePath);
@@ -146,4 +132,21 @@ function drawBoard(
     };
     image.src = imageUrl;
   }
+}
+
+function getColors(db, layoutId) {
+  const colorSql = `
+    SELECT 
+      placement_roles.id,
+      '#' || placement_roles.screen_color
+    FROM placement_roles
+    JOIN layouts
+    ON layouts.product_id = placement_roles.product_id
+    WHERE layouts.id = ${layoutId};
+  `;
+  const colorMap = {};
+  for (const [id, color] of db.exec(colorSql)[0].values) {
+    colorMap[id] = color;
+  }
+  return colorMap;
 }

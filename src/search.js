@@ -16,30 +16,38 @@ WHERE is_listed = 1
 ORDER BY difficulty ASC
 `;
 
-function onFilterCircleClick(event) {
-  const holdId = event.target.id.split("-")[1];
-  const currentColor = event.target.getAttribute("stroke");
-  let currentIndex = colors.indexOf(currentColor);
+function onFilterCircleClick(circleElement, colors) {
+  const holdId = circleElement.id.split("-")[1];
+  const currentColor = circleElement.getAttribute("stroke");
+
+  const colorList = Object.keys(colors)
+    .sort()
+    .map((colorId) => colors[colorId]);
+
+  const colorsToId = {};
+  for (const colorId of Object.keys(colors)) {
+    colorsToId[colors[colorId]] = colorId;
+  }
+
+  let currentIndex = colorList.indexOf(currentColor);
   let nextIndex = currentIndex + 1;
   const holdFilterInput = document.getElementById("input-hold-filter");
-  if (nextIndex >= colors.length) {
-    event.target.setAttribute("stroke-opacity", 0.0);
-    event.target.setAttribute("stroke", "black");
+  if (nextIndex >= colorList.length) {
+    circleElement.setAttribute("stroke-opacity", 0.0);
+    circleElement.setAttribute("stroke", "black");
     holdFilterInput.value = holdFilterInput.value.replace(
-      `p${holdId}r${colorsToString[currentColor]}`,
+      `p${holdId}r${colorsToId[currentColor]}`,
       ""
     );
   } else {
-    event.target.setAttribute("stroke", colors[nextIndex]);
-    event.target.setAttribute("stroke-opacity", 1.0);
+    circleElement.setAttribute("stroke", `${colorList[nextIndex]}`);
+    circleElement.setAttribute("stroke-opacity", 1.0);
     if (currentIndex == -1) {
-      holdFilterInput.value += `p${holdId}r${
-        colorsToString[colors[nextIndex]]
-      }`;
+      holdFilterInput.value += `p${holdId}r${colorsToId[colorList[nextIndex]]}`;
     } else {
       holdFilterInput.value = holdFilterInput.value.replace(
-        `p${holdId}r${colorsToString[currentColor]}`,
-        `p${holdId}r${colorsToString[colors[nextIndex]]}`
+        `p${holdId}r${colorsToId[currentColor]}`,
+        `p${holdId}r${colorsToId[colorList[nextIndex]]}`
       );
     }
   }
@@ -125,6 +133,8 @@ getDatabase("kilter").then((db) => {
     params.get("layout"),
     params.get("size"),
     params.getAll("set"),
-    onFilterCircleClick
+    (event) => {
+      onFilterCircleClick(event.target, getColors(db, params.get("layout")));
+    }
   );
 });
