@@ -68,7 +68,7 @@ function drawResultsPage(pageNumber, resultsPerPage, results, colors) {
   } of ${numPages}`;
   const drawFunc = function (pageNumber) {
     return function () {
-      drawResultsPage(pageNumber, resultsPerPage, results);
+      drawResultsPage(pageNumber, resultsPerPage, results, colors);
     };
   };
   document.getElementById("first-page").onclick = drawFunc(0);
@@ -158,7 +158,7 @@ function search(db, params) {
 
 const resultsPerPage = 10;
 const params = new URLSearchParams(window.location.search);
-getDatabase("kilter").then((db) => {
+getDatabase("data/tension/db.sqlite3.gz").then((db) => {
   drawBoard(
     document.getElementById("svg-climb"),
     db,
@@ -176,58 +176,3 @@ getDatabase("kilter").then((db) => {
     drawResultsPage(0, resultsPerPage, climbs, colors);
   }
 });
-
-// getData("products")().then((products) => {
-//   getData("holds")().then((holds) => {
-//     drawBoard(products, holds, params.get("board"));
-//     getData("climbs")().then((climbs) => {
-//       getData("climbStats")().then((climbStats) => {
-//         getData("grades")().then((grades) => {
-//           const filteredClimbs = filterClimbs(
-//             params,
-//             climbs,
-//             climbStats,
-//             products[params.get("board")]
-//           );
-//           let resultsCountHeader = document.getElementById(
-//             "header-results-count"
-//           );
-//           resultsCountHeader.textContent = `Found ${filteredClimbs.length} matching climbs`;
-
-//           let filtersParagraph = document.getElementById("paragraph-filters");
-//           filtersParagraph.textContent = `Showing problems with ${
-//             params.get("holds").split("p").length - 1
-//           } selected hold(s), at ${params.get("angle")} degrees, between ${
-//             grades[params.get("minGrade")]
-//           } and ${grades[params.get("maxGrade")]}, with at least ${params.get(
-//             "minAscents"
-//           )} ascents and an average rating of ${params.get(
-//             "minRating"
-//           )} star(s) or more, sorted by ${params.get("sortBy")}, ${params.get(
-//             "sortOrder"
-//           )}.`;
-
-//           sortClimbs(filteredClimbs, climbStats, params);
-//           drawResultsPage(
-//             0,
-//             resultsPerPage,
-//             filteredClimbs,
-//             climbs,
-//             climbStats,
-//             grades
-//           );
-//           if (filteredClimbs.length > 0) {
-//             drawClimb(
-//               filteredClimbs[0][0],
-//               climbs[filteredClimbs[0][0]],
-//               climbStats[filteredClimbs[0][0]],
-//               grades
-//             );
-//             const matchResults = document.getElementById("div-results-list");
-//             matchResults.children[0].classList.add("active");
-//           }
-//         });
-//       });
-//     });
-//   });
-// });

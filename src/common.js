@@ -4,12 +4,15 @@ function getImageElement(imagePath) {
   return image;
 }
 
-async function getDatabase(databaseName) {
+async function getDatabase(databasePath) {
   const sqlJs = await initSqlJs({
     locateFile: (filename) => `/lib/sqljs-wasm/${filename}`,
   });
-  const response = await fetch(`tmp/${databaseName}.sqlite3`);
-  const arrayBuffer = await response.arrayBuffer();
+  const response = await fetch(databasePath);
+  const decodedStream = response.body
+        .pipeThrough(new DecompressionStream("gzip"));
+  
+  const arrayBuffer = await new Response(decodedStream).arrayBuffer();
   return new sqlJs.Database(new Uint8Array(arrayBuffer));
 }
 
@@ -76,7 +79,8 @@ function drawBoard(
   const [edgeLeft, edgeRight, edgeBottom, edgeTop] =
     productSizesResults[0].values[0];
 
-  const imageBaseUrl = `https://api.kilterboardapp.com/img`;
+  // const imageBaseUrl ="https://api.kilterboardapp.com/img";
+  const imageBaseUrl = "https://api.tensionboardapp2.com/img";
   const holdsSql = `
     SELECT 
       placements.id,

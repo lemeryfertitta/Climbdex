@@ -123,7 +123,7 @@ for (const [key, value] of params) {
   indexParamsInputDiv.appendChild(input);
 }
 
-getDatabase("kilter").then((db) => {
+getDatabase("data/tension/metadata.sqlite3.gz").then((db) => {
   console.log(params.getAll("set"));
   populateAngleSelect(db, params.get("layout"));
   populateGradeSelects(db);

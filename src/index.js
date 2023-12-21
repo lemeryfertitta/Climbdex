@@ -113,6 +113,6 @@ function updateSetsInput() {
   document.getElementById("button-next").disabled = !isOneSetEnabled;
 }
 
-getDatabase("kilter").then((db) => {
+getDatabase("data/tension/metadata.sqlite3.gz").then((db) => {
   populateLayouts(db);
 });
