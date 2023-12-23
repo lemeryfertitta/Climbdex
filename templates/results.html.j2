@@ -16,12 +16,13 @@
     {% include 'heading.html.j2' %}
     <div class="row justify-content-md-center">
       <div class="col-md-5 card p-3 g-2">
-        <h5 id="header-results-count"></h5>
-        <p id="paragraph-filters"></p>
+        <h4 id="header-results-count"></h4>
         <div id="div-results-list" class="list-group"></div>
       </div>
       <div class="col-md-5 card p-3 g-2">
         <h4 id="header-climb-name"></h4>
+        <h6 id="header-climb-setter"></h6>
+        <p id="paragraph-climb-stats"></p>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
     </div>
@@ -30,6 +31,7 @@
     </div>
     <script src="{{url_for('static', filename='js/common.js')}}"></script>
     <script>
+      const appUrl = "{{ app_url }}";
       const colors = {{ colors | tojson}};
       drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
     </script>

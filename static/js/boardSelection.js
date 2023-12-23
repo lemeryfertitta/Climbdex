@@ -1,7 +1,8 @@
-function populateLayouts() {
-  fetch("/api/v1/layouts").then((response) => {
+function populateLayouts(boardName) {
+  fetch(`/api/v1/${boardName}/layouts`).then((response) => {
     response.json().then((layouts) => {
       const layoutSelect = document.getElementById("select-layout");
+      layoutSelect.innerHTML = "";
       for (const [layoutId, layoutName] of layouts) {
         let option = document.createElement("option");
         option.text = layoutName;
@@ -9,15 +10,15 @@ function populateLayouts() {
         layoutSelect.appendChild(option);
       }
       layoutSelect.addEventListener("change", function (event) {
-        populateSizes(event.target.value);
+        populateSizes(boardName, event.target.value);
       });
-      populateSizes(layoutSelect.value);
+      populateSizes(boardName, layoutSelect.value);
     });
   });
 }
 
-function populateSizes(layoutId) {
-  fetch(`/api/v1/layouts/${layoutId}/sizes`).then((response) => {
+function populateSizes(boardName, layoutId) {
+  fetch(`/api/v1/${boardName}/layouts/${layoutId}/sizes`).then((response) => {
     response.json().then((sizes) => {
       const sizeSelect = document.getElementById("select-size");
       sizeSelect.innerHTML = "";
@@ -28,50 +29,51 @@ function populateSizes(layoutId) {
         sizeSelect.appendChild(option);
       }
       sizeSelect.addEventListener("change", function (event) {
-        populateSets(layoutId, event.target.value);
+        populateSets(boardName, layoutId, event.target.value);
       });
-      populateSets(layoutId, sizeSelect.value);
+      populateSets(boardName, layoutId, sizeSelect.value);
     });
   });
 }
 
-function populateSets(layoutId, productSizeId) {
-  fetch(`/api/v1/layouts/${layoutId}/sizes/${productSizeId}/sets`).then(
-    (response) => {
-      response.json().then((sets) => {
-        const setsDiv = document.getElementById("div-sets");
-        setsDiv.innerHTML = "";
-        for (const [setId, setName] of sets) {
-          const inputGroupDiv = document.createElement("div");
-          inputGroupDiv.className = "input-group mb-3";
-          setsDiv.appendChild(inputGroupDiv);
+function populateSets(boardName, layoutId, productSizeId) {
+  fetch(
+    `/api/v1/${boardName}/layouts/${layoutId}/sizes/${productSizeId}/sets`
+  ).then((response) => {
+    response.json().then((sets) => {
+      const setsDiv = document.getElementById("div-sets");
+      setsDiv.innerHTML = "";
+      for (const [setId, setName] of sets) {
+        const inputGroupDiv = document.createElement("div");
+        inputGroupDiv.className = "input-group mb-3";
+        setsDiv.appendChild(inputGroupDiv);
 
-          const span = document.createElement("span");
-          span.className = "input-group-text";
-          span.textContent = setName;
-          inputGroupDiv.appendChild(span);
+        const span = document.createElement("span");
+        span.className = "input-group-text";
+        span.textContent = setName;
+        inputGroupDiv.appendChild(span);
 
-          const select = document.createElement("select");
-          select.className = "form-select";
-          select.setAttribute("data-set-id", setId);
-          select.addEventListener("change", updateSetsInput);
-          inputGroupDiv.appendChild(select);
+        const select = document.createElement("select");
+        select.className = "form-select";
+        select.setAttribute("data-set-id", setId);
+        select.addEventListener("change", updateSetsInput);
+        inputGroupDiv.appendChild(select);
 
-          const optionEnabled = document.createElement("option");
-          optionEnabled.text = "Enabled";
-          optionEnabled.value = true;
-          optionEnabled.selected = true;
-          select.appendChild(optionEnabled);
+        const optionEnabled = document.createElement("option");
+        optionEnabled.text = "Enabled";
+        optionEnabled.value = true;
+        optionEnabled.selected = true;
+        select.appendChild(optionEnabled);
 
-          const optionDisabled = document.createElement("option");
-          optionDisabled.text = "Disabled";
-          optionDisabled.value = false;
-          select.appendChild(optionDisabled);
-        }
-        updateSetsInput();
-      });
-    }
-  );
+        const optionDisabled = document.createElement("option");
+        optionDisabled.text = "Disabled (coming soon)";
+        optionDisabled.value = false;
+        optionDisabled.disabled = true;
+        select.appendChild(optionDisabled);
+      }
+      updateSetsInput();
+    });
+  });
 }
 
 function updateSetsInput() {
@@ -92,4 +94,9 @@ function updateSetsInput() {
   document.getElementById("button-next").disabled = !isOneSetEnabled;
 }
 
-populateLayouts();
+const boardSelect = document.getElementById("select-board");
+boardSelect.addEventListener("change", function (event) {
+  populateLayouts(event.target.value);
+});
+
+populateLayouts(boardSelect.value);
