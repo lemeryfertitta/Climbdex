@@ -3,7 +3,7 @@ import sqlite3
 
 app = flask.Flask(__name__)
 
-DATABASE = "tmp/kilter.sqlite3"
+DATABASE = "data/kilter/db.sqlite3"
 
 ANGLES_SQL = """
 SELECT
@@ -187,19 +187,21 @@ def search():
     holds = flask.request.args.get("holds")
     if holds:
         sql += " AND climbs.frames LIKE $like_string"
-        like_string_center = sorted(
-            f"p{hold_string}"
-            for hold_string in holds.split("p")
-            if hold_string.length > 0
-        ).join("%")
+        like_string_center = "%".join(
+            sorted(
+                f"p{hold_string}"
+                for hold_string in holds.split("p")
+                if len(hold_string) > 0
+            )
+        )
         like_string = f"%{like_string_center}%"
         binds["like_string"] = like_string
 
     order_by_sql_name = {
         "ascents": "climb_stats.ascensionist_count",
-        "grade": "climb_stats.display_difficulty",
+        "difficulty": "climb_stats.display_difficulty",
         "name": "climbs.name",
-        "rating": "climb_stats.quality_average",
+        "quality": "climb_stats.quality_average",
     }[flask.request.args.get("sortBy")]
     sort_order = "ASC" if flask.request.args.get("sortOrder") == "asc" else "DESC"
     sql += f" ORDER BY {order_by_sql_name} {sort_order}"
