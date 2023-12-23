@@ -1,3 +1,4 @@
-tmp
+data/
+tmp/
 .DS_STORE
-.venv
+.venv/

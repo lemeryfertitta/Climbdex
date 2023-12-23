@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html.j2'%}
+  <style>
+    .input-group-text {
+      width: 175px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-sm text-center">
+    {% include 'heading.html.j2' %}
+    <div class="row justify-content-md-center">
+      <div class="col-md-5">
+        <form class="card p-3 bg-light" action="/filter">
+          <div class="input-group mb-3">
+            <span class="input-group-text">Board</span>
+            <select class="form-select" id="select-board" name="board">
+              <option value="aurora" disabled>Aurora (coming soon!)</option>
+              <option value="decoy" disabled>Decoy (coming soon!)</option>
+              <option value="decoy" disabled>
+                Grasshopper (coming soon!)
+              </option>
+              <option value="kilter" selected>Kilter</option>
+              <option value="tension" disabled>Tension (coming soon!)</option>
+              <option value="touchstone" disabled>
+                Touchstone (coming soon!)
+              </option>
+            </select>
+          </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Layout</span>
+            <select class="form-select" id="select-layout" name="layout">
+            </select>
+          </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Size</span>
+            <select class="form-select" id="select-size" name="size"></select>
+          </div>
+          <div id="div-sets"></div>
+          <div id="div-sets-inputs"></div>
+          <div class="input-group mb-3 d-grid gap-2">
+            <button class="btn btn-primary" type="submit" id="button-next" disabled>
+              Next
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row justify-content-md-center mt-3">
+      {% include 'footer.html.j2'%}
+    </div>
+  </div>
+  <script src="{{url_for('static', filename='js/boardSelection.js')}}"></script>
+</body>
+
+</html>
