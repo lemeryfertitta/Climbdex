@@ -1,1 +1,1 @@
-web: gunicorn climbdex:create_app()
+web: gunicorn wsgi:app
