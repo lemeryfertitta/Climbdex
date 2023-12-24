@@ -70,10 +70,10 @@ QUERIES = {
         AND climbs.is_draft = 0
         AND climbs.is_listed = 1
         AND climbs.layout_id = $layout_id
-        AND climbs.edge_left >= product_sizes.edge_left
-        AND climbs.edge_right <= product_sizes.edge_right
-        AND climbs.edge_bottom >= product_sizes.edge_bottom
-        AND climbs.edge_top <= product_sizes.edge_top
+        AND climbs.edge_left > product_sizes.edge_left
+        AND climbs.edge_right < product_sizes.edge_right
+        AND climbs.edge_bottom > product_sizes.edge_bottom
+        AND climbs.edge_top < product_sizes.edge_top
         AND climb_stats.ascensionist_count >= $min_ascents
         AND climb_stats.display_difficulty BETWEEN $min_grade AND $max_grade
         AND climb_stats.quality_average >= $min_rating
@@ -154,9 +154,8 @@ def get_search_results(args):
 
     database = get_board_database(flask.request.args.get("board"))
     cursor = database.cursor()
-    results = cursor.execute(limited_sql, binds).fetchall()
-    print(results)
-    return results
+    cursor.execute(limited_sql, binds)
+    return cursor.fetchall()
 
 
 def get_search_base_sql_and_binds(args):
