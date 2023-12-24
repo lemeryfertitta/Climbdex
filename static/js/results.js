@@ -29,6 +29,7 @@ function drawClimb(uuid, name, frames, setter, difficultyAngleText) {
   const climbNameHeader = document.getElementById("header-climb-name");
   climbNameHeader.innerHTML = "";
   climbNameHeader.appendChild(anchor);
+  climbNameHeader.scrollIntoView(true);
 
   const climbSetterHeader = document.getElementById("header-climb-setter");
   climbSetterHeader.textContent = `by ${setter}`;
@@ -101,6 +102,15 @@ function drawResultsPage(pageNumber, pageSize) {
         drawResultsPage(pageNumber + 1, pageSize);
       }
     };
+  });
+}
+
+const backAnchor = document.getElementById("anchor-back");
+backAnchor.href = location.origin + "/filter?" + location.search;
+if (document.referrer && new URL(document.referrer).origin == location.origin) {
+  backAnchor.addEventListener("click", function (event) {
+    event.preventDefault();
+    history.back();
   });
 }
 

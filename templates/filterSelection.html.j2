@@ -16,6 +16,8 @@
     <div class="row justify-content-md-center">
       <div class="col-md-5">
         <form class="card p-3 bg-light" id="form-search" action="/results">
+          <p class="mb-2">Setup: {{board_name.capitalize()}} - {{layout_name}} - {{size_name}}</p>
+          <p class="mb-3"><small><a id="anchor-back">Back to setup selection</a></small></p>
           <div class="input-group mb-3">
             <span class="input-group-text">Angle</span>
             <select class="form-select" id="select-angle" name="angle">
@@ -66,14 +68,18 @@
           <div class="input-group mb-3 d-grid gap-2">
             <button class="btn btn-secondary" id="hold-filter-button" data-bs-toggle="collapse"
               data-bs-target="#div-hold-filter" type="button">
-              Holds
+              Filtered Holds
             </button>
             <input type="hidden" id="input-hold-filter" name="holds" />
             {% for param_name, param_value in params.items(multi=True)%}
             <input type="hidden" name="{{param_name}}" value="{{param_value}}" />
             {% endfor %}
             <div class="collapse" id="div-hold-filter">
-              <svg id="svg-hold-filter" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
+              <svg class="vh-100" id="svg-hold-filter" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
+              <div class="input-group mb-3 d-grid gap-2">
+                <button class="btn btn-warning" type="button" id="button-reset-hold-filter">Reset Hold
+                  Filter</button>
+              </div>
             </div>
           </div>
           <div class="input-group mb-3 d-grid gap-2">

@@ -52,6 +52,12 @@ WHERE is_listed=1
 AND password IS NULL;
 """
 
+LAYOUT_NAME_SQL = """
+SELECT name
+FROM layouts
+WHERE id = $layout_id
+"""
+
 IMAGE_FILENAME_SQL = """
 SELECT 
     image_filename
@@ -111,6 +117,16 @@ FROM sets
 INNER JOIN product_sizes_layouts_sets psls on sets.id = psls.set_id
 WHERE psls.product_size_id = $size_id
 AND psls.layout_id = $layout_id
+"""
+
+SIZE_NAME_SQL = """
+SELECT
+    product_sizes.name
+FROM product_sizes
+INNER JOIN layouts
+ON product_sizes.product_id = layouts.product_id
+WHERE layouts.id = $layout_id
+AND product_sizes.id = $size_id
 """
 
 SIZES_SQL = """
@@ -221,10 +237,16 @@ def filter():
     grades = cursor.fetchall()
     cursor.execute(COLORS_SQL, {"layout_id": layout_id})
     colors = cursor.fetchall()
-
+    cursor.execute(LAYOUT_NAME_SQL, {"layout_id": layout_id})
+    layout_name = cursor.fetchone()[0]
+    cursor.execute(SIZE_NAME_SQL, {"layout_id": layout_id, "size_id": size_id})
+    size_name = cursor.fetchone()[0]
     return flask.render_template(
         "filterSelection.html.j2",
         params=flask.request.args,
+        board_name=board_name,
+        layout_name=layout_name,
+        size_name=size_name,
         angles=angles,
         grades=grades,
         colors=colors,

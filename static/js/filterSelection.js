@@ -45,6 +45,19 @@ function updateMinOnMaxChange(event) {
   }
 }
 
+function resetHoldFilter() {
+  const holdFilterInput = document.getElementById("input-hold-filter");
+  holdFilterInput.value = "";
+  const circles = document.getElementsByTagNameNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  for (const circle of circles) {
+    circle.setAttribute("stroke-opacity", 0.0);
+    circle.setAttribute("stroke", "black");
+  }
+}
+
 document
   .getElementById("div-hold-filter")
   .addEventListener("shown.bs.collapse", function (event) {
@@ -54,6 +67,23 @@ document
 document
   .getElementById("select-min-grade")
   .addEventListener("change", updateMaxOnMinChange);
+
 document
   .getElementById("select-max-grade")
   .addEventListener("change", updateMinOnMaxChange);
+
+document
+  .getElementById("button-reset-hold-filter")
+  .addEventListener("click", resetHoldFilter);
+
+const backAnchor = document.getElementById("anchor-back");
+backAnchor.href = location.origin;
+if (document.referrer) {
+  referrerUrl = new URL(document.referrer);
+  if (referrerUrl.origin == location.origin && referrerUrl.pathname == "/") {
+    backAnchor.addEventListener("click", function (event) {
+      event.preventDefault();
+      history.back();
+    });
+  }
+}
