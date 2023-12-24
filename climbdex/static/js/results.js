@@ -83,14 +83,18 @@ function drawResultsPage(pageNumber, pageSize) {
         rating,
       ] = result;
 
-      const difficultyAngleText = `${difficulty} at ${angle}\u00B0`;
+      const difficultyAngleText =
+        difficulty && angle ? `${difficulty} at ${angle}\u00B0` : "";
       listButton.addEventListener("click", function () {
         drawClimb(uuid, name, frames, setter, difficultyAngleText);
       });
       const nameText = document.createElement("p");
-      nameText.textContent = `${name} (${difficultyAngleText})`;
+      nameText.textContent = `${name} ${difficultyAngleText}`;
       const statsText = document.createElement("p");
-      statsText.textContent = `${ascents} ascents, ${rating.toFixed(2)}\u2605`;
+      statsText.textContent =
+        ascents && rating
+          ? `${ascents} ascents, ${rating.toFixed(2)}\u2605`
+          : "";
       statsText.classList.add("fw-light");
       listButton.appendChild(nameText);
       listButton.appendChild(statsText);
