@@ -1,3 +1,5 @@
+import re
+
 import flask
 import sqlite3
 
@@ -175,13 +177,13 @@ def get_search_base_sql_and_binds(args):
         binds["angle"] = angle
 
     holds = args.get("holds")
+    match_roles = args.get("roleMatch") == "strict"
     if holds:
         sql += " AND climbs.frames LIKE $like_string"
         like_string_center = "%".join(
             sorted(
-                f"p{hold_string}"
-                for hold_string in holds.split("p")
-                if len(hold_string) > 0
+                f"p{hold_string if match_roles else hold_string.split('r')[0]}"
+                for hold_string in holds.split("p")[1:]
             )
         )
         like_string = f"%{like_string_center}%"

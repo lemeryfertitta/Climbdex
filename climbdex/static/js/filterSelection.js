@@ -1,3 +1,10 @@
+function updateHoldFilterCount(delta) {
+  const holdFilterCount = document.getElementById("hold-filter-button");
+  const currentCount = Number(holdFilterCount.getAttribute("data-count"));
+  holdFilterCount.textContent = `${currentCount + delta} Selected Holds`;
+  holdFilterCount.setAttribute("data-count", currentCount + delta);
+}
+
 function onFilterCircleClick(circleElement, colorRows) {
   const holdId = circleElement.id.split("-")[1];
   const currentColor = circleElement.getAttribute("stroke");
@@ -13,11 +20,13 @@ function onFilterCircleClick(circleElement, colorRows) {
       `p${holdId}r${colorIds[currentIndex]}`,
       ""
     );
+    updateHoldFilterCount(-1);
   } else {
     circleElement.setAttribute("stroke", `${colors[nextIndex]}`);
     circleElement.setAttribute("stroke-opacity", 1.0);
     if (currentIndex == -1) {
       holdFilterInput.value += `p${holdId}r${colorIds[nextIndex]}`;
+      updateHoldFilterCount(1);
     } else {
       holdFilterInput.value = holdFilterInput.value.replace(
         `p${holdId}r${colorIds[currentIndex]}`,

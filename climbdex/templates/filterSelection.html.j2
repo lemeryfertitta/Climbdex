@@ -67,8 +67,8 @@
           </div>
           <div class="input-group mb-3 d-grid gap-2">
             <button class="btn btn-secondary" id="hold-filter-button" data-bs-toggle="collapse"
-              data-bs-target="#div-hold-filter" type="button">
-              Filtered Holds
+              data-bs-target="#div-hold-filter" data-count="0" type="button">
+              0 Selected Holds
             </button>
             <input type="hidden" id="input-hold-filter" name="holds" />
             {% for param_name, param_value in params.items(multi=True)%}
@@ -77,6 +77,13 @@
             <div class="collapse" id="div-hold-filter">
               <svg class="vh-100 mw-100" id="svg-hold-filter" viewbox="0 0 0 0"
                 xmlns="http://www.w3.org/2000/svg"></svg>
+              <div class="input-group mb-3">
+                <span class="input-group-text">Color Match</span>
+                <select class="form-select" id="select-min-grade" name="roleMatch">
+                  <option value="strict" selected>Strict</option>
+                  <option value="any">Any</option>
+                </select>
+              </div>
               <div class="input-group mb-3 d-grid gap-2">
                 <button class="btn btn-warning" type="button" id="button-reset-hold-filter">Reset Hold
                   Filter</button>
