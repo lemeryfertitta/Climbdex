@@ -182,7 +182,7 @@ def get_search_base_sql_and_binds(args):
         sql += " AND climbs.frames LIKE $like_string"
         like_string_center = "%".join(
             sorted(
-                f"p{hold_string if match_roles else hold_string.split('r')[0]}"
+                f"p{hold_string if match_roles else hold_string.split('r')[0] + 'r'}"
                 for hold_string in holds.split("p")[1:]
             )
         )
