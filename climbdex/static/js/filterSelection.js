@@ -65,6 +65,9 @@ function resetHoldFilter() {
     circle.setAttribute("stroke-opacity", 0.0);
     circle.setAttribute("stroke", "black");
   }
+  const holdFilterCount = document.getElementById("hold-filter-button");
+  holdFilterCount.textContent = `0 Selected Holds`;
+  holdFilterCount.setAttribute("data-count", 0);
 }
 
 document
