@@ -181,12 +181,16 @@ def get_search_base_sql_and_binds(args):
     if holds:
         sql += " AND climbs.frames LIKE $like_string"
         like_string_center = "%".join(
-            sorted(
-                f"p{hold_string if match_roles else hold_string.split('r')[0] + 'r'}"
-                for hold_string in holds.split("p")[1:]
-            )
+            f"p{placement}r{role if match_roles else ''}"
+            for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0])
         )
         like_string = f"%{like_string_center}%"
         binds["like_string"] = like_string
 
     return sql, binds
+
+
+def iterframes(frames):
+    for frame in frames.split("p")[1:]:
+        placement, role = frame.split("r")
+        yield int(placement), int(role)
