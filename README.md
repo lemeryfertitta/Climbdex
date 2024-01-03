@@ -8,3 +8,14 @@ Try it out [here](https://climbdex.fly.dev/).
 This app was partially inspired by Tim Parkin's excellent [Moonboard Search Engine](http://mb.timparkin.net/).
 
 The databases are downloaded and synchronized using [BoardLib](https://github.com/lemeryfertitta/BoardLib). 
+
+## Features
+
+These are the features that Climbdex provides which are (as of last updating this document) not supported by the official apps:
+
+- Hold filter - select holds to require them to be present in the resulting climbs. Click again on the hold to change the color. If "strict" color matching is selected, the color of the hold must be an exact match. If "any" color matching is selected, the color of the holds will be ignored.
+- Minimum ascents and minimum rating filters - these can be used in combination with different sort categories to curate a better list of results. The apps offer sorting by these categories but do not offer control over minimums. Try filtering by a large number of ascents and then sorting by rating to get the best climbs.
+- Bookmarking - because filters are stored in query params, you can bookmark a board setup or a specific search results. For example, [the best Kilter V5s at 40°](https://climbdex.fly.dev/results?angle=40&minAscents=200&minRating=1.0&minGrade=20&maxGrade=21&sortBy=quality&sortOrder=desc&holds=&board=kilter&layout=1&size=10&set=1&set=20&roleMatch=strict) or the [TB2 10x8 Mirror layout](https://climbdex.fly.dev/filter?board=tension&layout=10&size=9&set=12&set=13).
+- Web access - no mobile app required. To light up the climbs, the mobile app is needed, but if app links are setup correctly, you can click on the climb name in Climbdex and be taken directly to the climb on the app.
+- All-in-one - all of the supported boards on one website, no app-switching required.
+
