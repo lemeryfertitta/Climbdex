@@ -5,7 +5,7 @@
   {% include 'head.html.j2'%}
   <style>
     .input-group-text {
-      width: 125px;
+      width: 150px;
     }
   </style>
 </head>
@@ -50,6 +50,14 @@
               {% for grade in grades %}
               <option value="{{grade[0]}}" {% if grade==grades[-1] %}selected{% endif %}>{{grade[1]}}</option>
               {% endfor %}
+            </select>
+          </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Grade Accuracy</span>
+            <select class="form-select" id="select-grade-accuracy" name="gradeAccuracy">
+              <option value="1" selected>Any</option>
+              <option value="0.2">Somewhat Accurate (&lt;0.2)</option>
+              <option value="0.1">Very Accurate (&lt;0.1)</option>
             </select>
           </div>
           <div class="input-group mb-3">

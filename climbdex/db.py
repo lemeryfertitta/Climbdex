@@ -77,8 +77,9 @@ QUERIES = {
         AND climbs.edge_bottom > product_sizes.edge_bottom
         AND climbs.edge_top < product_sizes.edge_top
         AND climb_stats.ascensionist_count >= $min_ascents
-        AND climb_stats.display_difficulty BETWEEN $min_grade AND $max_grade
+        AND ROUND(climb_stats.display_difficulty) BETWEEN $min_grade AND $max_grade
         AND climb_stats.quality_average >= $min_rating
+        AND ABS(ROUND(climb_stats.display_difficulty) - climb_stats.difficulty_average) <= $grade_accuracy
         """,
     "sets": """
         SELECT
@@ -163,18 +164,19 @@ def get_search_results(args):
 def get_search_base_sql_and_binds(args):
     sql = QUERIES["search"]
     binds = {
-        "layout_id": args.get("layout"),
-        "size_id": args.get("size"),
-        "min_ascents": args.get("minAscents"),
-        "min_grade": args.get("minGrade"),
-        "max_grade": args.get("maxGrade"),
-        "min_rating": args.get("minRating"),
+        "layout_id": int(args.get("layout")),
+        "size_id": int(args.get("size")),
+        "min_ascents": int(args.get("minAscents")),
+        "min_grade": int(args.get("minGrade")),
+        "max_grade": int(args.get("maxGrade")),
+        "min_rating": float(args.get("minRating")),
+        "grade_accuracy": float(args.get("gradeAccuracy")),
     }
 
     angle = args.get("angle")
     if angle and angle != "any":
         sql += " AND climb_stats.angle = $angle"
-        binds["angle"] = angle
+        binds["angle"] = int(angle)
 
     holds = args.get("holds")
     match_roles = args.get("roleMatch") == "strict"

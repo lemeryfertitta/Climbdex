@@ -13,7 +13,7 @@ def layouts(board_name):
 @blueprint.route("/api/v1/<board_name>/layouts/<layout_id>/sizes")
 def sizes(board_name, layout_id):
     return flask.jsonify(
-        climbdex.db.get_data(board_name, "sizes", {"layout_id": layout_id})
+        climbdex.db.get_data(board_name, "sizes", {"layout_id": int(layout_id)})
     )
 
 
@@ -21,7 +21,7 @@ def sizes(board_name, layout_id):
 def sets(board_name, layout_id, size_id):
     return flask.jsonify(
         climbdex.db.get_data(
-            board_name, "sets", {"layout_id": layout_id, "size_id": size_id}
+            board_name, "sets", {"layout_id": int(layout_id), "size_id": int(size_id)}
         )
     )
 
