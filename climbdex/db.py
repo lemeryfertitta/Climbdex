@@ -1,5 +1,3 @@
-import re
-
 import flask
 import sqlite3
 
