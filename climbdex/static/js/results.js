@@ -29,7 +29,8 @@ function drawClimb(uuid, name, frames, setter, difficultyAngleText) {
   const climbNameHeader = document.getElementById("header-climb-name");
   climbNameHeader.innerHTML = "";
   climbNameHeader.appendChild(anchor);
-  climbNameHeader.scrollIntoView(true);
+
+  document.getElementById("div-climb")?.scrollIntoView(true);
 
   const climbSetterHeader = document.getElementById("header-climb-setter");
   climbSetterHeader.textContent = `by ${setter}`;
