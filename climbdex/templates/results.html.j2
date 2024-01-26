@@ -21,9 +21,19 @@
         <div id="div-results-list" class="list-group"></div>
       </div>
       <div class="col-md-5 card p-3 g-2 vh-100" id="div-climb">
-        <h4 id="header-climb-name"></h4>
-        <h6 id="header-climb-setter"></h6>
-        <p id="paragraph-climb-stats"></p>
+        <div class="row">
+          <div class="col">
+            <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
+          </div>
+          <div class="col-8">
+            <h4 id="header-climb-name"></h4>
+            <h6 id="header-climb-setter"></h6>
+            <p id="paragraph-climb-stats"></p>
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
+          </div>
+        </div>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
     </div>

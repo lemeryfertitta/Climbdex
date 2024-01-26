@@ -39,14 +39,14 @@ function drawClimb(uuid, name, frames, setter, difficultyAngleText) {
   climbStatsParagraph.textContent = difficultyAngleText;
 }
 
-async function getResultsCount() {
+async function fetchResultsCount() {
   const urlParams = new URLSearchParams(window.location.search);
   const response = await fetch("/api/v1/search/count?" + urlParams);
   const resultsCount = await response.json();
   return resultsCount;
 }
 
-async function getResults(pageNumber, pageSize) {
+async function fetchResults(pageNumber, pageSize) {
   const urlParams = new URLSearchParams(window.location.search);
   urlParams.append("page", pageNumber);
   urlParams.append("pageSize", pageSize);
@@ -55,59 +55,75 @@ async function getResults(pageNumber, pageSize) {
   return results;
 }
 
-function drawResultsCount() {
-  getResultsCount().then((resultsCount) => {
-    const resultsCountHeader = document.getElementById("header-results-count");
-    resultsCountHeader.textContent = `Found ${resultsCount} matching climbs`;
-  });
+function clickClimbButton(index, pageSize, resultsCount) {
+  const button = document.querySelector(`button[data-index="${index}"]`);
+  if (button) {
+    button.click();
+  } else if (index > 0 && index < resultsCount - 1) {
+    const nextPageNumber = Math.floor(index / pageSize);
+    fetchResults(nextPageNumber, pageSize).then((results) => {
+      drawResultsPage(results, nextPageNumber, pageSize, resultsCount);
+      document.querySelector(`button[data-index="${index}"]`)?.click();
+    });
+  }
 }
 
-function drawResultsPage(pageNumber, pageSize) {
-  getResults(pageNumber, pageSize).then((results) => {
-    const resultsList = document.getElementById("div-results-list");
-    for (const result of results) {
-      let listButton = document.createElement("button");
-      listButton.setAttribute(
-        "class",
-        "list-group-item list-group-item-action"
-      );
+function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
+  const resultsList = document.getElementById("div-results-list");
+  for (const [index, result] of results.entries()) {
+    let listButton = document.createElement("button");
+    listButton.setAttribute("class", "list-group-item list-group-item-action");
+    listButton.setAttribute("data-index", pageNumber * pageSize + index);
 
-      const [
-        uuid,
-        setter,
-        name,
-        description,
-        frames,
-        angle,
-        ascents,
-        difficulty,
-        rating,
-      ] = result;
+    const [
+      uuid,
+      setter,
+      name,
+      description,
+      frames,
+      angle,
+      ascents,
+      difficulty,
+      rating,
+    ] = result;
 
-      const difficultyAngleText =
-        difficulty && angle ? `${difficulty} at ${angle}\u00B0` : "";
-      listButton.addEventListener("click", function () {
-        drawClimb(uuid, name, frames, setter, difficultyAngleText);
+    const difficultyAngleText =
+      difficulty && angle ? `${difficulty} at ${angle}\u00B0` : "";
+    listButton.addEventListener("click", function (event) {
+      const index = Number(event.currentTarget.getAttribute("data-index"));
+      const prevButton = document.getElementById("button-prev");
+      prevButton.onclick = function () {
+        clickClimbButton(index - 1, pageSize, resultsCount);
+      };
+      prevButton.disabled = index <= 0;
+      const nextButton = document.getElementById("button-next");
+      nextButton.disabled = index >= resultsCount - 1;
+      nextButton.onclick = function () {
+        clickClimbButton(index + 1, pageSize, resultsCount);
+      };
+      drawClimb(uuid, name, frames, setter, difficultyAngleText);
+    });
+    const nameText = document.createElement("p");
+    nameText.textContent = `${name} ${difficultyAngleText}`;
+    const statsText = document.createElement("p");
+    statsText.textContent =
+      ascents && rating ? `${ascents} ascents, ${rating.toFixed(2)}\u2605` : "";
+    statsText.classList.add("fw-light");
+    listButton.appendChild(nameText);
+    listButton.appendChild(statsText);
+    resultsList.appendChild(listButton);
+  }
+  resultsList.onscroll = function (event) {
+    const { scrollHeight, scrollTop, clientHeight } = event.target;
+    if (
+      Math.abs(scrollHeight - clientHeight - scrollTop) < 1 &&
+      pageNumber < resultsCount / pageSize - 1
+    ) {
+      fetchResults(pageNumber + 1, pageSize).then((results) => {
+        drawResultsPage(results, pageNumber + 1, pageSize, resultsCount);
       });
-      const nameText = document.createElement("p");
-      nameText.textContent = `${name} ${difficultyAngleText}`;
-      const statsText = document.createElement("p");
-      statsText.textContent =
-        ascents && rating
-          ? `${ascents} ascents, ${rating.toFixed(2)}\u2605`
-          : "";
-      statsText.classList.add("fw-light");
-      listButton.appendChild(nameText);
-      listButton.appendChild(statsText);
-      resultsList.appendChild(listButton);
     }
-    resultsList.onscroll = function (event) {
-      const { scrollHeight, scrollTop, clientHeight } = event.target;
-      if (Math.abs(scrollHeight - clientHeight - scrollTop) < 1) {
-        drawResultsPage(pageNumber + 1, pageSize);
-      }
-    };
-  });
+  };
 }
 
 const backAnchor = document.getElementById("anchor-back");
@@ -119,5 +135,10 @@ if (document.referrer && new URL(document.referrer).origin == location.origin) {
   });
 }
 
-drawResultsCount();
-drawResultsPage(0, 10);
+fetchResultsCount().then((resultsCount) => {
+  const resultsCountHeader = document.getElementById("header-results-count");
+  resultsCountHeader.textContent = `Found ${resultsCount} matching climbs`;
+  fetchResults(0, 10).then((results) => {
+    drawResultsPage(results, 0, 10, resultsCount);
+  });
+});
