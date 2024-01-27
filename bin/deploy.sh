@@ -1,7 +1,7 @@
 #!/bin/sh
+
 for BOARD in decoy grasshopper kilter tension touchstone
 do 
-    mkdir -p data/$BOARD
-    boardlib database $BOARD data/$BOARD/db.sqlite3
+    bin/sync_db.sh $BOARD
 done
 fly deploy
