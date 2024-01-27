@@ -19,3 +19,24 @@ These are the features that Climbdex provides which are (as of last updating thi
 - Web access - no mobile app required. To light up the climbs, the mobile app is needed, but if app links are setup correctly, you can click on the climb name in Climbdex and be taken directly to the climb on the app.
 - All-in-one - all of the supported boards on one website, no app-switching required.
 
+## Development
+
+To run Climbdex locally, clone the repository and install the Python dependencies ([venv](https://docs.python.org/3/library/venv.html) reccommended):
+
+```
+python3 -m pip install -r requirements.txt
+```
+
+After the dependencies are installed, start a server:
+
+```
+gunicorn wsgi:app
+```
+
+To actually use most of the features of Climbdex, at least one of the local SQLite databases are required. To download a database, use the `sync_db` script:
+
+```
+bin/sync_db.sh <board_name>
+```
+
+where `<board_name>` is one of `decoy`, `grasshopper`, `kilter`, `tension` or `touchstone`.
