@@ -40,11 +40,14 @@ QUERIES = {
     "holds": """
         SELECT 
             placements.id,
+            mirrored_placements.id,
             holes.x,
             holes.y
-        FROM placements
-        INNER JOIN holes
+        FROM holes
+        INNER JOIN placements
         ON placements.hole_id=holes.id
+        LEFT JOIN placements mirrored_placements
+        ON mirrored_placements.hole_id = holes.mirrored_hole_id
         WHERE placements.layout_id = $layout_id
         AND placements.set_id = $set_id""",
     "layouts": """
@@ -52,6 +55,10 @@ QUERIES = {
         FROM layouts
         WHERE is_listed=1
         AND password IS NULL""",
+    "layout_is_mirrored": """
+        SELECT is_mirrored
+        FROM layouts
+        WHERE id = $layout_id""",
     "layout_name": """
         SELECT name
         FROM layouts
@@ -192,13 +199,15 @@ def get_search_base_sql_and_binds(args):
     holds = args.get("holds")
     match_roles = args.get("roleMatch") == "strict"
     if holds:
-        sql += " AND climbs.frames LIKE $like_string"
-        like_string_center = "%".join(
-            f"p{placement}r{role if match_roles else ''}"
-            for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0])
-        )
-        like_string = f"%{like_string_center}%"
-        binds["like_string"] = like_string
+        sql += " AND (climbs.frames LIKE $like_string"
+        binds["like_string"] = get_frames_like_clause(holds, match_roles)
+        mirrored_holds = args.get("mirroredHolds")
+        if mirrored_holds and layout_is_mirrored(args.get("board"), args.get("layout")):
+            sql += " OR climbs.frames LIKE $mirrored_like_string"
+            binds["mirrored_like_string"] = get_frames_like_clause(
+                mirrored_holds, match_roles
+            )
+        sql += ")"
 
     return sql, binds
 
@@ -207,3 +216,15 @@ def iterframes(frames):
     for frame in frames.split("p")[1:]:
         placement, role = frame.split("r")
         yield int(placement), int(role)
+
+
+def get_frames_like_clause(holds, match_roles):
+    like_string_center = "%".join(
+        f"p{placement}r{role if match_roles else ''}"
+        for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0])
+    )
+    return f"%{like_string_center}%"
+
+
+def layout_is_mirrored(board, layout_id):
+    return get_data(board, "layout_is_mirrored", {"layout_id": layout_id})[0][0] == 1
