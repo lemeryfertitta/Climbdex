@@ -55,6 +55,17 @@ def results():
     )
 
 
+@blueprint.route("/<board_name>/beta/<uuid>")
+def beta(board_name, uuid):
+    beta = climbdex.db.get_data(board_name, "beta", {"uuid": uuid})
+    climb_name = climbdex.db.get_data(board_name, "climb", {"uuid": uuid})[0][0]
+    return flask.render_template(
+        "beta.html.j2",
+        beta=beta,
+        climb_name=climb_name,
+    )
+
+
 def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
     images_to_holds = {}
     for set_id in set_ids:

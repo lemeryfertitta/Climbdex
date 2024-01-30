@@ -37,6 +37,22 @@ function drawClimb(uuid, name, frames, setter, difficultyAngleText) {
 
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.textContent = difficultyAngleText;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const board = urlParams.get("board");
+  fetchBetaCount(board, uuid).then((betaCount) => {
+    const betaCountSpan = document.getElementById("span-beta-count");
+    betaCountSpan.textContent = betaCount;
+  });
+
+  const betaAnchor = document.getElementById("anchor-beta");
+  betaAnchor.href = `/${board}/beta/${uuid}/`;
+}
+
+async function fetchBetaCount(board, uuid) {
+  const response = await fetch(`/api/v1/${board}/beta/${uuid}`);
+  const responseJson = await response.json();
+  return responseJson.length;
 }
 
 async function fetchResultsCount() {

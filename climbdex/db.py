@@ -9,6 +9,19 @@ QUERIES = {
         ON layouts.product_id = products_angles.product_id
         WHERE layouts.id = $layout_id
         ORDER BY angle ASC""",
+    "beta": """
+        SELECT
+            angle,
+            foreign_username,
+            link
+        FROM beta_links
+        WHERE climb_uuid = $uuid
+        AND is_listed = 1
+        ORDER BY angle DESC""",
+    "climb": """
+        SELECT name
+        FROM climbs
+        WHERE uuid = $uuid""",
     "colors": """
         SELECT
             placement_roles.id,

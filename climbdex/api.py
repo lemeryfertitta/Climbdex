@@ -34,3 +34,8 @@ def resultsCount():
 @blueprint.route("/api/v1/search")
 def search():
     return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
+
+
+@blueprint.route("/api/v1/<board_name>/beta/<uuid>")
+def beta(board_name, uuid):
+    return flask.jsonify(climbdex.db.get_data(board_name, "beta", {"uuid": uuid}))

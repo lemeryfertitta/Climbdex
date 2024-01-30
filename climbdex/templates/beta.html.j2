@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include 'head.html.j2'%}
+</head>
+
+<body>
+    <div class="container text-center">
+        {% include 'heading.html.j2' %}
+        <div class="row justify-content-md-center">
+            <div class="col-md-5 card p-3 g-2 vh-100">
+                <h4 id="header-links-count"> {{ beta | length }} beta videos for {{ climb_name }}</h4>
+                <div id="div-results-list" class="list-group overflow-auto">
+                    {% for angle, user, link in beta %}
+                    <button class="list-group-item list-group-item-action" data-link="{{ link }}"
+                        data-handle="{{ user }}" data-index="{{ loop.index0 }}">
+                        {{ ("@" + user) if user else "?" }} at {{ (angle if angle else "?") | string + "&deg;" }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-5 card p-3 g-2 vh-100" id="div-beta">
+                <div class="row g-0 p-3">
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
+                    </div>
+                    <div class="col-8">
+                        <h4 id="header-handle"></h4>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col ratio overflow-auto" style="--bs-aspect-ratio: 120%;">
+                        <iframe id="iframe-beta"></iframe>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="row justify-content-md-center mt-3">
+            {% include 'footer.html.j2'%}
+        </div>
+    </div>
+    <script src="{{url_for('static', filename='js/beta.js')}}"></script>
+</body>
+
+</html>
