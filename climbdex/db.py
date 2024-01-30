@@ -41,7 +41,9 @@ QUERIES = {
         SELECT 
             placements.id,
             holes.x,
-            holes.y
+            holes.y,
+            placements.hole_id,
+            holes.mirrored_hole_id
         FROM placements
         INNER JOIN holes
         ON placements.hole_id=holes.id
@@ -54,6 +56,10 @@ QUERIES = {
         AND password IS NULL""",
     "layout_name": """
         SELECT name
+        FROM layouts
+        WHERE id = $layout_id""",
+    "layout_mirrored": """
+        SELECT is_mirrored
         FROM layouts
         WHERE id = $layout_id""",
     "image_filename": """
@@ -142,17 +148,30 @@ def get_data(board_name, query_name, binds={}):
     cursor.execute(QUERIES[query_name], binds)
     return cursor.fetchall()
 
+def is_board_mirrored(board_name, layout_id):
+    binds = {
+        "layout_id": layout_id,
+    }
+    return get_data(board_name, "layout_mirrored", binds)[0][0] == 1
 
 def get_search_count(args):
-    base_sql, binds = get_search_base_sql_and_binds(args)
+    base_sql, binds, binds_mirror = get_search_base_sql_and_binds(args)
     database = get_board_database(args.get("board"))
     cursor = database.cursor()
     cursor.execute(f"SELECT COUNT(*) FROM ({base_sql})", binds)
-    return cursor.fetchall()[0][0]
+
+    count = cursor.fetchall()[0][0]
+
+    mirrored_layout = is_board_mirrored(str(args.get("board")), int(args.get("layout")))
+    if mirrored_layout and binds_mirror:
+        cursor.execute(f"SELECT COUNT(*) FROM ({base_sql})", binds_mirror)
+        count += cursor.fetchall()[0][0]
+
+    return count
 
 
 def get_search_results(args):
-    base_sql, binds = get_search_base_sql_and_binds(args)
+    base_sql, binds, binds_mirror = get_search_base_sql_and_binds(args)
     order_by_sql_name = {
         "ascents": "climb_stats.ascensionist_count",
         "difficulty": "climb_stats.display_difficulty",
@@ -169,7 +188,17 @@ def get_search_results(args):
     database = get_board_database(flask.request.args.get("board"))
     cursor = database.cursor()
     cursor.execute(limited_sql, binds)
-    return cursor.fetchall()
+
+    results = cursor.fetchall()
+
+    mirrored_layout = is_board_mirrored(str(args.get("board")), int(args.get("layout")))
+    if mirrored_layout and binds_mirror:
+        binds_mirror["limit"] = binds["limit"]
+        binds_mirror["offset"] = binds["offset"]
+        cursor.execute(limited_sql, binds_mirror)
+        results += cursor.fetchall()
+
+    return results
 
 
 def get_search_base_sql_and_binds(args):
@@ -183,6 +212,7 @@ def get_search_base_sql_and_binds(args):
         "min_rating": float(args.get("minRating")),
         "grade_accuracy": float(args.get("gradeAccuracy")),
     }
+    binds_mirror = {}
 
     angle = args.get("angle")
     if angle and angle != "any":
@@ -200,7 +230,31 @@ def get_search_base_sql_and_binds(args):
         like_string = f"%{like_string_center}%"
         binds["like_string"] = like_string
 
-    return sql, binds
+        mirrored_layout = is_board_mirrored(str(args.get("board")), int(args.get("layout")))
+        if mirrored_layout:
+            holes = []
+            for set_id in args.getlist("set"):
+                holes_binds = {
+                    "layout_id": int(args.get("layout")),
+                    "set_id": int(set_id)
+                }
+                holes += get_data(str(args.get("board")), "holds", holes_binds)
+
+            mirror_placements = []
+            for placement, role in iterframes(holds):
+                found_hole = next(hole for hole in holes if hole[0]==placement)
+                mirror_hole = next(hole for hole in holes if hole[3]==found_hole[4])
+                mirror_placements.append((mirror_hole[0], role))
+            like_string_mirror_centered = "%".join(
+                f"p{placement}r{role if match_roles else ''}"
+                for placement, role in sorted(mirror_placements, key=lambda frame: frame[0])
+            )
+            like_string_mirror = f"%{like_string_mirror_centered}%"
+            if like_string_mirror != like_string:
+                binds_mirror = binds.copy()
+                binds_mirror["like_string"] = like_string_mirror
+
+    return sql, binds, binds_mirror
 
 
 def iterframes(frames):
