@@ -101,10 +101,17 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       ascents,
       difficulty,
       rating,
+      difficultyError,
     ] = result;
 
+    const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
+    const difficultyErrorSuffix = String(
+      Math.abs(difficultyError).toFixed(2)
+    ).replace(/^0+/, "");
     const difficultyAngleText =
-      difficulty && angle ? `${difficulty} at ${angle}\u00B0` : "";
+      difficulty && angle
+        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0`
+        : "";
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
       const prevButton = document.getElementById("button-prev");
