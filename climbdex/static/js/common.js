@@ -25,7 +25,7 @@ function drawBoard(
       svgElement.setAttribute("viewBox", `0 0 ${image.width} ${image.height}`);
       let xSpacing = image.width / (edgeRight - edgeLeft);
       let ySpacing = image.height / (edgeTop - edgeBottom);
-      for (const [holdId, x, y] of holds) {
+      for (const [holdId, mirroredHoldId, x, y] of holds) {
         if (
           x <= edgeLeft ||
           x >= edgeRight ||
@@ -41,6 +41,9 @@ function drawBoard(
           "circle"
         );
         circle.setAttribute("id", `hold-${holdId}`);
+        if (mirroredHoldId) {
+          circle.setAttribute("data-mirror-id", mirroredHoldId);
+        }
         circle.setAttribute("cx", xPixel);
         circle.setAttribute("cy", yPixel);
         circle.setAttribute("r", xSpacing * 4);

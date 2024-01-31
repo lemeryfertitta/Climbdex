@@ -80,6 +80,7 @@
               0 Selected Holds
             </button>
             <input type="hidden" id="input-hold-filter" name="holds" />
+            <input type="hidden" id="input-mirrored-hold-filter" name="mirroredHolds" />
             {% for param_name, param_value in params.items(multi=True)%}
             <input type="hidden" name="{{param_name}}" value="{{param_value}}" />
             {% endfor %}
