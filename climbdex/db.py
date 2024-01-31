@@ -46,10 +46,12 @@ QUERIES = {
         FROM holes
         INNER JOIN placements
         ON placements.hole_id=holes.id
+        AND placements.set_id = $set_id
+        AND placements.layout_id = $layout_id
         LEFT JOIN placements mirrored_placements
         ON mirrored_placements.hole_id = holes.mirrored_hole_id
-        WHERE placements.layout_id = $layout_id
-        AND placements.set_id = $set_id""",
+        AND mirrored_placements.set_id = $set_id
+        AND mirrored_placements.layout_id = $layout_id""",
     "layouts": """
         SELECT id, name
         FROM layouts
@@ -207,7 +209,7 @@ def get_search_base_sql_and_binds(args):
             binds["mirrored_like_string"] = get_frames_like_clause(
                 mirrored_holds, match_roles
             )
-        sql += ")"
+        sql += " )"
 
     return sql, binds
 
