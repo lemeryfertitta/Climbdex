@@ -17,6 +17,7 @@ QUERIES = {
         FROM beta_links
         WHERE climb_uuid = $uuid
         AND is_listed = 1
+        AND link like 'https://www.instagram.com%'
         ORDER BY angle DESC""",
     "climb": """
         SELECT name
