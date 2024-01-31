@@ -7,7 +7,10 @@ betaButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
     const link = event.target.getAttribute("data-link");
     const handle = event.target.getAttribute("data-handle");
-    const iframe = document.getElementById("iframe-beta");
+    const betaIframeDiv = document.getElementById("div-beta-iframe");
+    betaIframeDiv.innerHTML = "";
+    const iframe = document.createElement("iframe");
+    betaIframeDiv.appendChild(iframe);
     iframe.src = link + "embed";
     const handleHeader = document.getElementById("header-handle");
     handleHeader.innerHTML = handle;
@@ -27,3 +30,12 @@ betaButtons.forEach((button) => {
     buttonNext.disabled = index >= betaButtons.length - 1;
   });
 });
+
+const backAnchor = document.getElementById("anchor-back");
+backAnchor.href = location.origin;
+if (document.referrer && new URL(document.referrer).origin == location.origin) {
+  backAnchor.addEventListener("click", function (event) {
+    event.preventDefault();
+    history.back();
+  });
+}

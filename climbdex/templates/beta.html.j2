@@ -11,9 +11,10 @@
         <div class="row justify-content-md-center">
             <div class="col-md-5 card p-3 g-2 vh-100">
                 <h4 id="header-links-count"> {{ beta | length }} beta videos for {{ climb_name }}</h4>
+                <p class="mb-3"><small><a id="anchor-back">Back to search</a></small></p>
                 <div id="div-results-list" class="list-group overflow-auto">
                     {% for angle, user, link in beta %}
-                    <button class="list-group-item list-group-item-action" data-link="{{ link }}"
+                    <button type="button" class="list-group-item list-group-item-action" data-link="{{ link }}"
                         data-handle="{{ user }}" data-index="{{ loop.index0 }}">
                         {{ ("@" + user) if user else "?" }} at {{ (angle if angle else "?") | string + "&deg;" }}
                     </button>
@@ -33,8 +34,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col ratio overflow-auto" style="--bs-aspect-ratio: 120%;">
-                        <iframe id="iframe-beta"></iframe>
+                    <div class="col ratio overflow-auto" style="--bs-aspect-ratio: 120%;" id="div-beta-iframe">
                     </div>
                 </div>
 
