@@ -1,3 +1,4 @@
+import boardlib
 import flask
 import sqlite3
 
@@ -162,22 +163,29 @@ def get_search_count(args):
     return cursor.fetchall()[0][0]
 
 
-def get_search_results(args):
+def get_search_results(args, login_json):
+    board = args.get("board")
+    if login_json:
+        login = flask.json.loads(login_json)
+        token = login["token"]
+        user_id = login["user_id"]
+        climbs = boardlib.api.aurora.get_logbook(board, token, user_id)
+
     base_sql, binds = get_search_base_sql_and_binds(args)
     order_by_sql_name = {
         "ascents": "climb_stats.ascensionist_count",
         "difficulty": "climb_stats.display_difficulty",
         "name": "climbs.name",
         "quality": "climb_stats.quality_average",
-    }[flask.request.args.get("sortBy")]
-    sort_order = "ASC" if flask.request.args.get("sortOrder") == "asc" else "DESC"
+    }[args.get("sortBy")]
+    sort_order = "ASC" if args.get("sortOrder") == "asc" else "DESC"
     ordered_sql = f"{base_sql} ORDER BY {order_by_sql_name} {sort_order}"
 
     limited_sql = f"{ordered_sql} LIMIT $limit OFFSET $offset"
-    binds["limit"] = int(flask.request.args.get("pageSize", 10))
-    binds["offset"] = int(flask.request.args.get("page", 0)) * int(binds["limit"])
+    binds["limit"] = int(args.get("pageSize", 10))
+    binds["offset"] = int(args.get("page", 0)) * int(binds["limit"])
 
-    database = get_board_database(flask.request.args.get("board"))
+    database = get_board_database(board)
     cursor = database.cursor()
     cursor.execute(limited_sql, binds)
     return cursor.fetchall()

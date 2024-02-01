@@ -1,5 +1,4 @@
-function populateLayouts() {
-  const boardName = document.getElementById("select-board").value;
+function populateLayouts(boardName) {
   fetch(`/api/v1/${boardName}/layouts`).then((response) => {
     response.json().then((layouts) => {
       const layoutSelect = document.getElementById("select-layout");
@@ -96,6 +95,68 @@ function updateSetsInput() {
   document.getElementById("button-next").disabled = !isOneSetEnabled;
 }
 
+function populateLoginForm(boardName) {
+  const capitalizedBoardName =
+    boardName.charAt(0).toUpperCase() + boardName.slice(1);
+
+  const loginButton = document.getElementById("button-login");
+  loginButton.disabled = false;
+  loginButton.textContent = `(Optional) Login to ${capitalizedBoardName}`;
+  const loginText = document.cookie.includes(`${boardName}_token`)
+    ? "You're logged in! Log in again to switch users or refresh your token."
+    : "Log in to allow Climbdex to fetch your ticklist.";
+  document.getElementById("div-login-text").textContent = loginText;
+  document.getElementById(
+    "header-modal-title"
+  ).textContent = `${capitalizedBoardName} Board Login`;
+  document.getElementById(
+    "label-username"
+  ).textContent = `${capitalizedBoardName} Board Username`;
+  document.getElementById(
+    "label-password"
+  ).textContent = `${capitalizedBoardName} Board Password`;
+}
+
+function handleBoardSelection() {
+  const boardName = document.getElementById("select-board").value;
+  populateLayouts(boardName);
+  populateLoginForm(boardName);
+}
+
 const boardSelect = document.getElementById("select-board");
-boardSelect.addEventListener("change", populateLayouts);
-populateLayouts();
+boardSelect.addEventListener("change", handleBoardSelection);
+handleBoardSelection();
+
+const loginForm = document.getElementById("form-login");
+loginForm.addEventListener("submit", function (event) {
+  const username = document.getElementById("input-username").value;
+  const password = document.getElementById("input-password").value;
+  const boardName = document.getElementById("select-board").value;
+  const errorParagraph = document.getElementById("paragraph-login-error");
+  errorParagraph.textContent = "";
+  fetch("/api/v1/boardlogin", {
+    method: "POST",
+    body: JSON.stringify({
+      board: boardName,
+      username: username,
+      password: password,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    response.json().then((json) => {
+      if (!response.ok) {
+        errorParagraph.textContent = json["error"];
+      } else {
+        document.cookie = `${boardName}_login=${JSON.stringify(
+          json
+        )}; SameSite=Strict; Secure;`;
+        const modal = bootstrap.Modal.getInstance("#div-modal");
+        modal.hide();
+        populateLoginForm(boardName);
+      }
+    });
+  });
+  event.preventDefault();
+});

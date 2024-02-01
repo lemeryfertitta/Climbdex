@@ -1,4 +1,6 @@
+import boardlib.api.aurora
 import flask
+import requests
 
 import climbdex.db
 
@@ -33,9 +35,31 @@ def resultsCount():
 
 @blueprint.route("/api/v1/search")
 def search():
-    return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
+    login_json = flask.request.cookies.get(f"{flask.request.args.get("board")}_login")
+    return flask.jsonify(climbdex.db.get_search_results(flask.request.args, login_json))
 
 
 @blueprint.route("/api/v1/<board_name>/beta/<uuid>")
 def beta(board_name, uuid):
     return flask.jsonify(climbdex.db.get_data(board_name, "beta", {"uuid": uuid}))
+
+
+@blueprint.route("/api/v1/boardlogin/", methods=["POST"])
+def login():
+    try:
+        login_details = boardlib.api.aurora.login(
+            flask.request.json["board"],
+            flask.request.json["username"],
+            flask.request.json["password"],
+        )
+        return flask.jsonify(
+            {"token": login_details["token"], "user_id": login_details["user_id"]}
+        )
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == requests.codes.unprocessable_entity:
+            return (
+                flask.jsonify({"error": "Invalid username/password combination"}),
+                e.response.status_code,
+            )
+        else:
+            return flask.jsonify({"error": str(e)}), e.response.status_code
