@@ -1,3 +1,4 @@
+import boardlib
 import flask
 import sqlite3
 
@@ -169,15 +170,15 @@ def get_search_results(args):
         "difficulty": "climb_stats.display_difficulty",
         "name": "climbs.name",
         "quality": "climb_stats.quality_average",
-    }[flask.request.args.get("sortBy")]
-    sort_order = "ASC" if flask.request.args.get("sortOrder") == "asc" else "DESC"
+    }[args.get("sortBy")]
+    sort_order = "ASC" if args.get("sortOrder") == "asc" else "DESC"
     ordered_sql = f"{base_sql} ORDER BY {order_by_sql_name} {sort_order}"
 
     limited_sql = f"{ordered_sql} LIMIT $limit OFFSET $offset"
-    binds["limit"] = int(flask.request.args.get("pageSize", 10))
-    binds["offset"] = int(flask.request.args.get("page", 0)) * int(binds["limit"])
+    binds["limit"] = int(args.get("pageSize", 10))
+    binds["offset"] = int(args.get("page", 0)) * int(binds["limit"])
 
-    database = get_board_database(flask.request.args.get("board"))
+    database = get_board_database(args.get("board"))
     cursor = database.cursor()
     cursor.execute(limited_sql, binds)
     return cursor.fetchall()

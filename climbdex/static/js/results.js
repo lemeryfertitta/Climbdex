@@ -103,14 +103,18 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       rating,
       difficultyError,
     ] = result;
-
+    const ticked = tickedClimbs.has(`${uuid}-${angle}`);
+    if (ticked) {
+      listButton.classList.add("bg-secondary-subtle");
+    }
+    const tickIndicator = ticked ? " \u2713" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
       Math.abs(difficultyError).toFixed(2)
     ).replace(/^0+/, "");
     const difficultyAngleText =
       difficulty && angle
-        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0`
+        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0${tickIndicator}`
         : "";
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
