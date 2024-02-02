@@ -102,7 +102,7 @@ function populateLoginForm(boardName) {
   const loginButton = document.getElementById("button-login");
   loginButton.disabled = false;
   loginButton.textContent = `(Optional) Login to ${capitalizedBoardName}`;
-  const loginText = document.cookie.includes(`${boardName}_token`)
+  const loginText = document.cookie.includes(`${boardName}_login`)
     ? "You're logged in! Log in again to switch users or refresh your token."
     : "Log in to allow Climbdex to fetch your ticklist.";
   document.getElementById("div-login-text").textContent = loginText;
@@ -134,7 +134,7 @@ loginForm.addEventListener("submit", function (event) {
   const boardName = document.getElementById("select-board").value;
   const errorParagraph = document.getElementById("paragraph-login-error");
   errorParagraph.textContent = "";
-  fetch("/api/v1/boardlogin", {
+  fetch("/api/v1/login", {
     method: "POST",
     body: JSON.stringify({
       board: boardName,

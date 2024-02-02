@@ -127,7 +127,12 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       drawClimb(uuid, name, frames, setter, difficultyAngleText);
     });
     const nameText = document.createElement("p");
-    nameText.textContent = `${name} ${difficultyAngleText}`;
+    const ticked = tickedClimbs.has(`${uuid}-${angle}`);
+    if (ticked) {
+      listButton.classList.add("bg-secondary-subtle");
+    }
+    const tickIndicator = ticked ? " \u2713" : "";
+    nameText.textContent = `${name} ${difficultyAngleText}${tickIndicator}`;
     const statsText = document.createElement("p");
     statsText.textContent =
       ascents && rating ? `${ascents} ascents, ${rating.toFixed(2)}\u2605` : "";

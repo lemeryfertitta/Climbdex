@@ -42,10 +42,13 @@ def results():
     layout_id = flask.request.args.get("layout")
     size_id = flask.request.args.get("size")
     set_ids = flask.request.args.getlist("set")
+    login_cookie = flask.request.cookies.get(f"{board_name}_login")
+    ticked_climbs = get_ticked_climbs(board_name, login_cookie) if login_cookie else []
     return flask.render_template(
         "results.html.j2",
         app_url=boardlib.api.aurora.WEB_HOSTS[board_name],
         colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
+        ticked_climbs=ticked_climbs,
         **get_draw_board_kwargs(
             board_name,
             layout_id,
@@ -89,3 +92,11 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
         "edge_bottom": size_dimensions[2],
         "edge_top": size_dimensions[3],
     }
+
+
+def get_ticked_climbs(board, login_cookie):
+    login_info = flask.json.loads(login_cookie)
+    logbook = boardlib.api.aurora.get_logbook(
+        board, login_info["token"], login_info["user_id"]
+    )
+    return [f'{log["climb_uuid"]}-{log["angle"]}' for log in logbook]

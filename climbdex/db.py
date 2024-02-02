@@ -163,14 +163,7 @@ def get_search_count(args):
     return cursor.fetchall()[0][0]
 
 
-def get_search_results(args, login_json):
-    board = args.get("board")
-    if login_json:
-        login = flask.json.loads(login_json)
-        token = login["token"]
-        user_id = login["user_id"]
-        climbs = boardlib.api.aurora.get_logbook(board, token, user_id)
-
+def get_search_results(args):
     base_sql, binds = get_search_base_sql_and_binds(args)
     order_by_sql_name = {
         "ascents": "climb_stats.ascensionist_count",
@@ -185,7 +178,7 @@ def get_search_results(args, login_json):
     binds["limit"] = int(args.get("pageSize", 10))
     binds["offset"] = int(args.get("page", 0)) * int(binds["limit"])
 
-    database = get_board_database(board)
+    database = get_board_database(args.get("board"))
     cursor = database.cursor()
     cursor.execute(limited_sql, binds)
     return cursor.fetchall()

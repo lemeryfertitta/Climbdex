@@ -35,8 +35,7 @@ def resultsCount():
 
 @blueprint.route("/api/v1/search")
 def search():
-    login_json = flask.request.cookies.get(f"{flask.request.args.get("board")}_login")
-    return flask.jsonify(climbdex.db.get_search_results(flask.request.args, login_json))
+    return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
 
 
 @blueprint.route("/api/v1/<board_name>/beta/<uuid>")
@@ -44,7 +43,7 @@ def beta(board_name, uuid):
     return flask.jsonify(climbdex.db.get_data(board_name, "beta", {"uuid": uuid}))
 
 
-@blueprint.route("/api/v1/boardlogin/", methods=["POST"])
+@blueprint.route("/api/v1/login/", methods=["POST"])
 def login():
     try:
         login_details = boardlib.api.aurora.login(
