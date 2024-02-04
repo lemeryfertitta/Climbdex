@@ -1,4 +1,4 @@
-function drawClimb(uuid, name, frames, setter, difficultyAngleText) {
+function drawClimb(uuid, name, frames, setter, difficultyAngleText, description) {
   document
     .getElementById("svg-climb")
     .querySelectorAll('circle[stroke-opacity="1"]')
@@ -37,6 +37,15 @@ function drawClimb(uuid, name, frames, setter, difficultyAngleText) {
 
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.textContent = difficultyAngleText;
+
+  const climbDescriptionParagraph = document.getElementById("paragraph-climb-description");
+  // check if description is empty, if yes then hide <p>
+  if (description.trim() === "") {
+    climbDescriptionParagraph.style.display = 'none';
+  } else {
+    climbDescriptionParagraph.style.display = 'block';
+    climbDescriptionParagraph.textContent = description;
+  }
 
   const urlParams = new URLSearchParams(window.location.search);
   const board = urlParams.get("board");
@@ -128,7 +137,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       nextButton.onclick = function () {
         clickClimbButton(index + 1, pageSize, resultsCount);
       };
-      drawClimb(uuid, name, frames, setter, difficultyAngleText);
+      drawClimb(uuid, name, frames, setter, difficultyAngleText, description);
     });
     const nameText = document.createElement("p");
     nameText.textContent = `${name} ${difficultyAngleText}`;
