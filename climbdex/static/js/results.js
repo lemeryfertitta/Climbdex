@@ -1,4 +1,11 @@
-function drawClimb(uuid, name, frames, setter, difficultyAngleText, description) {
+function drawClimb(
+  uuid,
+  name,
+  frames,
+  setter,
+  difficultyAngleText,
+  description
+) {
   document
     .getElementById("svg-climb")
     .querySelectorAll('circle[stroke-opacity="1"]')
@@ -38,13 +45,15 @@ function drawClimb(uuid, name, frames, setter, difficultyAngleText, description)
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.textContent = difficultyAngleText;
 
-  const climbDescriptionParagraph = document.getElementById("paragraph-climb-description");
-  // check if description is empty, if yes then hide <p>
-  if (description.trim() === "") {
-    climbDescriptionParagraph.style.display = 'none';
+  const climbDescriptionParagraph = document.getElementById(
+    "paragraph-climb-description"
+  );
+  const trimmedDescription = description.trim();
+  if (trimmedDescription === "") {
+    climbDescriptionParagraph.classList.add("d-none");
   } else {
-    climbDescriptionParagraph.style.display = 'block';
-    climbDescriptionParagraph.textContent = description;
+    climbDescriptionParagraph.classList.remove("d-none");
+    climbDescriptionParagraph.innerHTML = `Description: ${trimmedDescription.italics()}`;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
