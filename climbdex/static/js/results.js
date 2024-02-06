@@ -234,3 +234,13 @@ fetchResultsCount().then((resultsCount) => {
     drawResultsPage(results, 0, 10, resultsCount);
   });
 });
+
+const illuminateAnchor = document.getElementById("anchor-illuminate");
+illuminateAnchor.addEventListener("click", function (event) {
+  navigator.bluetooth
+    .requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ["battery_service"], // Required to access service later.
+    })
+    .then((device) => console.log(device));
+});
