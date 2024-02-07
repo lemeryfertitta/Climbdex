@@ -13,16 +13,11 @@ function drawClimb(
       circle.setAttribute("stroke-opacity", 0.0);
     });
 
-  const colorIdsToColor = {};
-  for (const [colorId, color] of colors) {
-    colorIdsToColor[colorId] = color;
-  }
-
   for (const frame of frames.split("p")) {
     if (frame.length > 0) {
       const [placementId, colorId] = frame.split("r");
       const circle = document.getElementById(`hold-${placementId}`);
-      circle.setAttribute("stroke", colorIdsToColor[colorId]);
+      circle.setAttribute("stroke", colors[colorId]);
       circle.setAttribute("stroke-opacity", 1.0);
     }
   }
@@ -65,6 +60,17 @@ function drawClimb(
 
   const betaAnchor = document.getElementById("anchor-beta");
   betaAnchor.href = `/${board}/beta/${uuid}/`;
+
+  document
+    .getElementById("button-illuminate")
+    .addEventListener("click", function () {
+      const bluetoothPacket = getBluetoothPacket(
+        frames,
+        placementPositions,
+        colors
+      );
+      illuminateClimb(board, bluetoothPacket);
+    });
 }
 
 async function fetchBetaCount(board, uuid) {
@@ -218,6 +224,44 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
   };
 }
 
+function illuminateClimb(board, bluetoothPacket) {
+  const capitalizedBoard = board[0].toUpperCase() + board.slice(1);
+  navigator.bluetooth
+    .requestDevice({
+      filters: [
+        {
+          // TODO: Determine if this prefix is always the board name across all Aurora devices
+          namePrefix: capitalizedBoard,
+        },
+      ],
+      // TODO: Determine if this service UUID is the same across all Aurora devices
+      optionalServices: [SERVICE_UUID],
+    })
+    .then((device) => {
+      console.log(device);
+      return device.gatt.connect();
+    })
+    .then((server) => {
+      console.log(server);
+      return server.getPrimaryService(SERVICE_UUID);
+    })
+    .then((service) => {
+      console.log(service);
+      // TODO: Determine if this characteristic UUID is the same across all Aurora devices
+      return service.getCharacteristic(CHARACTERISTIC_UUID);
+    })
+    .then((characteristic) => {
+      console.log(characteristic);
+      // const fromHexString = (hexString) =>
+      //   Uint8Array.from(
+      //     hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
+      //   );
+      // const packet = fromHexString("01048402544400e303");
+      return characteristic.writeValue(Uint8Array.from(bluetoothPacket));
+    })
+    .then(() => console.log("Done"));
+}
+
 const backAnchor = document.getElementById("anchor-back");
 backAnchor.href = location.origin + "/filter?" + location.search;
 if (document.referrer && new URL(document.referrer).origin == location.origin) {
@@ -233,48 +277,4 @@ fetchResultsCount().then((resultsCount) => {
   fetchResults(0, 10).then((results) => {
     drawResultsPage(results, 0, 10, resultsCount);
   });
-});
-
-const illuminateAnchor = document.getElementById("anchor-illuminate");
-illuminateAnchor.addEventListener("click", function (event) {
-  navigator.bluetooth
-    .requestDevice({
-      filters: [
-        {
-          // TODO: Determine if this prefix is always the board name across all Aurora devices
-          namePrefix: "Kilter",
-        },
-      ],
-      // TODO: Determine if this service UUID is the same across all Aurora devices
-      optionalServices: ["6E400001-B5A3-F393-E0A9-E50E24DCCA9E".toLowerCase()],
-    })
-    .then((device) => {
-      console.log(device);
-      return device.gatt.connect();
-    })
-    .then((server) => {
-      console.log(server);
-      return server.getPrimaryService(
-        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E".toLowerCase()
-      );
-    })
-    .then((service) => {
-      console.log(service);
-      return service.getCharacteristic(
-        // TODO: Determine if this characteristic UUID is the same across all Aurora devices
-        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E".toLowerCase()
-      );
-    })
-    .then((characteristic) => {
-      console.log(characteristic);
-      const fromHexString = (hexString) =>
-        Uint8Array.from(
-          hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
-        );
-
-      // TODO: Replace hardcoded packet with current climb byte array using bluetooth.js
-      const packet = fromHexString("01048402544400e303");
-      return characteristic.writeValue(packet);
-    })
-    .then(() => console.log("Done"));
 });

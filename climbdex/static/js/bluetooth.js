@@ -9,6 +9,8 @@ const PACKET_MIDDLE = 81;
 const PACKET_FIRST = 82;
 const PACKET_LAST = 83;
 const PACKET_ONLY = 84;
+const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 
 function getChecksum(data) {
   const checksumPartial = data.reduce(
@@ -45,22 +47,28 @@ function encodeColor(color) {
   return finalParsedResult;
 }
 
-function encodePlacement(position, ledColor) {
+function encodePositionAndColor(position, ledColor) {
   return [...encodePosition(position), encodeColor(ledColor)];
 }
 
-function getBluetoothPacket(placementsAndColors) {
+function getBluetoothPacket(frames, placementPositions, colors) {
   const resultArray = [];
   let tempArray = [PACKET_MIDDLE];
 
-  for (const [placement, color] of placementsAndColors) {
-    if (tempArray.length + 3 > MESSAGE_BODY_MAX_LENGTH) {
-      resultArray.push(tempArray);
-      tempArray = [PACKET_MIDDLE];
+  frames.split("p").forEach((frame) => {
+    if (frame.length > 0) {
+      const [placement, role] = frame.split("r");
+      const encodedFrame = encodePositionAndColor(
+        placementPositions[placement],
+        colors[role]
+      );
+      if (tempArray.length + 3 > MESSAGE_BODY_MAX_LENGTH) {
+        resultArray.push(tempArray);
+        tempArray = [PACKET_MIDDLE];
+      }
+      tempArray.push(...encodedFrame);
     }
-    const encodedPlacement = encodePlacement(placement, color);
-    tempArray.push(...encodedPlacement);
-  }
+  });
 
   resultArray.push(tempArray);
 

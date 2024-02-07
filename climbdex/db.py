@@ -67,6 +67,14 @@ QUERIES = {
         SELECT name
         FROM layouts
         WHERE id = $layout_id""",
+    "leds": """
+        SELECT 
+            placements.id,
+            leds.position
+        FROM placements
+        INNER JOIN leds ON placements.hole_id = leds.hole_id
+        WHERE placements.layout_id = $layout_id
+        AND leds.product_size_id = $size_id""",
     "image_filename": """
         SELECT
             image_filename

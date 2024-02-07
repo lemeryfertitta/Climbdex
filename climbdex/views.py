@@ -44,11 +44,13 @@ def results():
     set_ids = flask.request.args.getlist("set")
     login_cookie = flask.request.cookies.get(f"{board_name}_login")
     ticked_climbs = get_ticked_climbs(board_name, login_cookie) if login_cookie else []
+    placement_positions = get_placement_positions(board_name, layout_id, size_id)
     return flask.render_template(
         "results.html.j2",
         app_url=boardlib.api.aurora.WEB_HOSTS[board_name],
-        colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
+        colors=get_colors(board_name, layout_id),
         ticked_climbs=ticked_climbs,
+        placement_positions=placement_positions,
         **get_draw_board_kwargs(
             board_name,
             layout_id,
@@ -107,5 +109,25 @@ def get_ticked_climbs(board, login_cookie):
         key = f'{log["climb_uuid"]}-{log["angle"]}'
         tick_type = mirror_tick if log["is_mirror"] else normal_tick
         existing_tick = ticked_climbs.get(key)
-        ticked_climbs[key] = both_tick if existing_tick is not None and existing_tick != tick_type else tick_type
+        ticked_climbs[key] = (
+            both_tick
+            if existing_tick is not None and existing_tick != tick_type
+            else tick_type
+        )
     return ticked_climbs
+
+
+def get_placement_positions(board_name, layout_id, size_id):
+    binds = {"layout_id": layout_id, "size_id": size_id}
+    return {
+        placement_id: position
+        for placement_id, position in climbdex.db.get_data(board_name, "leds", binds)
+    }
+
+
+def get_colors(board_name, layout_id):
+    binds = {"layout_id": layout_id}
+    return {
+        color_id: color
+        for color_id, color in climbdex.db.get_data(board_name, "colors", binds)
+    }
