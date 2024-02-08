@@ -44,6 +44,56 @@ function drawClimb(
 
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.textContent = difficultyAngleText;
+  const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const iconPath = document.createElementNS(
+    'http://www.w3.org/2000/svg',
+    'path'
+  );
+  const iconPath2 = document.createElementNS(
+    'http://www.w3.org/2000/svg',
+    'path'
+  );
+  iconSvg.setAttribute('fill', '#000000');
+  iconSvg.setAttribute('viewBox', '0 0 1920 1920');
+  iconSvg.setAttribute('height', '20px');
+  iconSvg.setAttribute('width', '20px');
+  iconPath.setAttribute('fill-rule', 'evenodd');
+  iconPath2.setAttribute('fill-rule', 'evenodd');
+  
+  let ticked = false;
+  if (bothClimbs.has(`${uuid}-${angle}`)) {
+    ticked = true;
+    iconPath.setAttribute(
+      'd',
+      "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
+    );
+    iconPath2.setAttribute(
+      'd',
+      "M92.299 303.065 1221.165 1431.801 1827.701 825.266 1919.869 917.564 1221.034 1616.4 0 395.234z"
+    );
+    iconSvg.appendChild(iconPath);
+    iconSvg.appendChild(iconPath2);
+  }
+  else if (reverseClimbs.has(`${uuid}-${angle}`)) {
+    ticked = true;
+    iconPath.setAttribute(
+      'd',
+      "M92.299 303.065 1221.165 1431.801 1827.701 825.266 1919.869 917.564 1221.034 1616.4 0 395.234z"
+    );
+    iconSvg.appendChild(iconPath);
+  }
+  else if (tickedClimbs.has(`${uuid}-${angle}`)) {
+    ticked = true;
+    iconPath.setAttribute(
+      'd',
+      "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
+    );
+    iconSvg.appendChild(iconPath);
+  }
+  else {
+    ticked = false
+  }
+  anchor.appendChild(iconSvg)
 
   const climbDescriptionParagraph = document.getElementById(
     "paragraph-climb-description"
@@ -121,18 +171,67 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       rating,
       difficultyError,
     ] = result;
-    const ticked = tickedClimbs.has(`${uuid}-${angle}`);
+
+    const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const iconPath = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+    const iconPath2 = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+    iconSvg.setAttribute('fill', '#000000');
+    iconSvg.setAttribute('viewBox', '0 0 1920 1920');
+    iconSvg.setAttribute('height', '20px');
+    iconSvg.setAttribute('width', '20px');
+    iconPath.setAttribute('fill-rule', 'evenodd');
+    iconPath2.setAttribute('fill-rule', 'evenodd');
+    
+    let ticked = false;
+    if (bothClimbs.has(`${uuid}-${angle}`)) {
+      ticked = true;
+      iconPath.setAttribute(
+        'd',
+        "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
+      );
+      iconPath2.setAttribute(
+        'd',
+        "M92.299 303.065 1221.165 1431.801 1827.701 825.266 1919.869 917.564 1221.034 1616.4 0 395.234z"
+      );
+      iconSvg.appendChild(iconPath);
+      iconSvg.appendChild(iconPath2);
+    }
+    else if (reverseClimbs.has(`${uuid}-${angle}`)) {
+      ticked = true;
+      iconPath.setAttribute(
+        'd',
+        "M92.299 303.065 1221.165 1431.801 1827.701 825.266 1919.869 917.564 1221.034 1616.4 0 395.234z"
+      );
+      iconSvg.appendChild(iconPath);
+    }
+    else if (tickedClimbs.has(`${uuid}-${angle}`)) {
+      ticked = true;
+      iconPath.setAttribute(
+        'd',
+        "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
+      );
+      iconSvg.appendChild(iconPath);
+    }
+    else {
+      ticked = false
+    }
+    
     if (ticked) {
       listButton.classList.add("bg-secondary-subtle");
     }
-    const tickIndicator = ticked ? " \u2713" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
       Math.abs(difficultyError).toFixed(2)
     ).replace(/^0+/, "");
     const difficultyAngleText =
       difficulty && angle
-        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0${tickIndicator}`
+        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0`
         : "";
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
@@ -150,6 +249,9 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     });
     const nameText = document.createElement("p");
     nameText.textContent = `${name} ${difficultyAngleText}`;
+    if (ticked) {
+      nameText.appendChild(iconSvg);
+    }
     const statsText = document.createElement("p");
     statsText.textContent =
       ascents && rating ? `${ascents} ascents, ${rating.toFixed(2)}\u2605` : "";

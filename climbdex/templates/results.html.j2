@@ -63,6 +63,8 @@
       const appUrl = "{{ app_url }}";
       const colors = {{ colors | tojson}};
       const tickedClimbs = new Set({{ ticked_climbs | tojson}});
+      const reverseClimbs = new Set({{ mirror_climbs | tojson}});
+      const bothClimbs = new Set({{ ticked_and_mirror | tojson}});
       drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
     </script>
     <script src="{{url_for('static', filename='js/results.js')}}"></script>

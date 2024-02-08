@@ -44,11 +44,15 @@ def results():
     set_ids = flask.request.args.getlist("set")
     login_cookie = flask.request.cookies.get(f"{board_name}_login")
     ticked_climbs = get_ticked_climbs(board_name, login_cookie) if login_cookie else []
+    mirror_climbs = get_mirror_climbs(board_name, login_cookie) if login_cookie else []
+    ticked_and_mirror_climbs = get_mirror_and_ticked_climbs(board_name, login_cookie) if login_cookie else []
     return flask.render_template(
         "results.html.j2",
         app_url=boardlib.api.aurora.WEB_HOSTS[board_name],
         colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
         ticked_climbs=ticked_climbs,
+        mirror_climbs=mirror_climbs,
+        ticked_and_mirror=ticked_and_mirror_climbs,
         **get_draw_board_kwargs(
             board_name,
             layout_id,
@@ -99,4 +103,35 @@ def get_ticked_climbs(board, login_cookie):
     logbook = boardlib.api.aurora.get_logbook(
         board, login_info["token"], login_info["user_id"]
     )
-    return [f'{log["climb_uuid"]}-{log["angle"]}' for log in logbook]
+    mirror_climbs = []
+    for log in logbook:
+        if not log["is_mirror"]:
+            mirror_climbs.append(f'{log["climb_uuid"]}-{log["angle"]}')
+    return mirror_climbs
+
+def get_mirror_climbs(board, login_cookie):
+    login_info = flask.json.loads(login_cookie)
+    logbook = boardlib.api.aurora.get_logbook(
+        board, login_info["token"], login_info["user_id"]
+    )
+    mirror_climbs = []
+    for log in logbook:
+        if log["is_mirror"]:
+            mirror_climbs.append(f'{log["climb_uuid"]}-{log["angle"]}')
+    return mirror_climbs
+
+def get_mirror_and_ticked_climbs(board, login_cookie):
+    login_info = flask.json.loads(login_cookie)
+    logbook = boardlib.api.aurora.get_logbook(
+        board, login_info["token"], login_info["user_id"]
+    )
+    mirror_and_ticked_unique = {}
+    for log in logbook:
+        if log["climb_uuid"] not in mirror_and_ticked_unique:
+            mirror_and_ticked_unique[log["climb_uuid"]] = log["is_mirror"]
+    
+    mirror_and_ticked = []
+    for log in logbook:
+        if log["is_mirror"] != mirror_and_ticked_unique[log["climb_uuid"]]:
+            mirror_and_ticked.append(f'{log["climb_uuid"]}-{log["angle"]}')
+    return mirror_and_ticked
