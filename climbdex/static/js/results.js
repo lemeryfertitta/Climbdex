@@ -252,14 +252,9 @@ function illuminateClimb(board, bluetoothPacket) {
     })
     .then((characteristic) => {
       console.log(characteristic);
-      // const fromHexString = (hexString) =>
-      //   Uint8Array.from(
-      //     hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
-      //   );
-      // const packet = fromHexString("01048402544400e303");
-      return characteristic.writeValue(Uint8Array.from(bluetoothPacket));
+      return characteristic.writeValue(bluetoothPacket);
     })
-    .then(() => console.log("Done"));
+    .then(() => console.log("Climb illuminated"));
 }
 
 const backAnchor = document.getElementById("anchor-back");

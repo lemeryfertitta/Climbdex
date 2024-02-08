@@ -32,7 +32,8 @@ function encodePosition(position) {
   return [position1, position2];
 }
 
-function encodeColor(color) {
+function encodeColor(hexColorString) {
+  const color = hexColorString.substring(1);
   const substring = color.substring(0, 2);
   const substring2 = color.substring(2, 4);
 
@@ -54,12 +55,11 @@ function encodePositionAndColor(position, ledColor) {
 function getBluetoothPacket(frames, placementPositions, colors) {
   const resultArray = [];
   let tempArray = [PACKET_MIDDLE];
-
   frames.split("p").forEach((frame) => {
     if (frame.length > 0) {
       const [placement, role] = frame.split("r");
       const encodedFrame = encodePositionAndColor(
-        placementPositions[placement],
+        Number(placementPositions[placement]),
         colors[role]
       );
       if (tempArray.length + 3 > MESSAGE_BODY_MAX_LENGTH) {
@@ -84,5 +84,5 @@ function getBluetoothPacket(frames, placementPositions, colors) {
     finalResultArray.push(...wrapBytes(currentArray));
   }
 
-  return finalResultArray;
+  return Uint8Array.from(finalResultArray);
 }

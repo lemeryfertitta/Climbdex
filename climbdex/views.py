@@ -71,6 +71,25 @@ def beta(board_name, uuid):
     )
 
 
+@blueprint.route("/create")
+def create():
+    board_name = flask.request.args.get("board")
+    layout_id = flask.request.args.get("layout")
+    size_id = flask.request.args.get("size")
+    set_ids = flask.request.args.getlist("set")
+    colors = climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id})
+    app_url = boardlib.api.aurora.WEB_HOSTS[board_name]
+    placement_positions = get_placement_positions(board_name, layout_id, size_id)
+    return flask.render_template(
+        "climbCreation.html.j2",
+        app_url=app_url,
+        board=board_name,
+        colors=colors,
+        placement_positions=placement_positions,
+        **get_draw_board_kwargs(board_name, layout_id, size_id, set_ids),
+    )
+
+
 def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
     images_to_holds = {}
     for set_id in set_ids:

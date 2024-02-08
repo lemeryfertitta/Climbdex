@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include 'head.html.j2'%}
+    <style>
+        #div-results-list {
+            max-height: 800px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-sm text-center">
+        {% include 'heading.html.j2' %}
+        <div class="row justify-content-md-center">
+            <div class="col-md-5 card p-3 g-2 vh-100" id="div-climb">
+                <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="d-grid">
+                    <button id="button-illuminate" class="btn btn-primary position-relative" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-lightbulb" viewBox="0 0 16 16">
+                            <path
+                                d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
+                        </svg>
+                        </a>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-md-center mt-3">
+            {% include 'footer.html.j2' %}
+        </div>
+        <script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
+        <script src="{{url_for('static', filename='js/climbCreation.js')}}"></script>
+        <script src="{{url_for('static', filename='js/common.js')}}"></script>
+        <script>
+            const appUrl = "{{ app_url }}";
+            const colors = {{ colors | tojson}};
+            const placementPositions = {{ placement_positions | tojson}};
+            const onClick = function (event) {
+                onFilterCircleClick(event.target, {{ colors | tojson}})
+    };
+            drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }}, onClick);
+        </script>
+</body>
+
+</html>
