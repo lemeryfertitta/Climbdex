@@ -40,7 +40,7 @@ QUERIES = {
         WHERE is_listed = 1
         ORDER BY difficulty ASC""",
     "holds": """
-        SELECT 
+        SELECT
             placements.id,
             mirrored_placements.id,
             holes.x,
@@ -68,14 +68,14 @@ QUERIES = {
         FROM layouts
         WHERE id = $layout_id""",
     "image_filename": """
-        SELECT 
+        SELECT
             image_filename
         FROM product_sizes_layouts_sets
         WHERE layout_id = $layout_id
         AND product_size_id = $size_id
         AND set_id = $set_id""",
     "search": """
-        SELECT 
+        SELECT
             climbs.uuid,
             climbs.setter_username,
             climbs.name,
@@ -121,7 +121,7 @@ QUERIES = {
         WHERE layouts.id = $layout_id
         AND product_sizes.id = $size_id""",
     "sizes": """
-        SELECT 
+        SELECT
             product_sizes.id,
             product_sizes.name,
             product_sizes.description
@@ -195,6 +195,11 @@ def get_search_base_sql_and_binds(args):
         "min_rating": float(args.get("minRating")),
         "grade_accuracy": float(args.get("gradeAccuracy")),
     }
+
+    name = args.get("name")
+    if name:
+        sql += " AND climbs.name LIKE :name"
+        binds["name"] = f"%{name}%"
 
     angle = args.get("angle")
     if angle and angle != "any":
