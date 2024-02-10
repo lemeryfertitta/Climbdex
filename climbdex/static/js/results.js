@@ -61,13 +61,19 @@ function drawClimb(
   const betaAnchor = document.getElementById("anchor-beta");
   betaAnchor.href = `/${board}/beta/${uuid}/`;
 
+  const colorMap = colors.reduce((acc, colorRow) => {
+    acc[colorRow[0]] = colorRow[1];
+    return acc;
+  }, {});
+
   document
     .getElementById("button-illuminate")
     .addEventListener("click", function () {
+      console.log(frames, placementPositions, colorMap);
       const bluetoothPacket = getBluetoothPacket(
         frames,
         placementPositions,
-        colors
+        colorMap
       );
       illuminateClimb(board, bluetoothPacket);
     });
@@ -222,39 +228,6 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       });
     }
   };
-}
-
-function illuminateClimb(board, bluetoothPacket) {
-  const capitalizedBoard = board[0].toUpperCase() + board.slice(1);
-  navigator.bluetooth
-    .requestDevice({
-      filters: [
-        {
-          // TODO: Determine if this prefix is always the board name across all Aurora devices
-          namePrefix: capitalizedBoard,
-        },
-      ],
-      // TODO: Determine if this service UUID is the same across all Aurora devices
-      optionalServices: [SERVICE_UUID],
-    })
-    .then((device) => {
-      console.log(device);
-      return device.gatt.connect();
-    })
-    .then((server) => {
-      console.log(server);
-      return server.getPrimaryService(SERVICE_UUID);
-    })
-    .then((service) => {
-      console.log(service);
-      // TODO: Determine if this characteristic UUID is the same across all Aurora devices
-      return service.getCharacteristic(CHARACTERISTIC_UUID);
-    })
-    .then((characteristic) => {
-      console.log(characteristic);
-      return characteristic.writeValue(bluetoothPacket);
-    })
-    .then(() => console.log("Climb illuminated"));
 }
 
 const backAnchor = document.getElementById("anchor-back");

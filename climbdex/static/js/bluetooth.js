@@ -12,18 +12,20 @@ const PACKET_ONLY = 84;
 const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 
-function getChecksum(data) {
-  const checksumPartial = data.reduce(
-    (acc, value) => (acc + value) & MESSAGE_BODY_MAX_LENGTH,
-    0
-  );
-  return ~checksumPartial & MESSAGE_BODY_MAX_LENGTH;
+function checksum(data) {
+  let i = 0;
+  for (const value of data) {
+    i = (i + value) & 255;
+  }
+  return ~i & 255;
 }
 
 function wrapBytes(data) {
-  return data.length > MESSAGE_BODY_MAX_LENGTH
-    ? []
-    : [1, data.length, getChecksum(data), 2, ...data, 3];
+  if (data.length > MESSAGE_BODY_MAX_LENGTH) {
+    return [];
+  }
+
+  return [1, data.length, checksum(data), 2, ...data, 3];
 }
 
 function encodePosition(position) {
@@ -75,6 +77,7 @@ function getBluetoothPacket(frames, placementPositions, colors) {
   if (resultArray.length === 1) {
     resultArray[0][0] = PACKET_ONLY;
   } else if (resultArray.length > 1) {
+    console.log("Multiple packets detected!");
     resultArray[0][0] = PACKET_FIRST;
     resultArray[resultArray.length - 1][0] = PACKET_LAST;
   }
@@ -85,4 +88,37 @@ function getBluetoothPacket(frames, placementPositions, colors) {
   }
 
   return Uint8Array.from(finalResultArray);
+}
+
+function illuminateClimb(board, bluetoothPacket) {
+  const capitalizedBoard = board[0].toUpperCase() + board.slice(1);
+  navigator.bluetooth
+    .requestDevice({
+      filters: [
+        {
+          // TODO: Determine if this prefix is always the board name across all Aurora devices
+          namePrefix: capitalizedBoard,
+        },
+      ],
+      // TODO: Determine if this service UUID is the same across all Aurora devices
+      optionalServices: [SERVICE_UUID],
+    })
+    .then((device) => {
+      console.log(device);
+      return device.gatt.connect();
+    })
+    .then((server) => {
+      console.log(server);
+      return server.getPrimaryService(SERVICE_UUID);
+    })
+    .then((service) => {
+      console.log(service);
+      // TODO: Determine if this characteristic UUID is the same across all Aurora devices
+      return service.getCharacteristic(CHARACTERISTIC_UUID);
+    })
+    .then((characteristic) => {
+      console.log(characteristic);
+      return characteristic.writeValue(bluetoothPacket);
+    })
+    .then(() => console.log("Climb illuminated"));
 }

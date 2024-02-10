@@ -48,7 +48,7 @@ def results():
     return flask.render_template(
         "results.html.j2",
         app_url=boardlib.api.aurora.WEB_HOSTS[board_name],
-        colors=get_colors(board_name, layout_id),
+        colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
         ticked_climbs=ticked_climbs,
         placement_positions=placement_positions,
         **get_draw_board_kwargs(
@@ -141,12 +141,4 @@ def get_placement_positions(board_name, layout_id, size_id):
     return {
         placement_id: position
         for placement_id, position in climbdex.db.get_data(board_name, "leds", binds)
-    }
-
-
-def get_colors(board_name, layout_id):
-    binds = {"layout_id": layout_id}
-    return {
-        color_id: color
-        for color_id, color in climbdex.db.get_data(board_name, "colors", binds)
     }

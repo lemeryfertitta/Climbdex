@@ -36,10 +36,13 @@ document
       acc[colorRow[0]] = colorRow[1];
       return acc;
     }, {});
+    console.log(getFrames(), placementPositions, colorMap);
     const bluetoothPacket = getBluetoothPacket(
       getFrames(),
       placementPositions,
       colorMap
     );
+    const urlParams = new URLSearchParams(window.location.search);
+    const board = urlParams.get("board");
     illuminateClimb(board, bluetoothPacket);
   });
