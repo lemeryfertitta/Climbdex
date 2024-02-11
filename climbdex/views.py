@@ -99,19 +99,13 @@ def get_ticked_climbs(board, login_cookie):
     logbook = boardlib.api.aurora.get_logbook(
         board, login_info["token"], login_info["user_id"]
     )
-    climbs = {}
-    mirror_and_ticked_unique = {}
+    ticked_climbs = {}
+    normal_tick = 0
+    mirror_tick = 1
+    both_tick = 2
     for log in logbook:
-        mirror_and_ticked_unique[log["climb_uuid"]] = log["is_mirror"]
-
-    for log in logbook:
-        if log["is_mirror"] != mirror_and_ticked_unique[log["climb_uuid"]]:
-            climbs[f'{log["climb_uuid"]}-{log["angle"]}'] = 2
-    
-    for log in logbook:
-        if log["climb_uuid"] not in climbs:
-            if log["is_mirror"]:
-                climbs[f'{log["climb_uuid"]}-{log["angle"]}'] = 0 #0 is reverse tick
-            elif not log["is_mirror"]:
-                climbs[f'{log["climb_uuid"]}-{log["angle"]}'] = 1 #1 is normal tick
-    return climbs
+        key = f'{log["climb_uuid"]}-{log["angle"]}'
+        tick_type = mirror_tick if log["is_mirror"] else normal_tick
+        existing_tick = ticked_climbs.get(key)
+        ticked_climbs[key] = both_tick if existing_tick is not None and existing_tick != tick_type else tick_type
+    return ticked_climbs

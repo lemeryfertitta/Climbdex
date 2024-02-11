@@ -104,50 +104,45 @@ function clickClimbButton(index, pageSize, resultsCount) {
 }
 
 function getTickSvg(node, uuid, angle) {
-  let ticked = false;
   const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  const iconPath = document.createElementNS(
+  const checkPath = document.createElementNS(
     'http://www.w3.org/2000/svg',
     'path'
   );
-  const iconPath2 = document.createElementNS(
-    'http://www.w3.org/2000/svg',
-    'path'
-  );
-  let centerX = 1920 / 2;
-  let baseSvgPath = "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z";
+  const NORMAL_TICK = 0
+  const MIRROR_TICK = 1
+  const BOTH_TICK = 2
+  const centerX = 1920 / 2;
+  const baseSvgPath = "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z";
   iconSvg.setAttribute('fill', '#000000');
   iconSvg.setAttribute('viewBox', '0 0 1920 1920');
   iconSvg.setAttribute('height', '16px');
   iconSvg.setAttribute('width', '16px');
-  iconPath.setAttribute('fill-rule', 'evenodd');
-  iconPath2.setAttribute('fill-rule', 'evenodd');
+  checkPath.setAttribute('fill-rule', 'evenodd');
 
-  if (tickedClimbs[`${uuid}-${angle}`] == 2) {
-    ticked = true;
-    iconPath.setAttribute('d', baseSvgPath);
-    iconPath2.setAttribute('transform', `translate(${centerX}) scale(-1, 1) translate(-${centerX})`);
-    iconPath2.setAttribute('d', baseSvgPath);
-    iconSvg.appendChild(iconPath);
-    iconSvg.appendChild(iconPath2);
+  if (tickedClimbs[`${uuid}-${angle}`] == BOTH_TICK) {
+    const mirroredCheckPath = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+    mirroredCheckPath.setAttribute('fill-rule', 'evenodd');
+    mirroredCheckPath.setAttribute('transform', `translate(${centerX}) scale(-1, 1) translate(-${centerX})`);
+    mirroredCheckPath.setAttribute('d', baseSvgPath);
+    checkPath.setAttribute('d', baseSvgPath);
+    iconSvg.appendChild(checkPath);
+    iconSvg.appendChild(mirroredCheckPath);
   }
-  else if (tickedClimbs[`${uuid}-${angle}`] == 0) {
-    ticked = true;
-    iconPath.setAttribute('transform', `translate(${centerX}) scale(-1, 1) translate(-${centerX})`);
-    iconPath.setAttribute('d', baseSvgPath);
-    iconSvg.appendChild(iconPath);
+  else if (tickedClimbs[`${uuid}-${angle}`] == MIRROR_TICK) {
+    checkPath.setAttribute('transform', `translate(${centerX}) scale(-1, 1) translate(-${centerX})`);
+    checkPath.setAttribute('d', baseSvgPath);
+    iconSvg.appendChild(checkPath);
   }
-  else if (tickedClimbs[`${uuid}-${angle}`] == 1) {
-    ticked = true;
-    iconPath.setAttribute('d', baseSvgPath);
-    iconSvg.appendChild(iconPath);
-  }
-  else {
-    ticked = false
+  else if (tickedClimbs[`${uuid}-${angle}`] == NORMAL_TICK) {
+    checkPath.setAttribute('d', baseSvgPath);
+    iconSvg.appendChild(checkPath);
   }
 
-  node.appendChild(iconSvg)
-  return ticked
+  return node.appendChild(iconSvg)
 }
 
 function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
@@ -169,6 +164,10 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       rating,
       difficultyError,
     ] = result;
+
+    if (tickedClimbs[`${uuid}-${angle}`] != undefined) {
+      listButton.classList.add("bg-secondary-subtle");
+    }
     
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
@@ -194,9 +193,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     });
     const nameText = document.createElement("p");
     nameText.textContent = `${name} ${difficultyAngleText}`;
-    if (getTickSvg(nameText, uuid, angle)) {
-      listButton.classList.add("bg-secondary-subtle");
-    }
+    getTickSvg(nameText, uuid, angle)
     const statsText = document.createElement("p");
     statsText.textContent =
       ascents && rating ? `${ascents} ascents, ${rating.toFixed(2)}\u2605` : "";
