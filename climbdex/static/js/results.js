@@ -3,7 +3,7 @@ function drawClimb(
   name,
   frames,
   setter,
-  difficultyAngleText,
+  difficultyAngleSpan,
   description
 ) {
   document
@@ -43,7 +43,7 @@ function drawClimb(
   climbSetterHeader.textContent = `by ${setter}`;
 
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
-  climbStatsParagraph.textContent = difficultyAngleText;
+  climbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
   const climbDescriptionParagraph = document.getElementById(
     "paragraph-climb-description"
@@ -102,6 +102,45 @@ function clickClimbButton(index, pageSize, resultsCount) {
   }
 }
 
+function getTickPath() {
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute(
+    "d",
+    "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
+  );
+  path.setAttribute("fill-rule", "evenodd");
+  return path;
+}
+
+function getTickSvg(tickType) {
+  const tickSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+  const tickSize = 16;
+  const viewBoxSize = 1920;
+  const centerX = viewBoxSize / 2;
+  tickSvg.setAttribute("fill", "black");
+  tickSvg.setAttribute("viewBox", `0 0 ${viewBoxSize} ${viewBoxSize}`);
+  tickSvg.setAttribute("height", `${tickSize}px`);
+  tickSvg.setAttribute("width", `${tickSize}px`);
+
+  const normalTick = 0;
+  const mirrorTick = 1;
+  const bothTick = 2;
+  if (tickType === normalTick || tickType === bothTick) {
+    const normalPath = getTickPath();
+    tickSvg.appendChild(normalPath);
+  }
+  if (tickType === mirrorTick || tickType === bothTick) {
+    const mirroredPath = getTickPath();
+    mirroredPath.setAttribute(
+      "transform",
+      `translate(${centerX}) scale(-1, 1) translate(-${centerX})`
+    );
+    tickSvg.appendChild(mirroredPath);
+  }
+  return tickSvg;
+}
+
 function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
   const resultsList = document.getElementById("div-results-list");
   for (const [index, result] of results.entries()) {
@@ -121,19 +160,25 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       rating,
       difficultyError,
     ] = result;
-    const ticked = tickedClimbs.has(`${uuid}-${angle}`);
-    if (ticked) {
-      listButton.classList.add("bg-secondary-subtle");
-    }
-    const tickIndicator = ticked ? " \u2713" : "";
+
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
       Math.abs(difficultyError).toFixed(2)
     ).replace(/^0+/, "");
     const difficultyAngleText =
       difficulty && angle
-        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0${tickIndicator}`
+        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0`
         : "";
+    const difficultyAngleSpan = document.createElement("span");
+    difficultyAngleSpan.appendChild(
+      document.createTextNode(difficultyAngleText)
+    );
+    const tickType = tickedClimbs[`${uuid}-${angle}`];
+    if (tickType !== undefined) {
+      listButton.classList.add("bg-secondary-subtle");
+      difficultyAngleSpan.appendChild(document.createTextNode(" "));
+      difficultyAngleSpan.appendChild(getTickSvg(tickType));
+    }
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
       const prevButton = document.getElementById("button-prev");
@@ -146,10 +191,10 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       nextButton.onclick = function () {
         clickClimbButton(index + 1, pageSize, resultsCount);
       };
-      drawClimb(uuid, name, frames, setter, difficultyAngleText, description);
+      drawClimb(uuid, name, frames, setter, difficultyAngleSpan, description);
     });
     const nameText = document.createElement("p");
-    nameText.textContent = `${name} ${difficultyAngleText}`;
+    nameText.innerHTML = `${name} ${difficultyAngleSpan.outerHTML}`;
     const statsText = document.createElement("p");
     statsText.textContent =
       ascents && rating ? `${ascents} ascents, ${rating.toFixed(2)}\u2605` : "";
