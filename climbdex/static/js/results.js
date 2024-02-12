@@ -3,7 +3,7 @@ function drawClimb(
   name,
   frames,
   setter,
-  difficultyAngleText,
+  difficultyAngleSpan,
   description
 ) {
   document
@@ -43,8 +43,7 @@ function drawClimb(
   climbSetterHeader.textContent = `by ${setter}`;
 
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
-  climbStatsParagraph.innerHTML = difficultyAngleText;
-  getTickSvg(climbStatsParagraph, uuid, angle)
+  climbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
   const climbDescriptionParagraph = document.getElementById(
     "paragraph-climb-description"
@@ -103,46 +102,43 @@ function clickClimbButton(index, pageSize, resultsCount) {
   }
 }
 
-function getTickSvg(node, uuid, angle) {
-  const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  const checkPath = document.createElementNS(
-    'http://www.w3.org/2000/svg',
-    'path'
+function getTickPath() {
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute(
+    "d",
+    "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
   );
-  const NORMAL_TICK = 0
-  const MIRROR_TICK = 1
-  const BOTH_TICK = 2
-  const centerX = 1920 / 2;
-  const baseSvgPath = "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z";
-  iconSvg.setAttribute('fill', '#000000');
-  iconSvg.setAttribute('viewBox', '0 0 1920 1920');
-  iconSvg.setAttribute('height', '16px');
-  iconSvg.setAttribute('width', '16px');
-  checkPath.setAttribute('fill-rule', 'evenodd');
+  path.setAttribute("fill-rule", "evenodd");
+  return path;
+}
 
-  if (tickedClimbs[`${uuid}-${angle}`] == BOTH_TICK) {
-    const mirroredCheckPath = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      'path'
+function getTickSvg(tickType) {
+  const tickSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+  const tickSize = 16;
+  const viewBoxSize = 1920;
+  const centerX = viewBoxSize / 2;
+  tickSvg.setAttribute("fill", "black");
+  tickSvg.setAttribute("viewBox", `0 0 ${viewBoxSize} ${viewBoxSize}`);
+  tickSvg.setAttribute("height", `${tickSize}px`);
+  tickSvg.setAttribute("width", `${tickSize}px`);
+
+  const normalTick = 0;
+  const mirrorTick = 1;
+  const bothTick = 2;
+  if (tickType === normalTick || tickType === bothTick) {
+    const normalPath = getTickPath();
+    tickSvg.appendChild(normalPath);
+  }
+  if (tickType === mirrorTick || tickType === bothTick) {
+    const mirroredPath = getTickPath();
+    mirroredPath.setAttribute(
+      "transform",
+      `translate(${centerX}) scale(-1, 1) translate(-${centerX})`
     );
-    mirroredCheckPath.setAttribute('fill-rule', 'evenodd');
-    mirroredCheckPath.setAttribute('transform', `translate(${centerX}) scale(-1, 1) translate(-${centerX})`);
-    mirroredCheckPath.setAttribute('d', baseSvgPath);
-    checkPath.setAttribute('d', baseSvgPath);
-    iconSvg.appendChild(checkPath);
-    iconSvg.appendChild(mirroredCheckPath);
+    tickSvg.appendChild(mirroredPath);
   }
-  else if (tickedClimbs[`${uuid}-${angle}`] == MIRROR_TICK) {
-    checkPath.setAttribute('transform', `translate(${centerX}) scale(-1, 1) translate(-${centerX})`);
-    checkPath.setAttribute('d', baseSvgPath);
-    iconSvg.appendChild(checkPath);
-  }
-  else if (tickedClimbs[`${uuid}-${angle}`] == NORMAL_TICK) {
-    checkPath.setAttribute('d', baseSvgPath);
-    iconSvg.appendChild(checkPath);
-  }
-
-  return node.appendChild(iconSvg)
+  return tickSvg;
 }
 
 function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
@@ -165,18 +161,24 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficultyError,
     ] = result;
 
-    if (tickedClimbs[`${uuid}-${angle}`] != undefined) {
-      listButton.classList.add("bg-secondary-subtle");
-    }
-    
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
       Math.abs(difficultyError).toFixed(2)
     ).replace(/^0+/, "");
     const difficultyAngleText =
       difficulty && angle
-        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0 `
+        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0`
         : "";
+    const difficultyAngleSpan = document.createElement("span");
+    difficultyAngleSpan.appendChild(
+      document.createTextNode(difficultyAngleText)
+    );
+    const tickType = tickedClimbs[`${uuid}-${angle}`];
+    if (tickType !== undefined) {
+      listButton.classList.add("bg-secondary-subtle");
+      difficultyAngleSpan.appendChild(document.createTextNode(" "));
+      difficultyAngleSpan.appendChild(getTickSvg(tickType));
+    }
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
       const prevButton = document.getElementById("button-prev");
@@ -189,11 +191,10 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       nextButton.onclick = function () {
         clickClimbButton(index + 1, pageSize, resultsCount);
       };
-      drawClimb(uuid, name, frames, setter, difficultyAngleText, description);
+      drawClimb(uuid, name, frames, setter, difficultyAngleSpan, description);
     });
     const nameText = document.createElement("p");
-    nameText.textContent = `${name} ${difficultyAngleText}`;
-    getTickSvg(nameText, uuid, angle)
+    nameText.innerHTML = `${name} ${difficultyAngleSpan.outerHTML}`;
     const statsText = document.createElement("p");
     statsText.textContent =
       ascents && rating ? `${ascents} ascents, ${rating.toFixed(2)}\u2605` : "";
