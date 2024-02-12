@@ -106,9 +106,9 @@ function getTickPath() {
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute(
     "d",
-    "M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z"
+    "M 30,180 90,240 240,30"
   );
-  path.setAttribute("fill-rule", "evenodd");
+  path.setAttribute("style", "stroke:#000; stroke-width:25; fill:none");
   return path;
 }
 
@@ -116,16 +116,18 @@ function getTickSvg(tickType) {
   const tickSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
   const tickSize = 16;
-  const viewBoxSize = 1920;
+  const viewBoxSize = 280;
+  const upwardShift = 30;
+
   const centerX = viewBoxSize / 2;
-  tickSvg.setAttribute("fill", "black");
-  tickSvg.setAttribute("viewBox", `0 0 ${viewBoxSize} ${viewBoxSize}`);
+  tickSvg.setAttribute("viewBox", `0 +${upwardShift} ${viewBoxSize} ${viewBoxSize - upwardShift}`);
   tickSvg.setAttribute("height", `${tickSize}px`);
   tickSvg.setAttribute("width", `${tickSize}px`);
 
   const normalTick = 0;
   const mirrorTick = 1;
   const bothTick = 2;
+
   if (tickType === normalTick || tickType === bothTick) {
     const normalPath = getTickPath();
     tickSvg.appendChild(normalPath);
@@ -134,7 +136,7 @@ function getTickSvg(tickType) {
     const mirroredPath = getTickPath();
     mirroredPath.setAttribute(
       "transform",
-      `translate(${centerX}) scale(-1, 1) translate(-${centerX})`
+      `translate(${centerX}, 0) scale(-1, 1) translate(-${centerX})`
     );
     tickSvg.appendChild(mirroredPath);
   }
