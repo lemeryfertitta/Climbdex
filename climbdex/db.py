@@ -201,6 +201,11 @@ def get_search_base_sql_and_binds(args):
         sql += " AND climbs.name LIKE :name"
         binds["name"] = f"%{name}%"
 
+    settername = args.get("settername")
+    if settername:
+        sql += " AND setter_username LIKE :settername"
+        binds["settername"] = f"%{settername}%"
+
     angle = args.get("angle")
     if angle and angle != "any":
         sql += " AND climb_stats.angle = $angle"
