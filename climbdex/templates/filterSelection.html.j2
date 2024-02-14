@@ -32,9 +32,8 @@
             </select>
           </div>
           <div class="input-group mb-3">
-            <span class="input-group-text">Min Rating</span>
-            <input type="number" , class="form-control" id="input-min-rating" value="1.0" min="1.0" max="3.0" step="0.1"
-              name="minRating" />
+            <span class="input-group-text">Min Ascents</span>
+            <input type="number" class="form-control" id="input-min-ascents" value="1" min="1" name="minAscents" />
           </div>
           <div class="input-group mb-3">
             <span class="input-group-text">Min Grade</span>
@@ -66,15 +65,16 @@
             </select>
           </div>
 
-          <p class="mb-3">
-            <button class="input-group-text collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advanced-filters" aria-expanded="false" aria-controls="advanced-filters">Advanced Filters</button>
-          </p>
+          <div class="mb-3 d-grid gap-2">
+            <button class="btn btn-outline-secondary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advanced-filters" aria-expanded="false" aria-controls="advanced-filters">Advanced Filters</button>
+          </div>
           <div class="row">
             <div class="col">
               <div class="collapse multi-collapse" id="advanced-filters">
                 <div class="input-group mb-3">
-                  <span class="input-group-text">Min Ascents</span>
-                  <input type="number" class="form-control" id="input-min-ascents" value="1" min="1" name="minAscents" />
+                  <span class="input-group-text">Min Rating</span>
+                  <input type="number" , class="form-control" id="input-min-rating" value="1.0" min="1.0" max="3.0" step="0.1"
+                    name="minRating" />
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Grade Accuracy</span>
@@ -93,7 +93,7 @@
             </div>
           </div>
 
-          <div class="input-group mb-3 d-grid gap-2">
+          <div class="mb-3 d-grid gap-2">
             <button class="btn btn-secondary" id="hold-filter-button" data-bs-toggle="collapse"
               data-bs-target="#div-hold-filter" data-count="0" type="button">
               0 Selected Holds
