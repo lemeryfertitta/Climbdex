@@ -1,6 +1,4 @@
 function onFilterCircleClick(circleElement, colorRows) {
-  const holdId = circleElement.id.split("-")[1];
-  const mirroredHoldId = circleElement.getAttribute("data-mirror-id");
   const currentColor = circleElement.getAttribute("stroke");
   const colorIds = colorRows.map((colorRow) => colorRow[0]);
   const colors = colorRows.map((colorRow) => colorRow[1]);
@@ -36,13 +34,26 @@ document
       acc[colorRow[0]] = colorRow[1];
       return acc;
     }, {});
-    console.log(getFrames(), placementPositions, colorMap);
-    const bluetoothPacket = getBluetoothPacket(
-      getFrames(),
+    const frames = getFrames();
+    let bluetoothPacket = getBluetoothPacket(
+      frames,
       placementPositions,
       colorMap
     );
+
     const urlParams = new URLSearchParams(window.location.search);
     const board = urlParams.get("board");
     illuminateClimb(board, bluetoothPacket);
   });
+
+const backAnchor = document.getElementById("anchor-back");
+backAnchor.href = location.origin;
+if (document.referrer) {
+  referrerUrl = new URL(document.referrer);
+  if (referrerUrl.origin == location.origin && referrerUrl.pathname == "/") {
+    backAnchor.addEventListener("click", function (event) {
+      event.preventDefault();
+      history.back();
+    });
+  }
+}

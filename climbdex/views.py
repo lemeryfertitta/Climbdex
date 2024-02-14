@@ -84,6 +84,12 @@ def create():
         "climbCreation.html.j2",
         app_url=app_url,
         board=board_name,
+        layout_name=climbdex.db.get_data(
+            board_name, "layout_name", {"layout_id": layout_id}
+        )[0][0],
+        size_name=climbdex.db.get_data(
+            board_name, "size_name", {"layout_id": layout_id, "size_id": size_id}
+        )[0][0],
         colors=colors,
         placement_positions=placement_positions,
         **get_draw_board_kwargs(board_name, layout_id, size_id, set_ids),

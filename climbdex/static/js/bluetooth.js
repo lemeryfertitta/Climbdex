@@ -2,8 +2,10 @@
  * Based heavily on the excellent blogpost from Philipp Bazun:
  *
  * https://web.archive.org/web/20240203155713/https://www.bazun.me/blog/kiterboard/#reversing-bluetooth
+ *
  */
 
+const MAX_BLUETOOTH_MESSAGE_SIZE = 20;
 const MESSAGE_BODY_MAX_LENGTH = 255;
 const PACKET_MIDDLE = 81;
 const PACKET_FIRST = 82;
@@ -11,6 +13,10 @@ const PACKET_LAST = 83;
 const PACKET_ONLY = 84;
 const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+const BLUETOOTH_UNDEFINED = "navigator.bluetooth is undefined";
+const BLUETOOTH_CANCELLED = "User cancelled the requestDevice() chooser.";
+
+let bluetoothDevice = null;
 
 function checksum(data) {
   let i = 0;
@@ -77,7 +83,6 @@ function getBluetoothPacket(frames, placementPositions, colors) {
   if (resultArray.length === 1) {
     resultArray[0][0] = PACKET_ONLY;
   } else if (resultArray.length > 1) {
-    console.log("Multiple packets detected!");
     resultArray[0][0] = PACKET_FIRST;
     resultArray[resultArray.length - 1][0] = PACKET_LAST;
   }
@@ -90,35 +95,70 @@ function getBluetoothPacket(frames, placementPositions, colors) {
   return Uint8Array.from(finalResultArray);
 }
 
+function splitEvery(n, list) {
+  if (n <= 0) {
+    throw new Error("First argument to splitEvery must be a positive integer");
+  }
+  var result = [];
+  var idx = 0;
+  while (idx < list.length) {
+    result.push(list.slice(idx, (idx += n)));
+  }
+  return result;
+}
+
 function illuminateClimb(board, bluetoothPacket) {
   const capitalizedBoard = board[0].toUpperCase() + board.slice(1);
-  navigator.bluetooth
-    .requestDevice({
-      filters: [
-        {
-          // TODO: Determine if this prefix is always the board name across all Aurora devices
-          namePrefix: capitalizedBoard,
-        },
-      ],
-      // TODO: Determine if this service UUID is the same across all Aurora devices
-      optionalServices: [SERVICE_UUID],
-    })
+  requestDevice(capitalizedBoard)
     .then((device) => {
-      console.log(device);
       return device.gatt.connect();
     })
     .then((server) => {
-      console.log(server);
       return server.getPrimaryService(SERVICE_UUID);
     })
     .then((service) => {
-      console.log(service);
-      // TODO: Determine if this characteristic UUID is the same across all Aurora devices
       return service.getCharacteristic(CHARACTERISTIC_UUID);
     })
     .then((characteristic) => {
-      console.log(characteristic);
-      return characteristic.writeValue(bluetoothPacket);
+      const splitMessages = (buffer) =>
+        splitEvery(MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map(
+          (arr) => new Uint8Array(arr)
+        );
+      return writeCharacteristicSeries(
+        characteristic,
+        splitMessages(bluetoothPacket)
+      );
     })
-    .then(() => console.log("Climb illuminated"));
+    .then(() => console.log("Climb illuminated"))
+    .catch((error) => {
+      if (error.message !== BLUETOOTH_CANCELLED) {
+        const message =
+          error.message === BLUETOOTH_UNDEFINED
+            ? "Web Bluetooth is not supported on this browser. See https://caniuse.com/web-bluetooth for more information."
+            : `Failed to connect to LEDS: ${error}`;
+        alert(message);
+      }
+    });
+}
+
+async function writeCharacteristicSeries(characteristic, messages) {
+  let returnValue = null;
+  for (const message of messages) {
+    returnValue = await characteristic.writeValue(message);
+  }
+  return returnValue;
+}
+
+async function requestDevice(namePrefix) {
+  if (!bluetoothDevice) {
+    bluetoothDevice = await navigator.bluetooth.requestDevice({
+      filters: [
+        {
+          namePrefix,
+        },
+      ],
+      optionalServices: [SERVICE_UUID],
+    });
+  }
+  return bluetoothDevice;
 }

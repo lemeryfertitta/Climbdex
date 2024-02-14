@@ -1,3 +1,9 @@
+const colorMap = colors.reduce((acc, colorRow) => {
+  acc[colorRow[0]] = colorRow[1];
+  return acc;
+}, {});
+
+
 function drawClimb(
   uuid,
   name,
@@ -17,7 +23,7 @@ function drawClimb(
     if (frame.length > 0) {
       const [placementId, colorId] = frame.split("r");
       const circle = document.getElementById(`hold-${placementId}`);
-      circle.setAttribute("stroke", colors[colorId]);
+      circle.setAttribute("stroke", colorMap[colorId]);
       circle.setAttribute("stroke-opacity", 1.0);
     }
   }
@@ -61,22 +67,15 @@ function drawClimb(
   const betaAnchor = document.getElementById("anchor-beta");
   betaAnchor.href = `/${board}/beta/${uuid}/`;
 
-  const colorMap = colors.reduce((acc, colorRow) => {
-    acc[colorRow[0]] = colorRow[1];
-    return acc;
-  }, {});
-
-  document
-    .getElementById("button-illuminate")
-    .addEventListener("click", function () {
-      console.log(frames, placementPositions, colorMap);
-      const bluetoothPacket = getBluetoothPacket(
-        frames,
-        placementPositions,
-        colorMap
-      );
-      illuminateClimb(board, bluetoothPacket);
-    });
+  document.getElementById("button-illuminate").onclick = function () {
+    console.log(frames, placementPositions, colorMap);
+    const bluetoothPacket = getBluetoothPacket(
+      frames,
+      placementPositions,
+      colorMap
+    );
+    illuminateClimb(board, bluetoothPacket);
+  };
 }
 
 async function fetchBetaCount(board, uuid) {
@@ -246,3 +245,4 @@ fetchResultsCount().then((resultsCount) => {
     drawResultsPage(results, 0, 10, resultsCount);
   });
 });
+
