@@ -19,9 +19,9 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    var startX;
-    var endX;
-    var threshold = 150; // Minimum distance of swipe
+    let startX = null;
+    let endX = null;
+    const threshold = 150; // Minimum distance of swipe
 
     // Function to simulate button click and add button hover
     function simulateClick(elementId) {
