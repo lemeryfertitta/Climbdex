@@ -8,6 +8,13 @@
       max-height: 800px;
       overflow-y: scroll;
     }
+
+    /* simulate button click for swipe gestures */
+    .simulated-button-click {
+      color: var(--bs-btn-hover-color);
+      background-color: var(--bs-btn-hover-bg);
+      border-color: var(--bs-btn-hover-border-color);
+    }
   </style>
 </head>
 
@@ -76,6 +83,7 @@
       drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
     </script>
     <script src="{{url_for('static', filename='js/results.js')}}"></script>
+    <script src="{{url_for('static', filename='js/swipe.js')}}"></script>
 
 </body>
 
