@@ -39,6 +39,7 @@
         <script>
             const appUrl = "{{ app_url }}";
             const colors = {{ colors | tojson}};
+            const ledColors = {{ led_colors | tojson}};
             const placementPositions = {{ placement_positions | tojson}};
             const onClick = function (event) {
                 onFilterCircleClick(event.target, {{ colors | tojson}})
