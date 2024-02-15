@@ -7,8 +7,15 @@
     .input-group-text {
       width: 150px;
     }
+    #grade-slider {
+      padding: 0 16px;
+    }
   </style>
+
 </head>
+
+<link href="{{url_for('static', filename='css/nouislider.css')}}" rel="stylesheet">
+<script src="{{url_for('static', filename='js/nouislider.min.js')}}"></script>
 
 <body>
   <div class="container-sm text-center">
@@ -17,7 +24,11 @@
       <div class="col-md-5">
         <form class="card p-3 bg-light" id="form-search" action="/results">
           <p class="mb-2">Setup: {{board_name.capitalize()}} - {{layout_name}} - {{size_name}}</p>
-          <p class="mb-3"><small><a id="anchor-back">Back to setup selection</a></small></p>
+          <p class="mb-5"><small><a id="anchor-back">Back to setup selection</a></small></p>
+          <div class="mb-2 gap-2" id="grade-slider"></div>
+          <input type="hidden" id="slider-minValue" name="minGrade">
+          <input type="hidden" id="slider-maxValue" name="maxGrade">
+          <input id="sliderValueInput" type="hidden" value="">
           <div class="input-group mb-3">
             <span class="input-group-text">Name</span>
             <input type="text" class="form-control" id="name" name="name">
@@ -34,22 +45,6 @@
           <div class="input-group mb-3">
             <span class="input-group-text">Min Ascents</span>
             <input type="number" class="form-control" id="input-min-ascents" value="1" min="1" name="minAscents" />
-          </div>
-          <div class="input-group mb-3">
-            <span class="input-group-text">Min Grade</span>
-            <select class="form-select" id="select-min-grade" name="minGrade">
-              {% for grade in grades %}
-              <option value="{{grade[0]}}" {% if grade==grades[0] %}selected{% endif %}>{{grade[1]}}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="input-group mb-3">
-            <span class="input-group-text">Max Grade</span>
-            <select class="form-select" id="select-max-grade" name="maxGrade">
-              {% for grade in grades %}
-              <option value="{{grade[0]}}" {% if grade==grades[-1] %}selected{% endif %}>{{grade[1]}}</option>
-              {% endfor %}
-            </select>
           </div>
           <div class="input-group mb-3">
             <span class="input-group-text">Sort By</span>
@@ -75,6 +70,13 @@
                   <span class="input-group-text">Min Rating</span>
                   <input type="number" , class="form-control" id="input-min-rating" value="1.0" min="1.0" max="3.0" step="0.1"
                     name="minRating" />
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Classics only</span>
+                  <select class="form-select" id="only-classics" name="onlyClassics">
+                    <option value="0" selected>No</option>
+                    <option value="1">Yes</option>
+                  </select>
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Grade Accuracy</span>
@@ -140,6 +142,59 @@
     };
     drawBoard('svg-hold-filter', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }}, onClick);
   </script>
+
+  <script>
+    var gradeMapping = {
+      {% for grade in grades %}
+      "{{grade[1]}}": "{{grade[0]}}",
+      {% endfor %}
+    };
+
+    var arbitraryValuesSlider = document.getElementById('grade-slider');
+    var arbitraryValuesForSlider = [
+      {% for grade in grades %}
+      "{{grade[1]}}",
+      {% endfor %}
+    ];
+
+    var format = {
+    to: function(value) {
+        return arbitraryValuesForSlider[Math.round(value)];
+    },
+    from: function (value) {
+        return arbitraryValuesForSlider.indexOf(value);
+    }
+    };
+
+    var slider = noUiSlider.create(arbitraryValuesSlider, {
+      // start values are parsed by 'format'
+      start: [arbitraryValuesForSlider[0], arbitraryValuesForSlider[arbitraryValuesForSlider.length - 1]],
+      range: { min: 0, max: arbitraryValuesForSlider.length - 1},
+      step: 1,
+      connect: true,
+      tooltips: true,
+      format: format,
+    });
+
+    //update hidden values with slider values
+    slider.on('update', function (values, handle) {
+    document.getElementById('slider-minValue').value = values[0];
+    document.getElementById('slider-maxValue').value = values[1];
+    });
+
+    //convert slider values to numeric difficulty before form submit
+    document.getElementById('form-search').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var minGradeValue = document.getElementById('slider-minValue').value;
+      var maxGradeValue = document.getElementById('slider-maxValue').value;
+      var converted_minGrade = gradeMapping[minGradeValue];
+      var converted_maxGrade = gradeMapping[maxGradeValue];
+      document.getElementById('slider-minValue').value = converted_minGrade;
+      document.getElementById('slider-maxValue').value = converted_maxGrade;
+      this.submit();
+    });
+</script>
+
 </body>
 
 </html>
