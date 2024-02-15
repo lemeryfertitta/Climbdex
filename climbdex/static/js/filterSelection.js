@@ -55,24 +55,6 @@ function onFilterCircleClick(circleElement, colorRows) {
   }
 }
 
-function updateMaxOnMinChange(event) {
-  const minGradeFilter = event.target;
-  const maxGradeFilter = document.getElementById("select-max-grade");
-  if (minGradeFilter.value > maxGradeFilter.value) {
-    maxGradeFilter.value = minGradeFilter.value;
-    maxGradeFilter.text = minGradeFilter.text;
-  }
-}
-
-function updateMinOnMaxChange(event) {
-  const minGradeFilter = document.getElementById("select-min-grade");
-  const maxGradeFilter = event.target;
-  if (minGradeFilter.value > maxGradeFilter.value) {
-    minGradeFilter.value = maxGradeFilter.value;
-    minGradeFilter.text = maxGradeFilter.text;
-  }
-}
-
 function resetHoldFilter() {
   const holdFilterInput = document.getElementById("input-hold-filter");
   holdFilterInput.value = "";
@@ -94,14 +76,6 @@ document
   .addEventListener("shown.bs.collapse", function (event) {
     event.target.scrollIntoView(true);
   });
-
-document
-  .getElementById("select-min-grade")
-  .addEventListener("change", updateMaxOnMinChange);
-
-document
-  .getElementById("select-max-grade")
-  .addEventListener("change", updateMinOnMaxChange);
 
 document
   .getElementById("button-reset-hold-filter")
