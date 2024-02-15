@@ -3,7 +3,6 @@ const colorMap = colors.reduce((acc, colorRow) => {
   return acc;
 }, {});
 
-
 function drawClimb(
   uuid,
   name,
@@ -68,11 +67,10 @@ function drawClimb(
   betaAnchor.href = `/${board}/beta/${uuid}/`;
 
   document.getElementById("button-illuminate").onclick = function () {
-    console.log(frames, placementPositions, colorMap);
     const bluetoothPacket = getBluetoothPacket(
       frames,
       placementPositions,
-      colorMap
+      ledColors
     );
     illuminateClimb(board, bluetoothPacket);
   };
@@ -115,10 +113,7 @@ function clickClimbButton(index, pageSize, resultsCount) {
 
 function getTickPath() {
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute(
-    "d",
-    "M 30,180 90,240 240,30"
-  );
+  path.setAttribute("d", "M 30,180 90,240 240,30");
   path.setAttribute("style", "stroke:#000; stroke-width:25; fill:none");
   return path;
 }
@@ -131,7 +126,10 @@ function getTickSvg(tickType) {
   const upwardShift = 30;
 
   const centerX = viewBoxSize / 2;
-  tickSvg.setAttribute("viewBox", `0 +${upwardShift} ${viewBoxSize} ${viewBoxSize - upwardShift}`);
+  tickSvg.setAttribute(
+    "viewBox",
+    `0 +${upwardShift} ${viewBoxSize} ${viewBoxSize - upwardShift}`
+  );
   tickSvg.setAttribute("height", `${tickSize}px`);
   tickSvg.setAttribute("width", `${tickSize}px`);
 
@@ -245,4 +243,3 @@ fetchResultsCount().then((resultsCount) => {
     drawResultsPage(results, 0, 10, resultsCount);
   });
 });
-

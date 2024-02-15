@@ -40,8 +40,7 @@ function encodePosition(position) {
   return [position1, position2];
 }
 
-function encodeColor(hexColorString) {
-  const color = hexColorString.substring(1);
+function encodeColor(color) {
   const substring = color.substring(0, 2);
   const substring2 = color.substring(2, 4);
 

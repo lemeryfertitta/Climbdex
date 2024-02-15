@@ -51,6 +51,7 @@ def results():
         colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
         ticked_climbs=ticked_climbs,
         placement_positions=placement_positions,
+        led_colors=get_led_colors(board_name, layout_id),
         **get_draw_board_kwargs(
             board_name,
             layout_id,
@@ -91,6 +92,7 @@ def create():
             board_name, "size_name", {"layout_id": layout_id, "size_id": size_id}
         )[0][0],
         colors=colors,
+        led_colors=get_led_colors(board_name, layout_id),
         placement_positions=placement_positions,
         **get_draw_board_kwargs(board_name, layout_id, size_id, set_ids),
     )
@@ -147,4 +149,12 @@ def get_placement_positions(board_name, layout_id, size_id):
     return {
         placement_id: position
         for placement_id, position in climbdex.db.get_data(board_name, "leds", binds)
+    }
+
+
+def get_led_colors(board_name, layout_id):
+    binds = {"layout_id": layout_id}
+    return {
+        role_id: color
+        for role_id, color in climbdex.db.get_data(board_name, "led_colors", binds)
     }

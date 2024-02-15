@@ -75,6 +75,14 @@ QUERIES = {
         INNER JOIN leds ON placements.hole_id = leds.hole_id
         WHERE placements.layout_id = $layout_id
         AND leds.product_size_id = $size_id""",
+    "led_colors": """
+        SELECT
+            placement_roles.id,
+            placement_roles.led_color
+        FROM placement_roles
+        JOIN layouts
+        ON layouts.product_id = placement_roles.product_id
+        WHERE layouts.id = $layout_id""",
     "image_filename": """
         SELECT
             image_filename

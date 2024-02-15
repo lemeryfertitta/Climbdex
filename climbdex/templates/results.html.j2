@@ -78,6 +78,7 @@
     <script>
       const appUrl = "{{ app_url }}";
       const colors = {{ colors | tojson}};
+      const ledColors = {{ led_colors | tojson}};
       const tickedClimbs = {{ ticked_climbs | tojson}};
       const placementPositions = {{ placement_positions | tojson}};
       drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});

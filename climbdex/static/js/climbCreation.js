@@ -30,15 +30,11 @@ function getFrames() {
 document
   .getElementById("button-illuminate")
   .addEventListener("click", function () {
-    const colorMap = colors.reduce((acc, colorRow) => {
-      acc[colorRow[0]] = colorRow[1];
-      return acc;
-    }, {});
     const frames = getFrames();
     let bluetoothPacket = getBluetoothPacket(
       frames,
       placementPositions,
-      colorMap
+      ledColors
     );
 
     const urlParams = new URLSearchParams(window.location.search);
