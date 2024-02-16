@@ -8,7 +8,7 @@
       width: 150px;
     }
     #grade-slider {
-      padding: 0 16px;
+      padding: 0 32px;
     }
   </style>
 
@@ -28,7 +28,6 @@
           <div class="mb-2 gap-2" id="grade-slider"></div>
           <input type="hidden" id="slider-minValue" name="minGrade">
           <input type="hidden" id="slider-maxValue" name="maxGrade">
-          <input id="sliderValueInput" type="hidden" value="">
           <div class="input-group mb-3">
             <span class="input-group-text">Name</span>
             <input type="text" class="form-control" id="name" name="name">
@@ -178,6 +177,8 @@
       format: format,
     });
 
+    mergeTooltips(arbitraryValuesSlider, 10, ' - ');
+
     //update hidden values with slider values
     slider.on('update', function (values, handle) {
     document.getElementById('slider-minValue').value = values[0];
@@ -194,7 +195,8 @@
       document.getElementById('slider-minValue').value = converted_minGrade;
       document.getElementById('slider-maxValue').value = converted_maxGrade;
       this.submit();
-    });
+    });  
+
 </script>
 
 </body>
