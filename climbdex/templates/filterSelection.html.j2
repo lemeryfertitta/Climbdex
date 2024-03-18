@@ -5,7 +5,10 @@
   {% include 'head.html.j2'%}
   <style>
     .input-group-text {
-      width: 150px;
+      width: 170px;
+    }
+    .enableBox {
+      margin-right: .3rem;
     }
   </style>
 </head>
@@ -73,6 +76,16 @@
           <div class="row">
             <div class="col">
               <div class="collapse multi-collapse" id="advanced-filters">
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><input class="enableBox" type="checkbox" id="use-min-holds" name="useMinHolds">Min Hand Holds</span>
+                  <input type="number" , class="form-control" id="input-min-hold-number" disabled="true" value="" min="0" max="30"
+                    step="1" name="minHoldNumber" />
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><input class="enableBox" type="checkbox" id="use-max-holds" name="useMaxHolds">Max Hand Holds</span>
+                  <input type="number" , class="form-control" id="input-max-hold-number" disabled="true" value="" min="1" max="30"
+                    step="1" name="maxHoldNumber" />
+                </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Min Rating</span>
                   <input type="number" , class="form-control" id="input-min-rating" value="1.0" min="1.0" max="3.0"

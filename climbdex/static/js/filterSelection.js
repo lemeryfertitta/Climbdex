@@ -107,6 +107,36 @@ document
   .getElementById("button-reset-hold-filter")
   .addEventListener("click", resetHoldFilter);
 
+document.getElementById('use-min-holds')
+.addEventListener('change', function() {
+  document.getElementById('input-min-hold-number').disabled = !this.checked
+})
+
+document.getElementById('use-max-holds')
+.addEventListener('change', function() {
+  document.getElementById('input-max-hold-number').disabled = !this.checked
+})
+
+document
+  .getElementById('input-min-hold-number')
+  .addEventListener('change', function(event) {
+    const min = event.target
+    const max = document.getElementById('input-max-hold-number')
+    if (min.value > max.value && !max.disabled) {
+      max.value = min.value
+    }
+  })
+
+document
+.getElementById('input-max-hold-number')
+.addEventListener('change', function(event) {
+  const max = event.target
+  const min = document.getElementById('input-min-hold-number')
+  if (max.value < min.value && !min.disabled) {
+    min.value = max.value
+  }
+})
+
 const backAnchor = document.getElementById("anchor-back");
 backAnchor.href = location.origin;
 if (document.referrer) {

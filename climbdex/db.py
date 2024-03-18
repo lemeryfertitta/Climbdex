@@ -239,6 +239,21 @@ def get_search_base_sql_and_binds(args):
                 mirrored_holds, match_roles
             )
         sql += " )"
+    
+    maxHolds = args.get("maxHoldNumber")
+    minHolds = args.get("minHoldNumber")
+    if maxHolds or minHolds:
+        sql += " AND (length(frames) - length(replace(frames, 'r' || (SELECT placement_roles.id FROM placement_roles JOIN layouts on layouts.product_id = placement_roles.product_id WHERE layouts.id = $layout_id AND placement_roles.position = '2'), ''))) / 3"
+    if maxHolds and minHolds:
+        sql += " BETWEEN $minHolds and $maxHolds"
+        binds['maxHolds'] = int(maxHolds)
+        binds['minHolds'] = int(minHolds)
+    elif maxHolds:
+        sql += " <= $maxHolds"
+        binds['maxHolds'] = int(maxHolds)
+    elif minHolds:
+        sql += " >= $minHolds"
+        binds['minHolds'] = int(minHolds)
 
     return sql, binds
 
