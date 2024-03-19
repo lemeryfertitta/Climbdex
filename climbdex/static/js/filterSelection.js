@@ -169,13 +169,8 @@ function mergeTooltips(slider, threshold, separator) {
 }
 
 function convertGrade(value) {
-  // Überprüfen, ob der Wert im Mapping existiert
   if (gradeMapping[value]) {
-    // Wenn ja, geben Sie den konvertierten Wert zurück
     return gradeMapping[value];
   }
-
-  // Wenn der Wert nicht im Mapping existiert, Option zur Handhabung
-  console.warn('Grade conversion not found for:', value);
-  return null; // oder geben Sie den ursprünglichen Wert zurück, falls bevorzugt
+  return null;
 }
