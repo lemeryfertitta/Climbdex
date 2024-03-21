@@ -170,15 +170,17 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficulty,
       rating,
       difficultyError,
+      classic
     ] = result;
 
+    const classicSymbol = classic !== null ? "\u00A9" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
       Math.abs(difficultyError).toFixed(2)
     ).replace(/^0+/, "");
     const difficultyAngleText =
       difficulty && angle
-        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0`
+        ? `${difficulty} (${difficultyErrorPrefix}${difficultyErrorSuffix}) at ${angle}\u00B0 ${classicSymbol}`
         : "";
     const difficultyAngleSpan = document.createElement("span");
     difficultyAngleSpan.appendChild(

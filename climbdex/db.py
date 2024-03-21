@@ -101,7 +101,8 @@ QUERIES = {
             climb_stats.ascensionist_count,
             (SELECT boulder_name FROM difficulty_grades WHERE difficulty = ROUND(climb_stats.display_difficulty)) AS difficulty,
             climb_stats.quality_average,
-            (SELECT ROUND(climb_stats.difficulty_average - ROUND(climb_stats.display_difficulty), 2)) AS difficulty_error
+            (SELECT ROUND(climb_stats.difficulty_average - ROUND(climb_stats.display_difficulty), 2)) AS difficulty_error,
+            climb_stats.benchmark_difficulty
         FROM climbs
         LEFT JOIN climb_stats
         ON climb_stats.climb_uuid = climbs.uuid
@@ -216,6 +217,10 @@ def get_search_base_sql_and_binds(args):
     if name:
         sql += " AND climbs.name LIKE :name"
         binds["name"] = f"%{name}%"
+
+    only_classics = args.get("onlyClassics")
+    if only_classics != "0":
+        sql += " AND climb_stats.benchmark_difficulty IS NOT NULL"
 
     settername = args.get("settername")
     if settername:

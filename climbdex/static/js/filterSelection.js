@@ -55,24 +55,6 @@ function onFilterCircleClick(circleElement, colorRows) {
   }
 }
 
-function updateMaxOnMinChange(event) {
-  const minGradeFilter = event.target;
-  const maxGradeFilter = document.getElementById("select-max-grade");
-  if (minGradeFilter.value > maxGradeFilter.value) {
-    maxGradeFilter.value = minGradeFilter.value;
-    maxGradeFilter.text = minGradeFilter.text;
-  }
-}
-
-function updateMinOnMaxChange(event) {
-  const minGradeFilter = document.getElementById("select-min-grade");
-  const maxGradeFilter = event.target;
-  if (minGradeFilter.value > maxGradeFilter.value) {
-    minGradeFilter.value = maxGradeFilter.value;
-    minGradeFilter.text = maxGradeFilter.text;
-  }
-}
-
 function resetHoldFilter() {
   const holdFilterInput = document.getElementById("input-hold-filter");
   holdFilterInput.value = "";
@@ -96,14 +78,6 @@ document
   });
 
 document
-  .getElementById("select-min-grade")
-  .addEventListener("change", updateMaxOnMinChange);
-
-document
-  .getElementById("select-max-grade")
-  .addEventListener("change", updateMinOnMaxChange);
-
-document
   .getElementById("button-reset-hold-filter")
   .addEventListener("click", resetHoldFilter);
 
@@ -117,4 +91,138 @@ if (document.referrer) {
       history.back();
     });
   }
+}
+
+function mergeTooltips(slider, threshold, separator) {
+  const textIsRtl = getComputedStyle(slider).direction === "rtl";
+  const isRtl = slider.noUiSlider.options.direction === "rtl";
+  const isVertical = slider.noUiSlider.options.orientation === "vertical";
+  const tooltips = slider.noUiSlider.getTooltips();
+  const origins = slider.noUiSlider.getOrigins();
+
+  // Move tooltips into the origin element. The default stylesheet handles this.
+  tooltips.forEach(function (tooltip, index) {
+    if (tooltip) {
+      origins[index].appendChild(tooltip);
+    }
+  });
+
+  slider.noUiSlider.on(
+    "update",
+    function (values, handle, unencoded, tap, positions) {
+      const pools = [[]];
+      const poolPositions = [[]];
+      const poolValues = [[]];
+      let atPool = 0;
+
+      // Assign the first tooltip to the first pool, if the tooltip is configured
+      if (tooltips[0]) {
+        pools[0][0] = 0;
+        poolPositions[0][0] = positions[0];
+        poolValues[0][0] = values[0];
+      }
+
+      for (
+        let positionIndex = 1;
+        positionIndex < positions.length;
+        positionIndex++
+      ) {
+        if (
+          !tooltips[positionIndex] ||
+          positions[positionIndex] - positions[positionIndex - 1] > threshold
+        ) {
+          atPool++;
+          pools[atPool] = [];
+          poolValues[atPool] = [];
+          poolPositions[atPool] = [];
+        }
+
+        if (tooltips[positionIndex]) {
+          pools[atPool].push(positionIndex);
+          poolValues[atPool].push(values[positionIndex]);
+          poolPositions[atPool].push(positions[positionIndex]);
+        }
+      }
+
+      pools.forEach(function (pool, poolIndex) {
+        const handlesInPool = pool.length;
+
+        for (let handleIndex = 0; handleIndex < handlesInPool; handleIndex++) {
+          const handleNumber = pool[handleIndex];
+
+          if (handleIndex === handlesInPool - 1) {
+            let offset = 0;
+
+            poolPositions[poolIndex].forEach(function (value) {
+              offset += 1000 - value;
+            });
+
+            const direction = isVertical ? "bottom" : "right";
+            const last = isRtl ? 0 : handlesInPool - 1;
+            const lastOffset = 1000 - poolPositions[poolIndex][last];
+            offset =
+              (textIsRtl && !isVertical ? 100 : 0) +
+              offset / handlesInPool -
+              lastOffset;
+
+            // Center this tooltip over the affected handles
+            tooltips[handleNumber].innerHTML =
+              poolValues[poolIndex].join(separator);
+            tooltips[handleNumber].style.display = "block";
+            tooltips[handleNumber].style[direction] = offset + "%";
+          } else {
+            // Hide this tooltip
+            tooltips[handleNumber].style.display = "none";
+          }
+        }
+      });
+    }
+  );
+}
+
+function createSlider() {
+  const format = {
+    to: function (value) {
+      return arbitraryValuesForSlider[Math.round(value)];
+    },
+    from: function (value) {
+      return arbitraryValuesForSlider.indexOf(value);
+    },
+  };
+
+  const arbitraryValuesSlider = document.getElementById("grade-slider");
+  const slider = noUiSlider.create(arbitraryValuesSlider, {
+    // Start values are parsed by 'format'
+    start: [
+      arbitraryValuesForSlider[0],
+      arbitraryValuesForSlider[arbitraryValuesForSlider.length - 1],
+    ],
+    range: { min: 0, max: arbitraryValuesForSlider.length - 1 },
+    step: 1,
+    connect: true,
+    tooltips: true,
+    format: format,
+  });
+
+  mergeTooltips(arbitraryValuesSlider, 10, " - ");
+
+  // Update hidden values with slider values
+  slider.on("update", function (values, handle) {
+    document.getElementById("slider-minValue").value = values[0];
+    document.getElementById("slider-maxValue").value = values[1];
+  });
+
+  // Convert slider values to numeric difficulty before form submit
+  document
+    .getElementById("form-search")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      const minGradeValue = document.getElementById("slider-minValue").value;
+      const maxGradeValue = document.getElementById("slider-maxValue").value;
+      const convertedMinGrade = gradeMapping[minGradeValue];
+      const convertedMaxGrade = gradeMapping[maxGradeValue];
+      document.getElementById("slider-minValue").value = convertedMinGrade;
+      document.getElementById("slider-maxValue").value = convertedMaxGrade;
+      this.submit();
+    });
 }
