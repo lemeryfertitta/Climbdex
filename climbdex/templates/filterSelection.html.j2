@@ -143,62 +143,18 @@
       onFilterCircleClick(event.target, {{ colors | tojson}})
     };
     drawBoard('svg-hold-filter', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }}, onClick);
-  </script>
-
-  <script>
-    var gradeMapping = {
+    const gradeMapping = {
       {% for grade in grades %}
     "{{grade[1]}}": "{{grade[0]}}",
       {% endfor %}
     };
-
-    var arbitraryValuesSlider = document.getElementById('grade-slider');
-    var arbitraryValuesForSlider = [
+    const arbitraryValuesForSlider = [
       {% for grade in grades %}
     "{{grade[1]}}",
       {% endfor %}
     ];
-
-    var format = {
-      to: function (value) {
-        return arbitraryValuesForSlider[Math.round(value)];
-      },
-      from: function (value) {
-        return arbitraryValuesForSlider.indexOf(value);
-      }
-    };
-
-    var slider = noUiSlider.create(arbitraryValuesSlider, {
-      // start values are parsed by 'format'
-      start: [arbitraryValuesForSlider[0], arbitraryValuesForSlider[arbitraryValuesForSlider.length - 1]],
-      range: { min: 0, max: arbitraryValuesForSlider.length - 1 },
-      step: 1,
-      connect: true,
-      tooltips: true,
-      format: format,
-    });
-
-    mergeTooltips(arbitraryValuesSlider, 10, ' - ');
-
-    //update hidden values with slider values
-    slider.on('update', function (values, handle) {
-      document.getElementById('slider-minValue').value = values[0];
-      document.getElementById('slider-maxValue').value = values[1];
-    });
-
-    //convert slider values to numeric difficulty before form submit
-    document.getElementById('form-search').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var minGradeValue = document.getElementById('slider-minValue').value;
-      var maxGradeValue = document.getElementById('slider-maxValue').value;
-      var converted_minGrade = gradeMapping[minGradeValue];
-      var converted_maxGrade = gradeMapping[maxGradeValue];
-      document.getElementById('slider-minValue').value = converted_minGrade;
-      document.getElementById('slider-maxValue').value = converted_maxGrade;
-      this.submit();
-    });
+    createSlider();
   </script>
-
 </body>
 
 </html>
