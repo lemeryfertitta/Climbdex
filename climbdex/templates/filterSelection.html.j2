@@ -7,6 +7,7 @@
     .input-group-text {
       width: 150px;
     }
+
     #grade-slider {
       padding: 0 32px;
     }
@@ -72,17 +73,13 @@
                   <input type="number" , class="form-control" id="input-min-rating" value="1.0" min="1.0" max="3.0"
                     step="0.1" name="minRating" />
                 </div>
-                {% if board_name == "tension" or board_name == "decoy" %}
                 <div class="input-group mb-3">
-                    <span class="input-group-text">Classics only</span>
-                    <select class="form-select" id="only-classics" name="onlyClassics">
-                      <option value="0" selected>No</option>
-                      <option value="1">Yes</option>
-                    </select>
+                  <span class="input-group-text">Classics only</span>
+                  <select class="form-select" id="only-classics" name="onlyClassics">
+                    <option value="0" selected>No</option>
+                    <option value="1">Yes</option>
+                  </select>
                 </div>
-                {% else %}
-                  <input type="hidden" id="only-classics" name="onlyClassics" value="0">
-                {% endif %}
                 <div class="input-group mb-3">
                   <span class="input-group-text">Grade Accuracy</span>
                   <select class="form-select" id="select-grade-accuracy" name="gradeAccuracy">
@@ -151,30 +148,30 @@
   <script>
     var gradeMapping = {
       {% for grade in grades %}
-      "{{grade[1]}}": "{{grade[0]}}",
+    "{{grade[1]}}": "{{grade[0]}}",
       {% endfor %}
     };
 
     var arbitraryValuesSlider = document.getElementById('grade-slider');
     var arbitraryValuesForSlider = [
       {% for grade in grades %}
-      "{{grade[1]}}",
+    "{{grade[1]}}",
       {% endfor %}
     ];
 
     var format = {
-    to: function(value) {
+      to: function (value) {
         return arbitraryValuesForSlider[Math.round(value)];
-    },
-    from: function (value) {
+      },
+      from: function (value) {
         return arbitraryValuesForSlider.indexOf(value);
-    }
+      }
     };
 
     var slider = noUiSlider.create(arbitraryValuesSlider, {
       // start values are parsed by 'format'
       start: [arbitraryValuesForSlider[0], arbitraryValuesForSlider[arbitraryValuesForSlider.length - 1]],
-      range: { min: 0, max: arbitraryValuesForSlider.length - 1},
+      range: { min: 0, max: arbitraryValuesForSlider.length - 1 },
       step: 1,
       connect: true,
       tooltips: true,
@@ -185,12 +182,12 @@
 
     //update hidden values with slider values
     slider.on('update', function (values, handle) {
-    document.getElementById('slider-minValue').value = values[0];
-    document.getElementById('slider-maxValue').value = values[1];
+      document.getElementById('slider-minValue').value = values[0];
+      document.getElementById('slider-maxValue').value = values[1];
     });
 
     //convert slider values to numeric difficulty before form submit
-    document.getElementById('form-search').addEventListener('submit', function(e) {
+    document.getElementById('form-search').addEventListener('submit', function (e) {
       e.preventDefault();
       var minGradeValue = document.getElementById('slider-minValue').value;
       var maxGradeValue = document.getElementById('slider-maxValue').value;
@@ -200,7 +197,7 @@
       document.getElementById('slider-maxValue').value = converted_maxGrade;
       this.submit();
     });
-</script>
+  </script>
 
 </body>
 
