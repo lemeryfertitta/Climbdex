@@ -1,3 +1,6 @@
+var el = document.getElementById('toast')
+var toast = bootstrap.Toast.getOrCreateInstance(el)
+
 function drawBoard(
   svgElementId,
   imagesToHolds,

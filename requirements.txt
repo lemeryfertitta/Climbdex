@@ -21,3 +21,4 @@ typing_extensions==4.9.0
 urllib3==2.1.0
 Werkzeug==3.0.1
 zipp==3.17.0
+flask_parameter_validation==2.3.1
