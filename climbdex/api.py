@@ -8,11 +8,16 @@ import climbdex.db
 
 blueprint = flask.Blueprint("api", __name__)
 
-def param_error_handler(err):
+def error_handler(err):
+    details = str(err)
+    error_type = str(type(err).__name__)
+    message = f"There was an issue getting results from the api. If the issue persists please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(err).__name__)}: {str(err)}\" target='_blank'>report it</a>"
+
     return {
         "error": True,
-        "details": str(err),
-        "message": f"There was an issue getting results. If the issue persists please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(err)}\" target='_blank'>report it</a>"
+        "details": details,
+        "type": error_type,
+        "message": message,
     }, 400
 
 
@@ -38,7 +43,7 @@ def sets(board_name, layout_id, size_id):
 
 
 @blueprint.route("/api/v1/search/count")
-@ValidateParameters(param_error_handler)
+@ValidateParameters(error_handler)
 def resultsCount(
     gradeAccuracy: float = Query(),
     layout: int = Query(),
@@ -48,11 +53,13 @@ def resultsCount(
     minRating: float = Query(),
     size: int = Query(),
 ):
-    return flask.jsonify(climbdex.db.get_search_count(flask.request.args))
-
+    try:
+        return flask.jsonify(climbdex.db.get_search_count(flask.request.args))
+    except Exception as e:
+        return error_handler(e)
 
 @blueprint.route("/api/v1/search")
-@ValidateParameters(param_error_handler)
+@ValidateParameters(error_handler)
 def search(
     gradeAccuracy: float = Query(),
     layout: int = Query(),
@@ -62,7 +69,10 @@ def search(
     minRating: float = Query(),
     size: int = Query(),
 ):
-    return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
+    try:
+        return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
+    except Exception as e:
+        return error_handler(e)
 
 
 @blueprint.route("/api/v1/<board_name>/beta/<uuid>")
