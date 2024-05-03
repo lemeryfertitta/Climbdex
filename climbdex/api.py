@@ -11,7 +11,7 @@ blueprint = flask.Blueprint("api", __name__)
 def error_handler(err):
     details = str(err)
     error_type = str(type(err).__name__)
-    message = f"There was an issue getting results from the api. If the issue persists please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(err).__name__)}: {str(err)}\" target='_blank'>report it</a>"
+    message = f"There was an issue getting results from the api. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(err).__name__)}: {str(err)}\" target='_blank'>report it</a>"
 
     return {
         "error": True,
