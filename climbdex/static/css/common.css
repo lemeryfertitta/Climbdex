@@ -1,0 +1,7 @@
+.alert {
+  display: none;
+}
+
+.show-alert {
+  display: inherit;
+}

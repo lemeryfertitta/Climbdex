@@ -88,9 +88,8 @@ async function fetchResultsCount() {
   const resultsCount = await response.json();
 
   if (resultsCount['error'] == true) {
-    el.classList.add('bg-danger')
-    el.querySelector('.toast-body').innerHTML = resultsCount['message']
-    toast.show()
+    alert.querySelector('.alert-content').innerHTML = resultsCount['message']
+    alert.classList.add('show-alert')
   } else {
     return resultsCount;
   }
@@ -104,9 +103,8 @@ async function fetchResults(pageNumber, pageSize) {
   const results = await response.json();
 
   if (results['error'] == true) {
-    el.classList.add('bg-danger')
-    el.querySelector('.toast-body').innerHTML = results['message']
-    toast.show()
+    alert.querySelector('.alert-content').innerHTML = resultsCount['message']
+    alert.classList.add('show-alert')
   } else {
     return results;
   }
@@ -244,7 +242,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
 }
 
 const backAnchor = document.getElementById("anchor-back");
-backAnchor.href = location.origin + "/filter" + location.search;
+backAnchor.href = location.origin + "/filter";
 if (document.referrer && new URL(document.referrer).origin == location.origin) {
   backAnchor.addEventListener("click", function (event) {
     event.preventDefault();

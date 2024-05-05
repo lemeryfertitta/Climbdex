@@ -1,5 +1,4 @@
-var el = document.getElementById('toast')
-var toast = bootstrap.Toast.getOrCreateInstance(el)
+var alert = document.querySelector('.alert')
 
 function drawBoard(
   svgElementId,
