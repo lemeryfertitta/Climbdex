@@ -236,19 +236,14 @@ function createSlider() {
 
   mergeTooltips(arbitraryValuesSlider, 10, " - ");
 
-  // Update hidden values with slider values
-  slider.on("update", function (values, handle) {
-    document.getElementById("slider-minValue").value = values[0];
-    document.getElementById("slider-maxValue").value = values[1];
-  });
-
-  // Convert slider values to numeric difficulty before form submit
+  // Get Slider values and convert slider values to numeric difficulty before form submit
   document
     .getElementById("form-search")
     .addEventListener("submit", function (e) {
       e.preventDefault();
-      const minGradeValue = document.getElementById("slider-minValue").value;
-      const maxGradeValue = document.getElementById("slider-maxValue").value;
+      const values = slider.get()
+      const minGradeValue = values[0];
+      const maxGradeValue = values[1];
       const convertedMinGrade = gradeMapping[minGradeValue];
       const convertedMaxGrade = gradeMapping[maxGradeValue];
       document.getElementById("slider-minValue").value = convertedMinGrade;
