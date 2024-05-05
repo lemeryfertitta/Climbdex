@@ -88,7 +88,7 @@ async function fetchResultsCount() {
   const resultsCount = await response.json();
 
   if (resultsCount['error'] == true) {
-    alert.querySelector('.alert-content').innerHTML = resultsCount['message']
+    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
     alert.classList.add('show-alert')
   } else {
     return resultsCount;
@@ -103,7 +103,7 @@ async function fetchResults(pageNumber, pageSize) {
   const results = await response.json();
 
   if (results['error'] == true) {
-    alert.querySelector('.alert-content').innerHTML = resultsCount['message']
+    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
     alert.classList.add('show-alert')
   } else {
     return results;
