@@ -242,7 +242,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
 }
 
 const backAnchor = document.getElementById("anchor-back");
-backAnchor.href = location.origin + "/filter";
+backAnchor.href = location.origin + "/filter" + location.search;
 if (document.referrer && new URL(document.referrer).origin == location.origin) {
   backAnchor.addEventListener("click", function (event) {
     event.preventDefault();
