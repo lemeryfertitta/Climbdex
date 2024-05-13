@@ -1,3 +1,5 @@
+var alert = document.querySelector('.alert')
+
 function drawBoard(
   svgElementId,
   imagesToHolds,

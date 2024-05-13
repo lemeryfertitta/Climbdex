@@ -1,10 +1,43 @@
+from flask_parameter_validation import ValidateParameters, Query
+
 import boardlib.api.aurora
 import flask
 import requests
+import json
+import logging
 
 import climbdex.db
 
 blueprint = flask.Blueprint("api", __name__)
+
+def parameter_error(e):
+    code = 400
+    name = str(type(e).__name__)
+    description = f"Parameters were missing and/or misconfigured. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
+
+    response =  {
+        "error": True,
+        "code": code,
+        "name": name,
+        "description": description,
+    }, code
+
+    logging.error(response)
+    return response
+
+@blueprint.errorhandler(Exception)
+def handle_exception(e):
+    response = e.get_response()
+    response.data = json.dumps({
+        "error": True,
+        "code": e.code,
+        "name": e.name,
+        "description": f"There was a problem while getting results from the server. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" target='_blank'>report it</a> (code: {e.code})",
+    })
+    response.content_type = "application/json"
+    logging.error(response.data)
+    return response
+
 
 
 @blueprint.route("/api/v1/<board_name>/layouts")
@@ -29,12 +62,29 @@ def sets(board_name, layout_id, size_id):
 
 
 @blueprint.route("/api/v1/search/count")
-def resultsCount():
+@ValidateParameters(parameter_error)
+def resultsCount(
+    gradeAccuracy: float = Query(),
+    layout: int = Query(),
+    maxGrade: int = Query(),
+    minAscents: int = Query(),
+    minGrade: int = Query(),
+    minRating: float = Query(),
+    size: int = Query(),
+):
     return flask.jsonify(climbdex.db.get_search_count(flask.request.args))
 
-
 @blueprint.route("/api/v1/search")
-def search():
+@ValidateParameters(parameter_error)
+def search(
+    gradeAccuracy: float = Query(),
+    layout: int = Query(),
+    maxGrade: int = Query(),
+    minAscents: int = Query(),
+    minGrade: int = Query(),
+    minRating: float = Query(),
+    size: int = Query(),
+):
     return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
 
 

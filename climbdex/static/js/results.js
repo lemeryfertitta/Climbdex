@@ -86,7 +86,13 @@ async function fetchResultsCount() {
   const urlParams = new URLSearchParams(window.location.search);
   const response = await fetch("/api/v1/search/count?" + urlParams);
   const resultsCount = await response.json();
-  return resultsCount;
+
+  if (resultsCount['error'] == true) {
+    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
+    alert.classList.add('show-alert')
+  } else {
+    return resultsCount;
+  }
 }
 
 async function fetchResults(pageNumber, pageSize) {
@@ -95,7 +101,13 @@ async function fetchResults(pageNumber, pageSize) {
   urlParams.append("pageSize", pageSize);
   const response = await fetch("/api/v1/search?" + urlParams);
   const results = await response.json();
-  return results;
+
+  if (results['error'] == true) {
+    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
+    alert.classList.add('show-alert')
+  } else {
+    return results;
+  }
 }
 
 function clickClimbButton(index, pageSize, resultsCount) {
@@ -230,7 +242,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
 }
 
 const backAnchor = document.getElementById("anchor-back");
-backAnchor.href = location.origin + "/filter?" + location.search;
+backAnchor.href = location.origin + "/filter" + location.search;
 if (document.referrer && new URL(document.referrer).origin == location.origin) {
   backAnchor.addEventListener("click", function (event) {
     event.preventDefault();
