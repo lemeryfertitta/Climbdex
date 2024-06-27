@@ -166,7 +166,6 @@ def get_attempts(board, login_cookie):
     return attempted_climbs
 
 
-
 def get_placement_positions(board_name, layout_id, size_id):
     binds = {"layout_id": layout_id, "size_id": size_id}
     return {
