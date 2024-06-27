@@ -149,8 +149,14 @@ loginForm.addEventListener("submit", function (event) {
       if (!response.ok) {
         errorParagraph.textContent = json["error"];
       } else {
+        // Create an object that includes the json and the username
+        const cookieData = {
+          ...json,
+          username: username,
+        };
+        // Set the cookie with the board name and the object as a JSON string
         document.cookie = `${boardName}_login=${JSON.stringify(
-          json
+          cookieData
         )}; SameSite=Strict; Secure;`;
         const modal = bootstrap.Modal.getInstance("#div-modal");
         modal.hide();

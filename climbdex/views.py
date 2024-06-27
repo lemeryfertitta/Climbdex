@@ -44,12 +44,14 @@ def results():
     set_ids = flask.request.args.getlist("set")
     login_cookie = flask.request.cookies.get(f"{board_name}_login")
     ticked_climbs = get_ticked_climbs(board_name, login_cookie) if login_cookie else []
+    attempted_climbs = get_attempts(board_name, login_cookie) if login_cookie else []
     placement_positions = get_placement_positions(board_name, layout_id, size_id)
     return flask.render_template(
         "results.html.j2",
         app_url=boardlib.api.aurora.WEB_HOSTS[board_name],
         colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
         ticked_climbs=ticked_climbs,
+        attempted_climbs=attempted_climbs,
         placement_positions=placement_positions,
         led_colors=get_led_colors(board_name, layout_id),
         **get_draw_board_kwargs(
@@ -142,6 +144,27 @@ def get_ticked_climbs(board, login_cookie):
             else tick_type
         )
     return ticked_climbs
+
+def get_attempts(board, login_cookie):
+    login_info = flask.json.loads(login_cookie)
+    attempts_logbook = boardlib.api.aurora.get_bids_logbook(
+        board, login_info["token"], login_info["user_id"]
+    )
+    attempted_climbs = {}
+    normal_tick = 0
+    mirror_tick = 1
+    both_tick = 2
+    for log in attempts_logbook:
+        key = f'{log["climb_uuid"]}-{log["angle"]}'
+        tick_type = mirror_tick if log["is_mirror"] else normal_tick
+        existing_tick = attempted_climbs.get(key)
+        attempted_climbs[key] = (
+            both_tick
+            if existing_tick is not None and existing_tick != tick_type
+            else tick_type
+        )
+    return attempted_climbs
+
 
 
 def get_placement_positions(board_name, layout_id, size_id):

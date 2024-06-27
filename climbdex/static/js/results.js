@@ -198,12 +198,19 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     difficultyAngleSpan.appendChild(
       document.createTextNode(difficultyAngleText)
     );
+    const show_attempts = attemptedClimbs[`${uuid}-${angle}`];
+    if (show_attempts !== undefined) {
+      listButton.classList.add("bg-warning-subtle");
+    }
+
     const tickType = tickedClimbs[`${uuid}-${angle}`];
     if (tickType !== undefined) {
-      listButton.classList.add("bg-secondary-subtle");
+      listButton.classList.add("bg-success-subtle");
+      listButton.classList.remove("bg-warning-subtle"); //remove class if a climb used to be a attemped but was ticked later
       difficultyAngleSpan.appendChild(document.createTextNode(" "));
       difficultyAngleSpan.appendChild(getTickSvg(tickType));
     }
+
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
       const prevButton = document.getElementById("button-prev");
