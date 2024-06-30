@@ -41,9 +41,9 @@ function drawClimb(
 
   const climbSetterHeader = document.getElementById("header-climb-setter");
   climbSetterHeader.textContent = `by ${setter}`;
-
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
+
 
   const climbDescriptionParagraph = document.getElementById(
     "paragraph-climb-description"
@@ -74,6 +74,12 @@ function drawClimb(
     );
     illuminateClimb(board, bluetoothPacket);
   };
+
+  const modalclimbNameHeader = document.getElementById("modal-climb-name");
+  modalclimbNameHeader.innerHTML = name;
+
+  const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
+  modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 }
 
 async function fetchBetaCount(board, uuid) {
@@ -264,3 +270,4 @@ fetchResultsCount().then((resultsCount) => {
     drawResultsPage(results, 0, 10, resultsCount);
   });
 });
+
