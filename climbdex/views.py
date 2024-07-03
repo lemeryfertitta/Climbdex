@@ -125,6 +125,8 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
     }
 
 
+
+
 def get_ticked_climbs(board, login_cookie):
     login_info = flask.json.loads(login_cookie)
     logbook = boardlib.api.aurora.get_logbook(
@@ -146,28 +148,19 @@ def get_ticked_climbs(board, login_cookie):
     return ticked_climbs
 
 def get_bids(board, login_cookie):
+
+    board = "tension"
+    database = f"data/tension/db.sqlite3"
     login_info = flask.json.loads(login_cookie)
-    attempts_logbook = boardlib.api.aurora.get_bids_logbook(
-        board, login_info["token"], login_info["user_id"]
-    )
-    attempted_climbs = {}
-    attempts = 0
-    attempts_mirror = 0
+    user = "chedi"
+    password = "1ga9enCC#tension"
+    attempts_logbook = boardlib.api.aurora.logbook_entries(board, user, password, "font", database)
+    
+    print(attempts_logbook)
 
-    for log in attempts_logbook:
+    attempted_climbs = 0
 
-        key = f'{log["climb_uuid"]}-{log["angle"]}'
 
-        if not log["is_mirror"]:
-            attempts = log["bid_count"]
-        
-        if log["is_mirror"]:
-            attempts_mirror = log["bid_count"]
-
-        attempted_climbs[key] = (
-                attempts, 
-                attempts_mirror
-        )
     return attempted_climbs
 
 

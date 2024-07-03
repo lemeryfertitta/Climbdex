@@ -80,6 +80,44 @@ function drawClimb(
 
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
+
+
+  document.getElementById('saveTick').addEventListener('click', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const board = urlParams.get("board");
+    const angle = urlParams.get("angle");
+    const attempt_id = 1;
+    const is_mirror = false;
+    const bid_count = 1;
+    const quality = '17';
+    const difficulty = '17';
+    const is_benchmark = false;
+    const climbed_at = new Date().toISOString().split('T')[0] + ' 00:00:00';
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    const comment = document.getElementById('comment').value;
+    const attemptType = document.querySelector('input[name="attemptType"]:checked')?.id;
+    let attempts;
+    if (attemptType === 'flash') {
+      attempts = '1';
+    } else {
+      attempts = document.getElementById('attempts').value;
+    }
+    console.log('Rating: ' + (rating !== undefined ? rating : 'No rating') +
+      '\nBoard: ' + board +
+      '\nClimb UUID: ' + uuid +
+      '\nAngle: ' + angle +
+      '\nIs Mirror: ' + is_mirror +
+      '\nAttempt ID: ' + attempt_id +
+      '\nBid Count: ' + bid_count +
+      '\nComment: ' + comment +
+      '\nClimbed-at: ' + climbed_at +
+      '\nStyle: ' + attemptType +
+      '\nAttempts: ' + attempts);
+
+    // Call save_ascent function here with appropriate parameters
+     save_ascent(board, token, user_id, climb_uuid, angle, is_mirror, attempt_id, bid_count, quality, difficulty, is_benchmark, comment, climbed_at);
+  });
+
 }
 
 async function fetchBetaCount(board, uuid) {
@@ -171,6 +209,7 @@ function getTickSvg(tickType) {
 }
 
 function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
+
   const resultsList = document.getElementById("div-results-list");
   for (const [index, result] of results.entries()) {
     let listButton = document.createElement("button");
@@ -270,4 +309,3 @@ fetchResultsCount().then((resultsCount) => {
     drawResultsPage(results, 0, 10, resultsCount);
   });
 });
-

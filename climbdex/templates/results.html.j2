@@ -49,6 +49,9 @@
         .star-rating label:hover~label {
             color: #ffd700;
         }
+        button#button-prev, button#button-next {
+          margin-bottom: 10px;
+        }
   </style>
 </head>
 
@@ -64,10 +67,9 @@
       </div>
       <div class="col-md-5 card p-3 g-2 vh-100" id="div-climb">
         <div class="row g-0">
-          <div class="col-1">
-            <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
-          </div>
           <div class="col-2">
+            <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
+              <br>
             <button id="button-illuminate" class="btn btn-outline-primary position-relative" type="button">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb"
                 viewBox="0 0 16 16">
@@ -76,16 +78,25 @@
               </svg>
               </a>
           </div>
-          <div class="col-6">
+          <div class="col-8">
             <h4 id="header-climb-name"></h4>
             <h6 id="header-climb-setter"></h6>
             <p id="paragraph-climb-stats"></p>
           </div>
           
-          <div class="col-2">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tickModal">
-              Tick
+          <div class="col-1">
+            <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
+            <br>
+            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#tickModal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg"
+                viewBox="0 0 16 16">
+                  <path
+                  d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+              </svg>
             </button>
+          </div>
+
+          <div class="col-1" style="display: none;">
             <a id="anchor-beta" class="btn btn-outline-primary position-relative">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram"
                 viewBox="0 0 16 16">
@@ -99,8 +110,7 @@
               </span>
             </a>
           </div>
-          <div class="col-1">
-            <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
+          <div class="col-1" style="display:none">
           </div>
         </div>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -159,7 +169,21 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="difficulty">Difficulty:</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="decreaseDifficulty">-</button>
+              </div>
+              <input type="text" class="form-control text-center" id="difficulty" value="6B+/V4" readonly>
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="increaseDifficulty">+</button>
+              </div>
+            </div>
+          </div>
+
           <script>
+            
             $(document).ready(function () {
               $('input[name="attemptType"]').change(function () {
                 if ($(this).attr('id') === 'flash') {
@@ -212,29 +236,13 @@
       {% include 'footer.html.j2' %}
     </div>
 
-   
+  
     
         <!-- Bootstrap JS and dependencies -->
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-        <script>
-          document.getElementById('saveTick').addEventListener('click', function () {
-            const rating = document.querySelector('input[name="rating"]:checked')?.value;
-            const comment = document.getElementById('comment').value;
-            const attemptType = document.querySelector('input[name="attemptType"]:checked')?.id;
-            let attempts;
-            if (attemptType === 'flash') {
-              attempts = '1';
-            } else {
-              attempts = document.getElementById('attempts').value;
-            }
-            alert('Rating: ' + (rating !== undefined ? rating : 'No rating') +
-              '\nComment: ' + comment +
-              '\nStyle: ' + attemptType +
-              '\nAttempts: ' + attempts);
-          });
-        </script>
+        
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
