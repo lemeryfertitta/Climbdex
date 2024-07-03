@@ -62,7 +62,7 @@ function drawClimb(
     climbedAttempts.classList.add("d-none");
   } else {
     climbedAttempts.classList.remove("d-none");
-    climbedAttempts.innerHTML = `Attempts: ${attempts_infotext}`;
+    climbedAttempts.innerHTML = `${attempts_infotext}`;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -290,9 +290,9 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       attempts_infotext =
         "You had " +
         show_attempts["total_tries"] +
-        " Tries in " +
+        " tries in " +
         show_attempts["total_sessions"] +
-        " Sessions. The last Session was " +
+        " sessions. The last session was " +
         show_attempts["days_pass_since_last_try"] +
         " days ago.";
     }

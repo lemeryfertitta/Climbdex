@@ -2,7 +2,6 @@ import boardlib.api.aurora
 import flask
 import pandas as pd
 from datetime import datetime
-from docx import Document
 import climbdex.db
 import json
 
