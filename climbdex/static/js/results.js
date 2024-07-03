@@ -9,7 +9,8 @@ function drawClimb(
   frames,
   setter,
   difficultyAngleSpan,
-  description
+  description,
+  attempts_infotext
 ) {
   document
     .getElementById("svg-climb")
@@ -44,7 +45,6 @@ function drawClimb(
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
-
   const climbDescriptionParagraph = document.getElementById(
     "paragraph-climb-description"
   );
@@ -54,6 +54,15 @@ function drawClimb(
   } else {
     climbDescriptionParagraph.classList.remove("d-none");
     climbDescriptionParagraph.innerHTML = `Description: ${trimmedDescription.italics()}`;
+  }
+
+  const climbedAttempts = document.getElementById("paragraph-climb-attempts");
+
+  if (attempts_infotext === undefined) {
+    climbedAttempts.classList.add("d-none");
+  } else {
+    climbedAttempts.classList.remove("d-none");
+    climbedAttempts.innerHTML = `Attempts: ${attempts_infotext}`;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -81,43 +90,72 @@ function drawClimb(
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
-
-  document.getElementById('saveTick').addEventListener('click', function () {
+  document.getElementById("saveTick").addEventListener("click", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const board = urlParams.get("board");
     const angle = urlParams.get("angle");
     const attempt_id = 1;
     const is_mirror = false;
     const bid_count = 1;
-    const quality = '17';
-    const difficulty = '17';
+    const quality = "17";
+    const difficulty = "17";
     const is_benchmark = false;
-    const climbed_at = new Date().toISOString().split('T')[0] + ' 00:00:00';
-    const rating = document.querySelector('input[name="rating"]:checked')?.value;
-    const comment = document.getElementById('comment').value;
-    const attemptType = document.querySelector('input[name="attemptType"]:checked')?.id;
+    const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
+    const rating = document.querySelector(
+      'input[name="rating"]:checked'
+    )?.value;
+    const comment = document.getElementById("comment").value;
+    const attemptType = document.querySelector(
+      'input[name="attemptType"]:checked'
+    )?.id;
     let attempts;
-    if (attemptType === 'flash') {
-      attempts = '1';
+    if (attemptType === "flash") {
+      attempts = "1";
     } else {
-      attempts = document.getElementById('attempts').value;
+      attempts = document.getElementById("attempts").value;
     }
-    console.log('Rating: ' + (rating !== undefined ? rating : 'No rating') +
-      '\nBoard: ' + board +
-      '\nClimb UUID: ' + uuid +
-      '\nAngle: ' + angle +
-      '\nIs Mirror: ' + is_mirror +
-      '\nAttempt ID: ' + attempt_id +
-      '\nBid Count: ' + bid_count +
-      '\nComment: ' + comment +
-      '\nClimbed-at: ' + climbed_at +
-      '\nStyle: ' + attemptType +
-      '\nAttempts: ' + attempts);
+    console.log(
+      "Rating: " +
+        (rating !== undefined ? rating : "No rating") +
+        "\nBoard: " +
+        board +
+        "\nClimb UUID: " +
+        uuid +
+        "\nAngle: " +
+        angle +
+        "\nIs Mirror: " +
+        is_mirror +
+        "\nAttempt ID: " +
+        attempt_id +
+        "\nBid Count: " +
+        bid_count +
+        "\nComment: " +
+        comment +
+        "\nClimbed-at: " +
+        climbed_at +
+        "\nStyle: " +
+        attemptType +
+        "\nAttempts: " +
+        attempts
+    );
 
     // Call save_ascent function here with appropriate parameters
-     save_ascent(board, token, user_id, climb_uuid, angle, is_mirror, attempt_id, bid_count, quality, difficulty, is_benchmark, comment, climbed_at);
+    save_ascent(
+      board,
+      token,
+      user_id,
+      climb_uuid,
+      angle,
+      is_mirror,
+      attempt_id,
+      bid_count,
+      quality,
+      difficulty,
+      is_benchmark,
+      comment,
+      climbed_at
+    );
   });
-
 }
 
 async function fetchBetaCount(board, uuid) {
@@ -131,9 +169,10 @@ async function fetchResultsCount() {
   const response = await fetch("/api/v1/search/count?" + urlParams);
   const resultsCount = await response.json();
 
-  if (resultsCount['error'] == true) {
-    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
-    alert.classList.add('show-alert')
+  if (resultsCount["error"] == true) {
+    alert.querySelector(".alert-content").innerHTML =
+      resultsCount["description"];
+    alert.classList.add("show-alert");
   } else {
     return resultsCount;
   }
@@ -146,9 +185,10 @@ async function fetchResults(pageNumber, pageSize) {
   const response = await fetch("/api/v1/search?" + urlParams);
   const results = await response.json();
 
-  if (results['error'] == true) {
-    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
-    alert.classList.add('show-alert')
+  if (results["error"] == true) {
+    alert.querySelector(".alert-content").innerHTML =
+      resultsCount["description"];
+    alert.classList.add("show-alert");
   } else {
     return results;
   }
@@ -209,7 +249,6 @@ function getTickSvg(tickType) {
 }
 
 function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
-
   const resultsList = document.getElementById("div-results-list");
   for (const [index, result] of results.entries()) {
     let listButton = document.createElement("button");
@@ -227,7 +266,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficulty,
       rating,
       difficultyError,
-      classic
+      classic,
     ] = result;
 
     const classicSymbol = classic !== null ? "\u00A9" : "";
@@ -243,9 +282,19 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     difficultyAngleSpan.appendChild(
       document.createTextNode(difficultyAngleText)
     );
+
     const show_attempts = attemptedClimbs[`${uuid}-${angle}`];
+    let attempts_infotext;
     if (show_attempts !== undefined) {
       listButton.classList.add("bg-warning-subtle");
+      attempts_infotext =
+        "You had " +
+        show_attempts["total_tries"] +
+        " Tries in " +
+        show_attempts["total_sessions"] +
+        " Sessions. The last Session was " +
+        show_attempts["days_pass_since_last_try"] +
+        " days ago.";
     }
 
     const tickType = tickedClimbs[`${uuid}-${angle}`];
@@ -268,7 +317,15 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       nextButton.onclick = function () {
         clickClimbButton(index + 1, pageSize, resultsCount);
       };
-      drawClimb(uuid, name, frames, setter, difficultyAngleSpan, description);
+      drawClimb(
+        uuid,
+        name,
+        frames,
+        setter,
+        difficultyAngleSpan,
+        description,
+        attempts_infotext
+      );
     });
     const nameText = document.createElement("p");
     nameText.innerHTML = `${name} ${difficultyAngleSpan.outerHTML}`;

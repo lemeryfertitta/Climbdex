@@ -1,7 +1,11 @@
 import boardlib.api.aurora
 import flask
-
+import pandas as pd
+from datetime import datetime
+from docx import Document
 import climbdex.db
+import json
+
 
 blueprint = flask.Blueprint("view", __name__)
 
@@ -147,22 +151,46 @@ def get_ticked_climbs(board, login_cookie):
         )
     return ticked_climbs
 
-def get_bids(board, login_cookie):
 
-    board = "tension"
-    database = f"data/tension/db.sqlite3"
-    login_info = flask.json.loads(login_cookie)
+######ich bin dadadadadadad 
+def get_bids(board, login_cookie):
+    database = f"data/{board}//db.sqlite3"
+    login_info = json.loads(login_cookie)
     user = "chedi"
     password = "1ga9enCC#tension"
-    attempts_logbook = boardlib.api.aurora.logbook_entries(board, user, password, "font", database)
     
-    print(attempts_logbook)
+    # Fetch the logbook entries
+    attempts_logbook = boardlib.api.aurora.logbook_entries(board, user, password, "font", database)
 
-    attempted_climbs = 0
 
-
-    return attempted_climbs
-
+    
+    # If the logbook entries are not in DataFrame format, convert them
+    if isinstance(attempts_logbook, list):
+        attempts_logbook = pd.DataFrame(attempts_logbook)
+    
+    non_ascent_logbook = attempts_logbook[attempts_logbook['is_ascent'] == False]
+    non_ascent_logbook['uid'] = non_ascent_logbook.apply(lambda row: f"{row['climb_uuid']}-{row['angle']}", axis=1)
+    non_ascent_logbook.drop(columns=['angle', 'climb_uuid','logged_grade','difficulty','displayed_grade','is_ascent','comment','sessions_count','tries_total','is_repeat','is_mirror'], inplace=True)
+    aggregated_logbook = non_ascent_logbook.groupby(['uid', 'board', 'climb_name']).agg(
+        date=('date', 'max'),
+        sessions=('uid', 'count'),
+        tries=('tries', 'sum')
+    ).reset_index()
+    
+    current_date = datetime.now()
+    aggregated_logbook['days'] = aggregated_logbook['date'].apply(lambda x: (current_date - pd.to_datetime(x)).days)
+    
+    # Convert the aggregated DataFrame to the desired JSON format
+    aggregated_json = aggregated_logbook.to_dict(orient='records')
+    formatted_json = {
+        entry['uid']: {
+            'total_tries': entry['tries'],
+            'total_sessions': entry['sessions'],
+            'days_pass_since_last_try': entry['days']
+        } for entry in aggregated_json
+    }
+    
+    return formatted_json
 
 def get_placement_positions(board_name, layout_id, size_id):
     binds = {"layout_id": layout_id, "size_id": size_id}
