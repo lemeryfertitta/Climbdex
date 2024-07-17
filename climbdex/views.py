@@ -1,7 +1,5 @@
 import boardlib.api.aurora
 import flask
-import pandas as pd
-from datetime import datetime
 import climbdex.db
 import json
 
@@ -128,8 +126,6 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
     }
 
 
-
-
 def get_ticked_climbs(board, login_cookie):
     login_info = flask.json.loads(login_cookie)
     logbook = boardlib.api.aurora.get_logbook(
@@ -151,41 +147,19 @@ def get_ticked_climbs(board, login_cookie):
     return ticked_climbs
 
 
-######ich bin dadadadadadad 
 def get_bids(board, login_cookie):
-    database = f"data/{board}//db.sqlite3"
+    db_path = f"data/{board}//db.sqlite3"
     login_info = json.loads(login_cookie)
-    user = "chedi"
-    password = "1ga9enCC#tension"
-    
-    # Fetch the logbook entries
-    attempts_logbook = boardlib.api.aurora.logbook_entries(board, user, password, "font", database)
+    user_id = login_info["user_id"]
+    token = login_info["token"]
 
-
-    
-    # If the logbook entries are not in DataFrame format, convert them
-    if isinstance(attempts_logbook, list):
-        attempts_logbook = pd.DataFrame(attempts_logbook)
-    
-    non_ascent_logbook = attempts_logbook[attempts_logbook['is_ascent'] == False]
-    non_ascent_logbook['uid'] = non_ascent_logbook.apply(lambda row: f"{row['climb_uuid']}-{row['angle']}", axis=1)
-    non_ascent_logbook.drop(columns=['angle', 'climb_uuid','logged_grade','difficulty','displayed_grade','is_ascent','comment','sessions_count','tries_total','is_repeat','is_mirror'], inplace=True)
-    aggregated_logbook = non_ascent_logbook.groupby(['uid', 'board', 'climb_name']).agg(
-        date=('date', 'max'),
-        sessions=('uid', 'count'),
-        tries=('tries', 'sum')
-    ).reset_index()
-    
-    current_date = datetime.now()
-    aggregated_logbook['days'] = aggregated_logbook['date'].apply(lambda x: (current_date - pd.to_datetime(x)).days)
-    
-    # Convert the aggregated DataFrame to the desired JSON format
+    aggregated_logbook = boardlib.api.aurora.logbook_entries_agg(board, token, user_id, db_path,"font")
     aggregated_json = aggregated_logbook.to_dict(orient='records')
     formatted_json = {
         entry['uid']: {
             'total_tries': entry['tries'],
             'total_sessions': entry['sessions'],
-            'days_pass_since_last_try': entry['days']
+            'days_pass_since_last_try': entry['time_since']
         } for entry in aggregated_json
     }
     
@@ -197,7 +171,6 @@ def get_placement_positions(board_name, layout_id, size_id):
         placement_id: position
         for placement_id, position in climbdex.db.get_data(board_name, "leds", binds)
     }
-
 
 def get_led_colors(board_name, layout_id):
     binds = {"layout_id": layout_id}

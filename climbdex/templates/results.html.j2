@@ -3,19 +3,36 @@
 
 <head>
   {% include 'head.html.j2'%}
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+  <!-- SCR JQuery 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  -->
+      <!-- Bootstrap JS and dependencies 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+-->
 
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
+  <style>
     #div-results-list {
       max-height: 800px;
       overflow-y: scroll;
     }
+
     .fw-light {
       font-size: 0.9em;
+    }
+
+    .btn-group>.btn-group:not(:last-child)>.btn,
+    .btn-group>.btn.dropdown-toggle-split:first-child,
+    .btn-group>.btn:not(:last-child):not(.dropdown-toggle) {
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
     }
 
     /* simulate button click for swipe gestures */
@@ -26,32 +43,34 @@
     }
 
     /* temp */
-     .star-rating {
-            direction: rtl;
-            display: inline-flex;
-            font-size: 2rem;
-        }
+    .star-rating {
+      direction: rtl;
+      display: inline-flex;
+      font-size: 2rem;
+    }
 
-        .star-rating input {
-            display: none;
-        }
+    .star-rating input {
+      display: none;
+    }
 
-        .star-rating label {
-            cursor: pointer;
-            color: #ddd;
-        }
+    .star-rating label {
+      cursor: pointer;
+      color: #ddd;
+    }
 
-        .star-rating input:checked~label {
-            color: #ffd700;
-        }
+    .star-rating input:checked~label {
+      color: #ffd700;
+    }
 
-        .star-rating label:hover,
-        .star-rating label:hover~label {
-            color: #ffd700;
-        }
-        button#button-prev, button#button-next {
-          margin-bottom: 10px;
-        }
+    .star-rating label:hover,
+    .star-rating label:hover~label {
+      color: #ffd700;
+    }
+
+    button#button-prev,
+    button#button-next {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
@@ -69,7 +88,7 @@
         <div class="row g-0">
           <div class="col-2">
             <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
-              <br>
+            <br>
             <button id="button-illuminate" class="btn btn-outline-primary position-relative" type="button">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb"
                 viewBox="0 0 16 16">
@@ -83,57 +102,68 @@
             <h6 id="header-climb-setter"></h6>
             <p id="paragraph-climb-stats"></p>
           </div>
-          
-          <div class="col-1">
+
+          <div class="col-2">
             <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
             <br>
-            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#tickModal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg"
-                viewBox="0 0 16 16">
-                  <path
-                  d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
-              </svg>
-            </button>
+
+            <!-- Example dropdown menu -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-outline-primary dropdown" data-toggle="dropdown"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list"
+                  viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                    d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                </svg>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" href="#" data-toggle="modal" data-target="#tickModal">Log Climb</li>
+                <li><button class="dropdown-item" type="button">Statistics</button></li>
+                <li>
+                  <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
+                      <span id="span-beta-count" class="position-absolute badge rounded-pill bg-danger">
+                       0
+                      </span>
+                    </a>
+                </li>
+                    {% if request.cookies %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
+                    {% endif %}
+              </ul>
+            </div>
           </div>
 
-          <div class="col-1" style="display: none;">
-            <a id="anchor-beta" class="btn btn-outline-primary position-relative">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram"
-                viewBox="0 0 16 16">
-                <path
-                  d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334">
-                </path>
-              </svg>
-              <span id="span-beta-count"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                0
-              </span>
-            </a>
-          </div>
-          <div class="col-1" style="display:none">
-          </div>
+
         </div>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="row">
           <p id="paragraph-climb-description" class="small mt-2 d-none"></p>
           <p id="paragraph-climb-attempts" class="small mt-2 d-none"></p>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-md-center mt-3">
+      {% include 'footer.html.j2' %}
+    </div>
 
 
-<!-- The Modal -->
-<div class="modal fade" id="tickModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- Tick Modal -->
+<div class="modal fade" id="tickModal" tabindex="-1" aria-labelledby="tickModal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Tick, Rate and Comment</h5>
+        <h5 class="modal-title">Tick, Rate and Comment</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-                  <div>
-                    <h4 id="modal-climb-name"></h4>
-                    <p id="modal-climb-stats"></p>
-                  </div>
+        <div>
+          <h4 id="modal-climb-name"></h4>
+          <p id="modal-climb-stats"></p>
+        </div>
         <form id="ratingForm">
           <div class="form-group">
             <div class="star-rating">
@@ -184,7 +214,7 @@
           </div>
 
           <script>
-            
+/*
             $(document).ready(function () {
               $('input[name="attemptType"]').change(function () {
                 if ($(this).attr('id') === 'flash') {
@@ -194,7 +224,7 @@
                 }
               });
             });
-
+*/
             function updateAttemptsDisplay(value) {
               return value + (value === 1 ? ' try' : ' tries');
             }
@@ -215,7 +245,7 @@
               }
             });
           </script>
-   
+
           <div class="form-group">
             <label for="comment">Comment:</label>
             <textarea class="form-control" id="comment" rows="3" placeholder="Add comments, beta, notes..."></textarea>
@@ -230,24 +260,34 @@
   </div>
 </div>
 
-        </div>
+<!-- Logout Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to logout?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" id="confirmLogout">Yes</button>
       </div>
     </div>
-    <div class="row justify-content-md-center mt-3">
-      {% include 'footer.html.j2' %}
-    </div>
+  </div>
+</div>
 
-  
-    
-        <!-- Bootstrap JS and dependencies -->
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  document.getElementById('confirmLogout').addEventListener('click', function () {
+    document.cookie.split(";").forEach(function (cookie) {
+      document.cookie = cookie.trim().split("=")[0] + '=; Max-Age=0; path=/;';
+    });
+    location.reload();
+  });
+</script>
 
-        
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"></script>
     <script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
     <script src="{{url_for('static', filename='js/common.js')}}"></script>
     <script>

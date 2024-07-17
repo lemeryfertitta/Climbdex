@@ -290,11 +290,13 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       attempts_infotext =
         "You had " +
         show_attempts["total_tries"] +
-        " tries in " +
+        (show_attempts["total_tries"] === 1 ? " try in " : " tries in ") +
         show_attempts["total_sessions"] +
-        " sessions. The last session was " +
+        (show_attempts["total_sessions"] === 1
+          ? " session. <br> The last session was "
+          : " sessions. <br> The last session was ") +
         show_attempts["days_pass_since_last_try"] +
-        " days ago.";
+        " ago.";
     }
 
     const tickType = tickedClimbs[`${uuid}-${angle}`];
