@@ -189,11 +189,31 @@ document.getElementById("saveTick").addEventListener("click", function () {
     })
     .then((data) => {
       console.log("Success:", data);
+      // Show success message
+      const successAlert = document.querySelector(".alert-success");
+      successAlert.style.display = "block";
+      // Hide the modal and success message after 3 seconds
+      setTimeout(() => {
+        successAlert.style.display = "none";
+        const tickModal = document.getElementById("tickModal");
+        const modalInstance = bootstrap.Modal.getInstance(tickModal);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
+      }, 3000);
     })
     .catch((error) => {
       console.error("Error:", error);
+      // Show error message
+      const errorAlert = document.querySelector(".alert-danger");
+      errorAlert.style.display = "block";
+      // Hide the error message after 3 seconds
+      setTimeout(() => {
+        errorAlert.style.display = "none";
+      }, 3000);
     });
 });
+
 
 async function fetchBetaCount(board, uuid) {
   const response = await fetch(`/api/v1/${board}/beta/${uuid}`);
