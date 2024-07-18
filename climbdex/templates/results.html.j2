@@ -166,27 +166,27 @@
           <form id="ratingForm">
             <div class="mb-3">
               <div class="star-rating">
-                <input type="radio" id="star3" name="rating" value="2">
+                <input type="radio" id="star3" name="rating" value="3">
                 <label for="star3">&#9733;</label>
-                <input type="radio" id="star2" name="rating" value="1">
+                <input type="radio" id="star2" name="rating" value="2">
                 <label for="star2">&#9733;</label>
-                <input type="radio" id="star1" name="rating" value="0">
+                <input type="radio" id="star1" name="rating" value="1">
                 <label for="star1">&#9733;</label>
               </div>
             </div>
             <div class="mb-3">
-              <div class="btn-group btn-group-toggle d-flex" data-bs-toggle="buttons">
-                <label class="btn btn-outline-primary flex-fill">
-                  <input class="btn-check" type="radio" name="attemptType" id="flash" autocomplete="off"> Flash
-                </label>
-                <label class="btn btn-outline-primary flex-fill">
-                  <input class="btn-check" type="radio" name="attemptType" id="redpoint" autocomplete="off"> Send
-                </label>
-                <label class="btn btn-outline-primary flex-fill">
-                  <input class="btn-check" type="radio" name="attemptType" id="attempt" autocomplete="off"> Attempt
-                </label>
+              <div class="btn-group d-flex" role="group">
+                <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off" checked>
+                <label class="btn btn-outline-primary flex-fill" for="flash" >Flash</label>
+                
+                <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
+                <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
+                
+                <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off">
+                <label class="btn btn-outline-primary flex-fill" for="attempt" >Attempt</label>
               </div>
             </div>
+
             <div class="mb-3" id="attemptsSection" style="display: none;">
               <div class="input-group">
                 <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
@@ -315,6 +315,17 @@
           currentGradeIndex = 0;
           this.value = gradeKeys[currentGradeIndex];
         }
+      });
+
+      // Reset star rating and comment when the modal is opened
+      const tickModal = document.getElementById('tickModal');
+      tickModal.addEventListener('show.bs.modal', function () {
+        // Reset star rating
+        const starRadios = document.querySelectorAll('.star-rating input');
+        starRadios.forEach(radio => radio.checked = false);
+
+        // Reset comment
+        document.getElementById('comment').value = '';
       });
     });
   </script>

@@ -98,84 +98,88 @@ function drawClimb(
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 }
-function generateUUID() {
-  let uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-    /[xy]/g,
-    function (c) {
-      var r = (Math.random() * 16) | 0,
-        v = c == "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    }
-  );
-  return uuid.replace(/-/g, ""); // Remove the hyphens
-}
 
 document.getElementById("saveTick").addEventListener("click", function () {
+  const gradeMapping = {
+    "4a/V0": "10",
+    "4b/V0": "11",
+    "4c/V0": "12",
+    "5a/V1": "13",
+    "5b/V1": "14",
+    "5c/V2": "15",
+    "6a/V3": "16",
+    "6a+/V3": "17",
+    "6b/V4": "18",
+    "6b+/V4": "19",
+    "6c/V5": "20",
+    "6c+/V5": "21",
+    "7a/V6": "22",
+    "7a+/V7": "23",
+    "7b/V8": "24",
+    "7b+/V8": "25",
+    "7c/V9": "26",
+    "7c+/V10": "27",
+    "8a/V11": "28",
+    "8a+/V12": "29",
+    "8b/V13": "30",
+    "8b+/V14": "31",
+    "8c/V15": "32",
+    "8c+/V16": "33",
+  };
   const urlParams = new URLSearchParams(window.location.search);
   const board = urlParams.get("board");
-  const angle = 35;
-  const token = "0afcae08f1d596ff060cd613d7297d799d8faaf6"; // Add the token here
-  const user_id = 63956; // Provide the user ID here
-  const climb_uuid = "6FF2804AEC6541808C08B8E403F5703D"; // Provide the climb UUID here
-  const is_mirror = false;
-  const attempt_id = 1; // Versuche
-  const bid_count = 1;
-  const quality = 3; // rating sterne
-  const difficulty = 15; // document.getElementById("difficulty").value;
-  const is_benchmark = false;
-  const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
-  const comment = "Test eintrag"; //document.getElementById("comment").value;
-
-  const rating = document.querySelector('input[name="rating"]:checked')?.value;
-  const attemptType = document.querySelector(
-    'input[name="attemptType"]:checked'
-  )?.id;
-  let attempts;
-  if (attemptType === "flash") {
-    attempts = "1";
-  } else {
-    attempts = document.getElementById("attempts").value;
-  }
-
-  // Generate UUID (you need to implement this function)
-  const uuid = generateUUID();
-  console.log(
-    JSON.stringify({
-      user_id: user_id,
-      uuid: uuid,
-      climb_uuid: climb_uuid,
-      angle: angle,
-      is_mirror: is_mirror,
-      attempt_id: attempt_id,
-      bid_count: bid_count,
-      quality: quality,
-      difficulty: difficulty,
-      is_benchmark: is_benchmark,
-      comment: comment,
-      climbed_at: climbed_at,
-    })
+  const climb_uuid = document
+    .querySelector("#header-climb-name a")
+    .href.split("/")
+    .pop();
+  const angle = parseInt(
+    document
+      .querySelector("#modal-climb-stats span")
+      .textContent.match(/\d+°/)[0]
   );
-  // Make the API request
-  fetch(`https://api.tensionboardapp2.com/v1/ascents/${uuid}`, {
-    method: "PUT",
+  const is_mirror = false;
+  const attempt_id =
+    document.querySelector('input[name="attemptType"]:checked').id === "flash"
+      ? 1
+      : parseInt(document.getElementById("attempts").value);
+  const bid_count = 1;
+
+  const quality =
+    parseInt(document.querySelector(".star-rating input:checked")?.value) || 0;
+  const selectedAttemptType = document.querySelector(
+    'input[name="attemptType"]:checked'
+  ).id;
+  const difficulty = ["flash", "send"].includes(selectedAttemptType)
+    ? parseInt(gradeMapping[document.getElementById("difficulty").value])
+    : 0;
+  const is_benchmark = document
+    .querySelector("#paragraph-climb-stats span")
+    .textContent.includes("©")
+    ? true
+    : false;
+  const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
+  const comment = document.getElementById("comment").value;
+
+  const data = {
+    board: board,
+    climb_uuid: climb_uuid,
+    angle: angle,
+    is_mirror: is_mirror,
+    attempt_id: attempt_id,
+    bid_count: bid_count,
+    quality: quality,
+    difficulty: difficulty,
+    is_benchmark: is_benchmark,
+    comment: comment,
+    climbed_at: climbed_at,
+  };
+
+  fetch("/api/v1/save_ascent", {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      user_id: user_id,
-      uuid: uuid,
-      climb_uuid: climb_uuid,
-      angle: angle,
-      is_mirror: is_mirror,
-      attempt_id: attempt_id,
-      bid_count: bid_count,
-      quality: quality,
-      difficulty: difficulty,
-      is_benchmark: is_benchmark,
-      comment: comment,
-      climbed_at: climbed_at,
-    }),
+    body: JSON.stringify(data),
   })
     .then((response) => {
       if (!response.ok) {
@@ -185,7 +189,6 @@ document.getElementById("saveTick").addEventListener("click", function () {
     })
     .then((data) => {
       console.log("Success:", data);
-      // Handle the response data
     })
     .catch((error) => {
       console.error("Error:", error);
