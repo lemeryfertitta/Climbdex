@@ -3,23 +3,37 @@
 
 <head>
   {% include 'head.html.j2'%}
-  
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     
+
+  <!-- SCR JQuery 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  -->
+      <!-- Bootstrap JS and dependencies 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+-->
+
   <style>
     #div-results-list {
       max-height: 800px;
       overflow-y: scroll;
     }
 
-    .btn-group>.btn-group:not(:last-child)>.btn, .btn-group>.btn.dropdown-toggle-split:first-child, .btn-group>.btn:not(:last-child):not(.dropdown-toggle) {
-      border-top-right-radius: 6px !important;
-      border-bottom-right-radius: 6px !important;
-    }
-
     .fw-light {
       font-size: 0.9em;
+    }
+
+    .btn-group>.btn-group:not(:last-child)>.btn,
+    .btn-group>.btn.dropdown-toggle-split:first-child,
+    .btn-group>.btn:not(:last-child):not(.dropdown-toggle) {
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
     }
 
     /* simulate button click for swipe gestures */
@@ -105,10 +119,8 @@
                 </svg>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-               {% if request.cookies %}
-                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb/Attempt</li>
-                {% endif %}
-                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#statsModal">Statistics</button></li>
+                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb</li>
+                <li><button class="dropdown-item" type="button">Statistics</button></li>
                 <li>
                   <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
                       <span id="span-beta-count" class="position-absolute badge rounded-pill bg-danger">
@@ -162,20 +174,19 @@
                 <label for="star1">&#9733;</label>
               </div>
             </div>
-
             <div class="mb-3">
-              <div class="btn-group d-flex" role="group">
-                <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off">
-                <label class="btn btn-outline-primary" for="flash" flex-fill">Flash</label>
-                
-                <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
-                <label class="btn btn-outline-primary" for="send" flex-fill">Send</label>
-                
-                <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off">
-                <label class="btn btn-outline-primary" for="attempt" flex-fill">Attempt</label>
+              <div class="btn-group btn-group-toggle d-flex" data-bs-toggle="buttons">
+                <label class="btn btn-outline-primary flex-fill">
+                  <input class="btn-check" type="radio" name="attemptType" id="flash" autocomplete="off"> Flash
+                </label>
+                <label class="btn btn-outline-primary flex-fill">
+                  <input class="btn-check" type="radio" name="attemptType" id="redpoint" autocomplete="off"> Send
+                </label>
+                <label class="btn btn-outline-primary flex-fill">
+                  <input class="btn-check" type="radio" name="attemptType" id="attempt" autocomplete="off"> Attempt
+                </label>
               </div>
             </div>
-
             <div class="mb-3" id="attemptsSection" style="display: none;">
               <div class="input-group">
                 <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
@@ -307,21 +318,6 @@
       });
     });
   </script>
-
-<!-- Stats Modal -->
-<div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="logoutModalLabel">Statistics</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>no stats yet</p>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Logout Modal -->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
