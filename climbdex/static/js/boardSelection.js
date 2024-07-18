@@ -149,13 +149,12 @@ loginForm.addEventListener("submit", function (event) {
       if (!response.ok) {
         errorParagraph.textContent = json["error"];
       } else {
-        document.cookie = `${boardName}_login=${JSON.stringify(
-          json
-        )}; `;
-       // )}; SameSite=Strict; Secure;`;
+        document.cookie = `${boardName}_login=${JSON.stringify(json)}; `;
+        // )}; SameSite=Strict; Secure;`;
         const modal = bootstrap.Modal.getInstance("#div-modal");
         modal.hide();
         populateLoginForm(boardName);
+        location.reload();
       }
     });
   });
