@@ -105,7 +105,12 @@
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Setter Name</span>
-                  <input type="text" class="form-control" id="settername" name="settername" />
+                  <select class="form-select" id="settername" name="settername">
+                    <option value="" selected>Any</option>
+                    {% for setter in setters %}
+                    <option value="{{setter[0]}}">{{setter[0]}} {{setter[1]}}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
             </div>

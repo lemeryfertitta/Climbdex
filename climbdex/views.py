@@ -31,6 +31,7 @@ def filter():
         )[0][0],
         angles=climbdex.db.get_data(board_name, "angles", {"layout_id": layout_id}),
         grades=climbdex.db.get_data(board_name, "grades"),
+        setters=climbdex.db.get_data(board_name, "setters", {"layout_id": layout_id}),
         colors=climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id}),
         **get_draw_board_kwargs(board_name, layout_id, size_id, set_ids),
     )
