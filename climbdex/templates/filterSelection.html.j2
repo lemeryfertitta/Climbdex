@@ -105,12 +105,16 @@
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Setter Name</span>
-                  <select class="form-select" id="settername" name="settername">
-                    <option value="" selected>Any</option>
-                    {% for setter in setters %}
-                    <option value="{{setter[0]}}">{{setter[0]}} {{setter[1]}}</option>
-                    {% endfor %}
-                  </select>
+                  <input type="text" class="form-control" id="settername" name="settername" list="setternameList"/>
+                  <datalist id="setternameList" name="setternameList">
+                    <label for="setternameSuggestion">or pick a setter</label>
+                    <select class="form-select" id="setternameSuggestion" name="setternameSuggestion">
+                      <option value="" selected>Any</option>
+                      {% for setter in setters %}
+                      <option value="{{setter[0]}}">{{setter[0]}} {{setter[1]}}</option>
+                      {% endfor %}
+                    </select>
+                  </datalist>
                 </div>
               </div>
             </div>
