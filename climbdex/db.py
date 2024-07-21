@@ -252,10 +252,10 @@ def get_search_base_sql_and_binds(args):
         if filter_feet:
             sql += " AND climbs.frames NOT LIKE $not_like_feet_string"
             binds["not_like_feet_string"] = get_frames_not_like_feet_clause(holds,layout_foot_placement_role)
-        sql += ")"
+        # sql += ")"
         mirrored_holds = args.get("mirroredHolds")
         if mirrored_holds and layout_is_mirrored(args.get("board"), args.get("layout")):
-            sql += " OR (climbs.frames LIKE $mirrored_like_string"
+            sql += ") OR (climbs.frames LIKE $mirrored_like_string"
             binds["mirrored_like_string"] = get_frames_like_clause(
                 mirrored_holds, match_roles
             )
@@ -263,7 +263,7 @@ def get_search_base_sql_and_binds(args):
                 sql += " AND climbs.frames NOT LIKE $mirrored_not_like_feet_string"
                 binds["mirrored_not_like_feet_string"] = get_frames_not_like_feet_clause(mirrored_holds,layout_foot_placement_role)
         sql += "))"
-    
+    # not mirrored (()))
     maxHolds = args.get("maxHoldNumber")
     minHolds = args.get("minHoldNumber")
     if maxHolds or minHolds:
