@@ -117,9 +117,9 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 {% if request.cookies %}
-                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb/Attempt</li>
-                {% endif %}
+                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb</li>
                 <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#statsModal">Statistics</li>
+                {% endif %}
                 <li>
                   <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
                       <span id="span-beta-count" class="position-absolute badge rounded-pill bg-danger">
@@ -135,12 +135,10 @@
             </div>
           </div>
 
-
         </div>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="row">
           <p id="paragraph-climb-description" class="small mt-2 d-none"></p>
-          <p id="paragraph-climb-attempts" class="small mt-2 d-none"></p>
         </div>
       </div>
     </div>
@@ -181,8 +179,8 @@
                 <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
                 <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
                 
-                <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off">
-                <label class="btn btn-outline-primary flex-fill" for="attempt" >Attempt</label>
+                <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off" style="display:none">
+                <label class="btn btn-outline-primary flex-fill" for="attempt" style="display:none">Attempt</label>
               </div>
             </div>
 
@@ -207,10 +205,10 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="saveTick">Save changes</button>
+          <button type="button" class="btn btn-primary" id="saveTick">Save tick</button>
         </div>
          <div class="alter-settings alert alert-success" role="alert">
-            You successfully saved the data!
+            Tick successfully saved!
             </div>
           <div class="alter-settings alert alert-danger" role="alert">
             An error occurred, please try again later!
@@ -221,10 +219,6 @@
   </div>
 
   <script>
-    document.getElementById('saveTick').addEventListener('click', function () {
-      this.disabled = true; // Disable the button to prevent multiple submissions
-    });
-
     document.addEventListener('DOMContentLoaded', function () {
       const attemptTypeRadios = document.querySelectorAll('input[name="attemptType"]');
       attemptTypeRadios.forEach(radio => {
@@ -258,7 +252,7 @@
         }
       });
 
-      // Grade mapping
+      // Manual grade mapping
       const gradeMapping = {  
         "4a/V0": "10",
         "4b/V0": "11",
@@ -334,8 +328,14 @@
 
         // Reset comment
         document.getElementById('comment').value = '';
+        // Reset disabled save button
+        document.getElementById('saveTick').disabled = false;
       });
     });
+
+      document.getElementById('saveTick').addEventListener('click', function () {
+        this.disabled = true; // Disable the button to prevent multiple submissions
+      });
   </script>
 
 <!-- Stats Modal -->
@@ -347,7 +347,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>nothing to see here …</p>
+        <p id="paragraph-climb-attempts"></p>
       </div>
     </div>
   </div>

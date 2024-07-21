@@ -142,8 +142,7 @@ document.getElementById("saveTick").addEventListener("click", function () {
     document.querySelector('input[name="attemptType"]:checked').id === "flash"
       ? 1
       : parseInt(document.getElementById("attempts").value);
-  const bid_count = 1;
-
+  const bid_count = attempt_id; // currently handling bid_count and attempt_id the same.
   const quality =
     parseInt(document.querySelector(".star-rating input:checked")?.value) || 0;
   const selectedAttemptType = document.querySelector(
@@ -159,7 +158,6 @@ document.getElementById("saveTick").addEventListener("click", function () {
     : false;
   const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
   const comment = document.getElementById("comment").value;
-
   const data = {
     board: board,
     climb_uuid: climb_uuid,
@@ -213,7 +211,6 @@ document.getElementById("saveTick").addEventListener("click", function () {
       }, 3000);
     });
 });
-
 
 async function fetchBetaCount(board, uuid) {
   const response = await fetch(`/api/v1/${board}/beta/${uuid}`);
@@ -354,6 +351,8 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
           : " sessions. <br> The last session was ") +
         show_attempts["days_pass_since_last_try"] +
         " ago.";
+    } else { 
+      attempts_infotext ="You had no tries so far." 
     }
 
     const tickType = tickedClimbs[`${uuid}-${angle}`];
