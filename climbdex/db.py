@@ -32,6 +32,14 @@ QUERIES = {
         JOIN layouts
         ON layouts.product_id = placement_roles.product_id
         WHERE layouts.id = $layout_id""",
+    "feet_placement_roles": """
+        SELECT
+            placement_roles.id
+        FROM placement_roles
+        JOIN layouts
+        on layouts.product_id = placement_roles.product_id
+        WHERE layouts.id = $layout_id
+        AND placement_roles.position = '4'""",
     "grades": """
         SELECT
             difficulty,
@@ -198,6 +206,7 @@ def get_search_results(args):
     database = get_board_database(args.get("board"))
     cursor = database.cursor()
     cursor.execute(limited_sql, binds)
+    print(limited_sql, binds)
     return cursor.fetchall()
 
 
@@ -234,16 +243,26 @@ def get_search_base_sql_and_binds(args):
 
     holds = args.get("holds")
     match_roles = args.get("roleMatch") == "strict"
+    filter_feet = args.get("roleMatch") == "hands"
+    layout_foot_placement_role= layout_feet_placement_roles(args.get("board"), args.get("layout"))
+    print(match_roles, filter_feet)
     if holds:
-        sql += " AND (climbs.frames LIKE $like_string"
+        sql += " AND ((climbs.frames LIKE $like_string"
         binds["like_string"] = get_frames_like_clause(holds, match_roles)
+        if filter_feet:
+            sql += " AND climbs.frames NOT LIKE $not_like_feet_string"
+            binds["not_like_feet_string"] = get_frames_not_like_feet_clause(holds,layout_foot_placement_role)
+        sql += ")"
         mirrored_holds = args.get("mirroredHolds")
         if mirrored_holds and layout_is_mirrored(args.get("board"), args.get("layout")):
-            sql += " OR climbs.frames LIKE $mirrored_like_string"
+            sql += " OR (climbs.frames LIKE $mirrored_like_string"
             binds["mirrored_like_string"] = get_frames_like_clause(
                 mirrored_holds, match_roles
             )
-        sql += " )"
+            if filter_feet:
+                sql += " AND climbs.frames NOT LIKE $mirrored_not_like_feet_string"
+                binds["mirrored_not_like_feet_string"] = get_frames_not_like_feet_clause(mirrored_holds,layout_foot_placement_role)
+        sql += "))"
     
     maxHolds = args.get("maxHoldNumber")
     minHolds = args.get("minHoldNumber")
@@ -276,6 +295,16 @@ def get_frames_like_clause(holds, match_roles):
     )
     return f"%{like_string_center}%"
 
+# temp setting to 8 while testing tb2, then have to figure out how to get foot ids?
+def get_frames_not_like_feet_clause(holds,foot_placement_role):
+    not_like_feet_string_center = "%".join(
+        f"p{placement}r{foot_placement_role}"
+        for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0])
+    )
+    return f"%{not_like_feet_string_center}%"
+
+def layout_feet_placement_roles(board, layout_id):
+    return get_data(board, "feet_placement_roles", {"layout_id": layout_id})[0][0]
 
 def layout_is_mirrored(board, layout_id):
     return get_data(board, "layout_is_mirrored", {"layout_id": layout_id})[0][0] == 1
