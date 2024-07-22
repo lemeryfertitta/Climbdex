@@ -40,9 +40,11 @@
           <div class="input-group mb-3">
             <span class="input-group-text">Angle</span>
             <select class="form-select" id="select-angle" name="angle">
-              <option value="any" selected>Any</option>
-              {% for angle in angles %}
-              <option value="{{angle[0]}}">{{angle[0]}}</option>
+              <option value="any" {% if not params.angle %}selected{% endif %}>Any</option>
+              {% for angle_option in angles %}
+              <option value="{{ angle_option[0] }}" {% if params.angle and params.angle|int == angle_option[0] %}selected{% endif %}>
+                {{ angle_option[0] }}
+              </option>
               {% endfor %}
             </select>
           </div>
