@@ -39,7 +39,7 @@ QUERIES = {
         JOIN layouts
         on layouts.product_id = placement_roles.product_id
         WHERE layouts.id = $layout_id
-        AND placement_roles.position = '4'""",
+        AND placement_roles.name = 'foot'""",
     "grades": """
         SELECT
             difficulty,
