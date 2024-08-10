@@ -1,15 +1,10 @@
 from flask import Flask, request, jsonify, Blueprint, json
-from flask_cors import CORS
 from flask_parameter_validation import ValidateParameters, Json, Query
-import boardlib.api.aurora  # Import the boardlib.api.aurora module
+import boardlib.api.aurora 
 import logging
 import climbdex.db
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for the entire app
 blueprint = Blueprint("api", __name__)
-
-logging.basicConfig(level=logging.DEBUG)  # Enable logging
 
 def parameter_error(e):
     code = 400
@@ -132,7 +127,6 @@ def api_save_ascent(
         token = login_info["token"]
         user_id = login_info["user_id"]
 
-        # Use the imported save_ascent function from boardlib.api.aurora
         result = boardlib.api.aurora.save_ascent(
             board=board,
             token=token,
@@ -152,8 +146,3 @@ def api_save_ascent(
     except Exception as e:
         logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
-app.register_blueprint(blueprint)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)

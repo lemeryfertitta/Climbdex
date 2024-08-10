@@ -104,9 +104,7 @@
           <div class="col-2">
             <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
             <br>
-
             <!-- Dropdown menu -->
-            <div class="btn-group">
               <button type="button" class="btn btn-outline-primary dropdown" data-toggle="dropdown"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list"
@@ -132,9 +130,6 @@
                       <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
                     {% endif %}
               </ul>
-            </div>
-          </div>
-
         </div>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="row">
@@ -146,77 +141,74 @@
       {% include 'footer.html.j2' %}
     </div>
 
-
 <!-- Tick Modal -->
 <div class="modal fade" id="tickModal" tabindex="-1" aria-labelledby="tickModal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Tick, Rate and Comment</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tick, Rate and Comment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <h4 id="modal-climb-name"></h4>
+          <p id="modal-climb-stats"></p>
         </div>
-        <div class="modal-body">
-          <div>
-            <h4 id="modal-climb-name"></h4>
-            <p id="modal-climb-stats"></p>
+        <form id="ratingForm">
+          <div class="mb-3">
+            <div class="star-rating">
+              <input type="radio" id="star3" name="rating" value="3">
+              <label for="star3">&#9733;</label>
+              <input type="radio" id="star2" name="rating" value="2">
+              <label for="star2">&#9733;</label>
+              <input type="radio" id="star1" name="rating" value="1">
+              <label for="star1">&#9733;</label>
+            </div>
           </div>
-          <form id="ratingForm">
-            <div class="mb-3">
-              <div class="star-rating">
-                <input type="radio" id="star3" name="rating" value="3">
-                <label for="star3">&#9733;</label>
-                <input type="radio" id="star2" name="rating" value="2">
-                <label for="star2">&#9733;</label>
-                <input type="radio" id="star1" name="rating" value="1">
-                <label for="star1">&#9733;</label>
-              </div>
+          <div class="mb-3">
+            <div class="btn-group d-flex" role="group">
+              <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off"
+                checked>
+              <label class="btn btn-outline-primary flex-fill" for="flash">Flash</label>
+              <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
+              <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
+              <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off"
+                style="display:none">
+              <label class="btn btn-outline-primary flex-fill" for="attempt" style="display:none">Attempt</label>
             </div>
-            <div class="mb-3">
-              <div class="btn-group d-flex" role="group">
-                <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off" checked>
-                <label class="btn btn-outline-primary flex-fill" for="flash" >Flash</label>
-                
-                <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
-                <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
-                
-                <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off" style="display:none">
-                <label class="btn btn-outline-primary flex-fill" for="attempt" style="display:none">Attempt</label>
-              </div>
+          </div>
+          <div class="mb-3 pt-3" id="attemptsSection" style="display: none;">
+            <div class="input-group">
+              <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
+              <input type="text" class="form-control text-center" id="attempts" value="1 try" readonly>
+              <button class="btn btn-outline-secondary" type="button" id="increaseAttempts">+</button>
             </div>
-
-            <div class="mb-3" id="attemptsSection" style="display: none;">
-              <div class="input-group">
-                <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
-                <input type="text" class="form-control text-center" id="attempts" value="1 try" readonly>
-                <button class="btn btn-outline-secondary" type="button" id="increaseAttempts">+</button>
-              </div>
+          </div>
+          <div class="mb-3 pt-3">
+            <div class="input-group">
+              <button class="btn btn-outline-secondary" type="button" id="decreaseDifficulty">-</button>
+              <input type="text" class="form-control text-center" id="difficulty" value="" readonly>
+              <button class="btn btn-outline-secondary" type="button" id="increaseDifficulty">+</button>
             </div>
-            <div class="mb-3 pt-3">
-              <div class="input-group">
-                <button class="btn btn-outline-secondary" type="button" id="decreaseDifficulty">-</button>
-                 <input type="text" class="form-control text-center" id="difficulty" value="" readonly>
-                <button class="btn btn-outline-secondary" type="button" id="increaseDifficulty">+</button>
-              </div>
-            </div>
-            <div class="mb-3 pt-3">
-              <textarea class="form-control" id="comment" rows="3" placeholder="Add comments, beta, notes..."></textarea>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="saveTick">Save tick</button>
-        </div>
-         <div class="alter-settings alert alert-success" role="alert">
-            Tick successfully saved!
-            </div>
-          <div class="alter-settings alert alert-danger" role="alert">
-            An error occurred, please try again later!
-        </div>
-        
+          </div>
+          <div class="mb-3 pt-3">
+            <textarea class="form-control" id="comment" rows="3" placeholder="Add comments, beta, notes..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveTick">Save tick</button>
+      </div>
+      <div class="alter-settings alert alert-success" role="alert">
+        Tick successfully saved!
+      </div>
+      <div class="alter-settings alert alert-danger" role="alert">
+        An error occurred, please try again later!
       </div>
     </div>
   </div>
+</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {

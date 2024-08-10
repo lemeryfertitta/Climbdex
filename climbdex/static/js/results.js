@@ -35,8 +35,6 @@ function drawClimb(
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
 
-  /* SET the difficutly */
-
   const diffforSave = document.getElementById("difficulty");
   diffforSave.value = difficulty;
   const event = new Event("change");
@@ -99,6 +97,7 @@ function drawClimb(
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 }
 
+// currently hardcoded, can probably be optimized
 document.getElementById("saveTick").addEventListener("click", function () {
   const gradeMapping = {
     "4a/V0": "10",
@@ -186,11 +185,9 @@ document.getElementById("saveTick").addEventListener("click", function () {
       return response.json();
     })
     .then((data) => {
-      console.log("Success:", data);
-      // Show success message
       const successAlert = document.querySelector(".alert-success");
       successAlert.style.display = "block";
-      // Hide the modal and success message after 3 seconds
+
       setTimeout(() => {
         successAlert.style.display = "none";
         const tickModal = document.getElementById("tickModal");
@@ -201,11 +198,9 @@ document.getElementById("saveTick").addEventListener("click", function () {
       }, 3000);
     })
     .catch((error) => {
-      console.error("Error:", error);
-      // Show error message
       const errorAlert = document.querySelector(".alert-danger");
       errorAlert.style.display = "block";
-      // Hide the error message after 3 seconds
+
       setTimeout(() => {
         errorAlert.style.display = "none";
       }, 3000);
