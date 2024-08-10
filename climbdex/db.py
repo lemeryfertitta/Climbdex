@@ -243,14 +243,17 @@ def get_search_base_sql_and_binds(args):
     holds = args.get("holds")
     match_roles = args.get("roleMatch") == "strict"
     filter_feet = args.get("roleMatch") == "hands"
-    layout_foot_placement_role= layout_feet_placement_roles(args.get("board"), args.get("layout"))
-    print(match_roles, filter_feet)
+    if filter_feet:
+        layout_foot_placement_role= layout_feet_placement_roles(args.get("board"), args.get("layout"))
     if holds:
         sql += " AND ((climbs.frames LIKE $like_string"
         binds["like_string"] = get_frames_like_clause(holds, match_roles)
         if filter_feet:
-            sql += " AND climbs.frames NOT LIKE $not_like_feet_string"
-            binds["not_like_feet_string"] = get_frames_not_like_feet_clause(holds,layout_foot_placement_role)
+            hold_count = 1
+            for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0]):
+                sql += f" AND climbs.frames NOT LIKE $not_like_feet_string_{hold_count}"
+                binds[f"not_like_feet_string_{hold_count}"] = f"%p{placement}r{layout_foot_placement_role}%"
+                hold_count += 1
         mirrored_holds = args.get("mirroredHolds")
         if mirrored_holds and layout_is_mirrored(args.get("board"), args.get("layout")):
             sql += ") OR (climbs.frames LIKE $mirrored_like_string"
@@ -258,8 +261,11 @@ def get_search_base_sql_and_binds(args):
                 mirrored_holds, match_roles
             )
             if filter_feet:
-                sql += " AND climbs.frames NOT LIKE $mirrored_not_like_feet_string"
-                binds["mirrored_not_like_feet_string"] = get_frames_not_like_feet_clause(mirrored_holds,layout_foot_placement_role)
+                hold_count = 1
+                for placement, role in sorted(iterframes(mirrored_holds), key=lambda frame: frame[0]):
+                    sql += f" AND climbs.frames NOT LIKE $mirrored_not_like_feet_string_{hold_count}"
+                    binds[f"mirrored_not_like_feet_string_{hold_count}"] = f"%p{placement}r{layout_foot_placement_role}%"
+                    hold_count += 1
         sql += "))"
     maxHolds = args.get("maxHoldNumber")
     minHolds = args.get("minHoldNumber")
@@ -275,7 +281,6 @@ def get_search_base_sql_and_binds(args):
     elif minHolds:
         sql += " >= $minHolds"
         binds['minHolds'] = int(minHolds)
-
     return sql, binds
 
 
@@ -291,14 +296,6 @@ def get_frames_like_clause(holds, match_roles):
         for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0])
     )
     return f"%{like_string_center}%"
-
-# temp setting to 8 while testing tb2, then have to figure out how to get foot ids?
-def get_frames_not_like_feet_clause(holds,foot_placement_role):
-    not_like_feet_string_center = "%".join(
-        f"p{placement}r{foot_placement_role}"
-        for placement, role in sorted(iterframes(holds), key=lambda frame: frame[0])
-    )
-    return f"%{not_like_feet_string_center}%"
 
 def layout_feet_placement_roles(board, layout_id):
     return get_data(board, "feet_placement_roles", {"layout_id": layout_id})[0][0]
