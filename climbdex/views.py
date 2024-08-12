@@ -172,6 +172,7 @@ def get_placement_positions(board_name, layout_id, size_id):
         for placement_id, position in climbdex.db.get_data(board_name, "leds", binds)
     }
 
+
 def get_led_colors(board_name, layout_id):
     binds = {"layout_id": layout_id}
     return {
