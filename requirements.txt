@@ -7,7 +7,6 @@ certifi==2023.11.17
 charset-normalizer==3.3.2
 click==8.1.7
 Flask==3.0.0
-flask-cors==4.0.1
 gunicorn==22.0.0
 idna==3.7
 importlib-metadata==7.0.0

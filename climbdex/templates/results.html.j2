@@ -275,7 +275,7 @@
       const gradeKeys = Object.keys(gradeMapping);
       let currentGradeIndex = gradeKeys.indexOf(document.getElementById('difficulty').value);
 
-      function schwierigkeits(increase) {
+      function difficultySlider(increase) {
         if (increase && currentGradeIndex < gradeKeys.length - 1) {
           currentGradeIndex++;
         } else if (!increase && currentGradeIndex > 0) {
@@ -296,11 +296,11 @@
       }
 
       document.getElementById('increaseDifficulty').addEventListener('click', function () {
-        schwierigkeits(true);
+        difficultySlider(true);
       });
 
       document.getElementById('decreaseDifficulty').addEventListener('click', function () {
-        schwierigkeits(false);
+        difficultySlider(false);
       });
 
       document.getElementById('difficulty').addEventListener('change', function () {
