@@ -17,21 +17,9 @@
       font-size: 0.9em;
     }
 
-    .modal label.btn.btn-outline-primary.flex-fill:last-child {
-      border-bottom-right-radius: 6px !important;
-      border-top-right-radius: 6px !important;
-    }
-
-    .modal label.btn.btn-outline-primary.flex-fill {
-      border-bottom-right-radius: 0px !important;
-      border-top-right-radius: 0px !important;
-    }
-
-    .btn-group>.btn-group:not(:last-child)>.btn,
-    .btn-group>.btn.dropdown-toggle-split:first-child,
-    .btn-group>.btn:not(:last-child):not(.dropdown-toggle) {
-      border-top-right-radius: 6px !important;
-      border-bottom-right-radius: 6px !important;
+    .rounded-cornders {
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
     }
 
     /* simulate button click for swipe gestures */
@@ -105,31 +93,31 @@
             <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
             <br>
             <!-- Dropdown menu -->
-              <button type="button" class="btn btn-outline-primary dropdown" data-toggle="dropdown"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list"
-                  viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                    d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                </svg>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end">
+            <button type="button" class="btn btn-outline-primary dropdown" data-toggle="dropdown"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list"
+                viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+              </svg>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if request.cookies %}
+              <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb</li>
+              <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#statsModal">Statistics</li>
+              {% endif %}
+              <li>
+                <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
+                  <span id="span-beta-count" class="position-absolute badge rounded-pill bg-danger">
+                    0
+                  </span>
+                </a>
+              </li>
                 {% if request.cookies %}
-                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb</li>
-                <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#statsModal">Statistics</li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
                 {% endif %}
-                <li>
-                  <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
-                      <span id="span-beta-count" class="position-absolute badge rounded-pill bg-danger">
-                       0
-                      </span>
-                    </a>
-                </li>
-                    {% if request.cookies %}
-                      <li><hr class="dropdown-divider"></li>
-                      <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
-                    {% endif %}
-              </ul>
+            </ul>
         </div>
         <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="row">
@@ -171,7 +159,7 @@
                 checked>
               <label class="btn btn-outline-primary flex-fill" for="flash">Flash</label>
               <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
-              <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
+              <label class="btn btn-outline-primary flex-fill rounded-cornders" for="send">Send</label>
               <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off"
                 style="display:none">
               <label class="btn btn-outline-primary flex-fill" for="attempt" style="display:none">Attempt</label>
@@ -253,7 +241,7 @@
       const gradeKeys = Object.keys(gradeMapping);
       let currentGradeIndex = gradeKeys.indexOf(document.getElementById('difficulty').value);
 
-      function schwierigkeits(increase) {
+      function difficultySlider(increase) {
         if (increase && currentGradeIndex < gradeKeys.length - 1) {
           currentGradeIndex++;
         } else if (!increase && currentGradeIndex > 0) {
@@ -274,11 +262,11 @@
       }
 
       document.getElementById('increaseDifficulty').addEventListener('click', function () {
-        schwierigkeits(true);
+        difficultySlider(true);
       });
 
       document.getElementById('decreaseDifficulty').addEventListener('click', function () {
-        schwierigkeits(false);
+        difficultySlider(false);
       });
 
       document.getElementById('difficulty').addEventListener('change', function () {

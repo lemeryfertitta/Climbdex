@@ -37,7 +37,6 @@ function drawClimb(
 
   const diffForSave = document.getElementById("difficulty");
   diffForSave.value = difficulty;
-
   const event = new Event("change");
   diffForSave.dispatchEvent(event);
 
