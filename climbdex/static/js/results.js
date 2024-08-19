@@ -35,10 +35,10 @@ function drawClimb(
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
 
-  const diffforSave = document.getElementById("difficulty");
-  diffforSave.value = difficulty;
+  const diffForSave = document.getElementById("difficulty");
+  diffForSave.value = difficulty;
   const event = new Event("change");
-  diffforSave.dispatchEvent(event);
+  diffForSave.dispatchEvent(event);
 
   const climbNameHeader = document.getElementById("header-climb-name");
   climbNameHeader.innerHTML = "";
