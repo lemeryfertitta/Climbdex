@@ -244,34 +244,12 @@
         }
       });
 
-      // Manual grade mapping
-      const gradeMapping = {  
-        "4a/V0": "10",
-        "4b/V0": "11",
-        "4c/V0": "12",
-        "5a/V1": "13",
-        "5b/V1": "14",
-        "5c/V2": "15",
-        "6a/V3": "16",
-        "6a+/V3": "17",
-        "6b/V4": "18",
-        "6b+/V4": "19",
-        "6c/V5": "20",
-        "6c+/V5": "21",
-        "7a/V6": "22",
-        "7a+/V7": "23",
-        "7b/V8": "24",
-        "7b+/V8": "25",
-        "7c/V9": "26",
-        "7c+/V10": "27",
-        "8a/V11": "28",
-        "8a+/V12": "29",
-        "8b/V13": "30",
-        "8b+/V14": "31",
-        "8c/V15": "32",
-        "8c+/V16": "33",
+       const gradeMapping = {
+        {% for grade in grades %}
+        "{{grade[1]}}": "{{grade[0]}}",
+        {% endfor %}
       };
-
+ 
       const gradeKeys = Object.keys(gradeMapping);
       let currentGradeIndex = gradeKeys.indexOf(document.getElementById('difficulty').value);
 
@@ -328,6 +306,8 @@
       document.getElementById('saveTick').addEventListener('click', function () {
         this.disabled = true; // Disable the button to prevent multiple submissions
       });
+
+
   </script>
 
 <!-- Stats Modal -->
@@ -373,19 +353,21 @@
   });
 </script>
 
-    <script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
-    <script src="{{url_for('static', filename='js/common.js')}}"></script>
-    <script>
-      const appUrl = "{{ app_url }}";
-      const colors = {{ colors | tojson}};
-      const ledColors = {{ led_colors | tojson}};
-      const attemptedClimbs = {{ attempted_climbs | tojson}};
-      const tickedClimbs = {{ ticked_climbs | tojson}};
-      const placementPositions = {{ placement_positions | tojson}};
-      drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
-    </script>
-    <script src="{{url_for('static', filename='js/results.js')}}"></script>
-    <script src="{{url_for('static', filename='js/swipe.js')}}"></script>
+<script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
+<script src="{{url_for('static', filename='js/common.js')}}"></script>
+<script>
+  const appUrl = "{{ app_url }}";
+  const colors = {{ colors | tojson}};
+  const ledColors = {{ led_colors | tojson}};
+  const attemptedClimbs = {{ attempted_climbs | tojson}};
+  const tickedClimbs = {{ ticked_climbs | tojson}};
+  const placementPositions = {{ placement_positions | tojson}};
+  const gradeMapping = {{ grades | tojson }};
+  drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
+</script>
+<script src="{{url_for('static', filename='js/results.js')}}"></script>
+<script src="{{url_for('static', filename='js/swipe.js')}}"></script>
+
 
 </body>
 

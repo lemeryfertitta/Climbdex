@@ -1,15 +1,18 @@
-from flask import Flask, request, jsonify, Blueprint, json
+import flask
 from flask_parameter_validation import ValidateParameters, Json, Query
 import boardlib.api.aurora 
 import logging
 import climbdex.db
 
-blueprint = Blueprint("api", __name__)
+blueprint = flask.Blueprint("api", __name__)
 
 def parameter_error(e):
     code = 400
     name = str(type(e).__name__)
-    description = f"Parameters were missing and/or misconfigured. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
+    description = (
+        f"Parameters were missing and/or misconfigured. If the issue persists, please "
+        f"<a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
+    )
 
     response = {
         "error": True,
@@ -25,11 +28,15 @@ def parameter_error(e):
 def handle_exception(e):
     logging.error(f"Unhandled exception: {str(e)}", exc_info=True)
     response = e.get_response()
-    response.data = json.dumps({
+    response.data = flask.json.dumps({
         "error": True,
         "code": e.code,
         "name": e.name,
-        "description": f"There was a problem while getting results from the server. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" target='_blank'>report it</a> (code: {e.code})",
+        "description": (
+            f"There was a problem while getting results from the server. If the issue persists, "
+            f"please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" "
+            f"target='_blank'>report it</a> (code: {e.code})"
+        ),
     })
     response.content_type = "application/json"
     logging.error(response.data)
@@ -37,17 +44,17 @@ def handle_exception(e):
 
 @blueprint.route("/api/v1/<board_name>/layouts")
 def layouts(board_name):
-    return jsonify(climbdex.db.get_data(board_name, "layouts"))
+    return flask.jsonify(climbdex.db.get_data(board_name, "layouts"))
 
 @blueprint.route("/api/v1/<board_name>/layouts/<layout_id>/sizes")
 def sizes(board_name, layout_id):
-    return jsonify(
+    return flask.jsonify(
         climbdex.db.get_data(board_name, "sizes", {"layout_id": int(layout_id)})
     )
 
 @blueprint.route("/api/v1/<board_name>/layouts/<layout_id>/sizes/<size_id>/sets")
 def sets(board_name, layout_id, size_id):
-    return jsonify(
+    return flask.jsonify(
         climbdex.db.get_data(
             board_name, "sets", {"layout_id": int(layout_id), "size_id": int(size_id)}
         )
@@ -64,7 +71,7 @@ def resultsCount(
     minRating: float = Query(),
     size: int = Query(),
 ):
-    return jsonify(climbdex.db.get_search_count(request.args))
+    return flask.jsonify(climbdex.db.get_search_count(flask.request.args))
 
 @blueprint.route("/api/v1/search")
 @ValidateParameters(parameter_error)
@@ -77,31 +84,31 @@ def search(
     minRating: float = Query(),
     size: int = Query(),
 ):
-    return jsonify(climbdex.db.get_search_results(request.args))
+    return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
 
 @blueprint.route("/api/v1/<board_name>/beta/<uuid>")
 def beta(board_name, uuid):
-    return jsonify(climbdex.db.get_data(board_name, "beta", {"uuid": uuid}))
+    return flask.jsonify(climbdex.db.get_data(board_name, "beta", {"uuid": uuid}))
 
 @blueprint.route("/api/v1/login/", methods=["POST"])
 def login():
     try:
         login_details = boardlib.api.aurora.login(
-            request.json["board"],
-            request.json["username"],
-            request.json["password"],
+            flask.request.json["board"],
+            flask.request.json["username"],
+            flask.request.json["password"],
         )
-        return jsonify(
+        return flask.jsonify(
             {"token": login_details["token"], "user_id": login_details["user_id"]}
         )
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == requests.codes.unprocessable_entity:
             return (
-                jsonify({"error": "Invalid username/password combination"}),
+                flask.jsonify({"error": "Invalid username/password combination"}),
                 e.response.status_code,
             )
         else:
-            return jsonify({"error": str(e)}), e.response.status_code
+            return flask.jsonify({"error": str(e)}), e.response.status_code
 
 @blueprint.route("/api/v1/save_ascent", methods=["POST"])
 @ValidateParameters(parameter_error)
@@ -119,11 +126,11 @@ def api_save_ascent(
     climbed_at: str = Json(),
 ):
     try:
-        login_cookie = request.cookies.get(f"{board}_login")
+        login_cookie = flask.request.cookies.get(f"{board}_login")
         if not login_cookie:
-            return jsonify({"error": "Login required"}), 401
+            return flask.jsonify({"error": "Login required"}), 401
 
-        login_info = json.loads(login_cookie)
+        login_info = flask.json.loads(login_cookie)
         token = login_info["token"]
         user_id = login_info["user_id"]
 
@@ -142,7 +149,7 @@ def api_save_ascent(
             comment=comment,
             climbed_at=climbed_at
         )
-        return jsonify(result)
+        return flask.jsonify(result)
     except Exception as e:
         logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        return flask.jsonify({"error": str(e)}), 500

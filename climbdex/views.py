@@ -54,6 +54,7 @@ def results():
         ticked_climbs=ticked_climbs,
         attempted_climbs=attempted_climbs,
         placement_positions=placement_positions,
+        grades=climbdex.db.get_data(board_name, "grades"),
         led_colors=get_led_colors(board_name, layout_id),
         **get_draw_board_kwargs(
             board_name,
@@ -159,7 +160,7 @@ def get_bids(board, login_cookie):
         entry['uid']: {
             'total_tries': entry['tries'],
             'total_sessions': entry['sessions'],
-            'days_pass_since_last_try': entry['time_since']
+            'last_try': entry['date']
         } for entry in aggregated_json
     }
     

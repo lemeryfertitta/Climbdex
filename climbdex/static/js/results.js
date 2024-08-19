@@ -35,10 +35,11 @@ function drawClimb(
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
 
-  const diffforSave = document.getElementById("difficulty");
-  diffforSave.value = difficulty;
+  const diffForSave = document.getElementById("difficulty");
+  diffForSave.value = difficulty;
+
   const event = new Event("change");
-  diffforSave.dispatchEvent(event);
+  diffForSave.dispatchEvent(event);
 
   const climbNameHeader = document.getElementById("header-climb-name");
   climbNameHeader.innerHTML = "";
@@ -96,35 +97,12 @@ function drawClimb(
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 }
+const gradeMappingObject = gradeMapping.reduce((acc, [difficulty, grade]) => {
+  acc[grade] = difficulty;
+  return acc;
+}, {});
 
-// currently hardcoded, can probably be optimized
 document.getElementById("saveTick").addEventListener("click", function () {
-  const gradeMapping = {
-    "4a/V0": "10",
-    "4b/V0": "11",
-    "4c/V0": "12",
-    "5a/V1": "13",
-    "5b/V1": "14",
-    "5c/V2": "15",
-    "6a/V3": "16",
-    "6a+/V3": "17",
-    "6b/V4": "18",
-    "6b+/V4": "19",
-    "6c/V5": "20",
-    "6c+/V5": "21",
-    "7a/V6": "22",
-    "7a+/V7": "23",
-    "7b/V8": "24",
-    "7b+/V8": "25",
-    "7c/V9": "26",
-    "7c+/V10": "27",
-    "8a/V11": "28",
-    "8a+/V12": "29",
-    "8b/V13": "30",
-    "8b+/V14": "31",
-    "8c/V15": "32",
-    "8c+/V16": "33",
-  };
   const urlParams = new URLSearchParams(window.location.search);
   const board = urlParams.get("board");
   const climb_uuid = document
@@ -141,15 +119,19 @@ document.getElementById("saveTick").addEventListener("click", function () {
     document.querySelector('input[name="attemptType"]:checked').id === "flash"
       ? 1
       : parseInt(document.getElementById("attempts").value);
-  const bid_count = attempt_id; // currently handling bid_count and attempt_id the same.
+  const bid_count = attempt_id;
   const quality =
     parseInt(document.querySelector(".star-rating input:checked")?.value) || 0;
   const selectedAttemptType = document.querySelector(
     'input[name="attemptType"]:checked'
   ).id;
-  const difficulty = ["flash", "send"].includes(selectedAttemptType)
-    ? parseInt(gradeMapping[document.getElementById("difficulty").value])
+  const difficultyValue = document.getElementById("difficulty").value;
+  const convertedDifficulty = gradeMappingObject[difficultyValue];
+
+  const finalDifficulty = ["flash", "send"].includes(selectedAttemptType)
+    ? parseInt(convertedDifficulty)
     : 0;
+
   const is_benchmark = document
     .querySelector("#paragraph-climb-stats span")
     .textContent.includes("©")
@@ -157,6 +139,7 @@ document.getElementById("saveTick").addEventListener("click", function () {
     : false;
   const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
   const comment = document.getElementById("comment").value;
+
   const data = {
     board: board,
     climb_uuid: climb_uuid,
@@ -165,7 +148,7 @@ document.getElementById("saveTick").addEventListener("click", function () {
     attempt_id: attempt_id,
     bid_count: bid_count,
     quality: quality,
-    difficulty: difficulty,
+    difficulty: finalDifficulty,
     is_benchmark: is_benchmark,
     comment: comment,
     climbed_at: climbed_at,
@@ -198,6 +181,7 @@ document.getElementById("saveTick").addEventListener("click", function () {
       }, 3000);
     })
     .catch((error) => {
+      console.error("Error:", error);
       const errorAlert = document.querySelector(".alert-danger");
       errorAlert.style.display = "block";
 
@@ -235,8 +219,7 @@ async function fetchResults(pageNumber, pageSize) {
   const results = await response.json();
 
   if (results["error"] == true) {
-    alert.querySelector(".alert-content").innerHTML =
-      resultsCount["description"];
+    alert.querySelector(".alert-content").innerHTML = results["description"];
     alert.classList.add("show-alert");
   } else {
     return results;
@@ -341,13 +324,10 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
         show_attempts["total_tries"] +
         (show_attempts["total_tries"] === 1 ? " try in " : " tries in ") +
         show_attempts["total_sessions"] +
-        (show_attempts["total_sessions"] === 1
-          ? " session. <br> The last session was "
-          : " sessions. <br> The last session was ") +
-        show_attempts["days_pass_since_last_try"] +
-        " ago.";
-    } else { 
-      attempts_infotext ="You had no tries so far." 
+        " session. <br> The last session was: " +
+        show_attempts["last_try"];
+    } else {
+      attempts_infotext = "You had no tries so far.";
     }
 
     const tickType = tickedClimbs[`${uuid}-${angle}`];
