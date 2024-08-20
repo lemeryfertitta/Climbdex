@@ -149,12 +149,13 @@ def get_ticked_climbs(board, login_cookie):
 
 
 def get_bids(board, login_cookie):
-    db_path = f"data/{board}//db.sqlite3"
+
+    db_path = f"data/{board}/db.sqlite3"
     login_info = json.loads(login_cookie)
     user_id = login_info["user_id"]
     token = login_info["token"]
 
-    aggregated_logbook = boardlib.api.aurora.logbook_entries_agg(board, token, user_id, db_path,"font")
+    aggregated_logbook = boardlib.api.aurora.logbook_entries(board, token=token,username=None,password=None, user_id=user_id, db_path=db_path, grade_type="font",aggregate=True)
     aggregated_json = aggregated_logbook.to_dict(orient='records')
     formatted_json = {
         entry['uid']: {

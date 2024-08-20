@@ -3,6 +3,7 @@ from flask_parameter_validation import ValidateParameters, Json, Query
 import boardlib.api.aurora 
 import logging
 import climbdex.db
+import requests
 
 blueprint = flask.Blueprint("api", __name__)
 
