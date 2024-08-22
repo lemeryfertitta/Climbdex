@@ -156,19 +156,19 @@ def get_bids(board, login_cookie):
     full_logbook_df = boardlib.api.aurora.logbook_entries(board, username=None, password=None, token=token, user_id=user_id, db_path=db_path)
     
     if full_logbook_df.empty:
-        return pd.DataFrame(columns=['climb_uuid', 'board', 'climb_name', 'date', 'sessions', 'tries'])
+        return pd.DataFrame(columns=['climb_angle_uuid', 'board', 'climb_name', 'date', 'sessions', 'tries'])
 
-    aggregated_logbook = full_logbook_df.groupby(['climb_uuid', 'board', 'climb_name']).agg(
+    aggregated_logbook = full_logbook_df.groupby(['climb_angle_uuid', 'board', 'climb_name']).agg(
         date=('date', 'max'),
-        sessions=('climb_uuid', 'count'),
+        sessions=('climb_angle_uuid', 'count'),
         tries=('tries', 'sum')
     ).reset_index()
 
     aggregated_logbook['date'] = aggregated_logbook['date'].dt.strftime('%d/%m/%Y')
-    
+
     aggregated_json = aggregated_logbook.to_dict(orient='records')
     formatted_json = {
-        entry['climb_uuid']: {
+        entry['climb_angle_uuid']: {
             'total_tries': entry['tries'],
             'total_sessions': entry['sessions'],
             'last_try': entry['date']
