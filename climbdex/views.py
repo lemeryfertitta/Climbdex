@@ -2,7 +2,7 @@ import boardlib.api.aurora
 import flask
 import climbdex.db
 import json
-
+import pandas as pd
 
 blueprint = flask.Blueprint("view", __name__)
 
@@ -149,16 +149,26 @@ def get_ticked_climbs(board, login_cookie):
 
 
 def get_bids(board, login_cookie):
-
     db_path = f"data/{board}/db.sqlite3"
     login_info = json.loads(login_cookie)
     user_id = login_info["user_id"]
     token = login_info["token"]
+    full_logbook_df = boardlib.api.aurora.logbook_entries(board, username=None, password=None, token=token, user_id=user_id, db_path=db_path)
+    
+    if full_logbook_df.empty:
+        return pd.DataFrame(columns=['climb_uuid', 'board', 'climb_name', 'date', 'sessions', 'tries'])
 
-    aggregated_logbook = boardlib.api.aurora.logbook_entries(board, token=token,username=None,password=None, user_id=user_id, db_path=db_path, grade_type="font",aggregate=True)
+    aggregated_logbook = full_logbook_df.groupby(['climb_uuid', 'board', 'climb_name']).agg(
+        date=('date', 'max'),
+        sessions=('climb_uuid', 'count'),
+        tries=('tries', 'sum')
+    ).reset_index()
+
+    aggregated_logbook['date'] = aggregated_logbook['date'].dt.strftime('%d/%m/%Y')
+    
     aggregated_json = aggregated_logbook.to_dict(orient='records')
     formatted_json = {
-        entry['uid']: {
+        entry['climb_uuid']: {
             'total_tries': entry['tries'],
             'total_sessions': entry['sessions'],
             'last_try': entry['date']
