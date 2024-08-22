@@ -18,7 +18,7 @@ requests==2.32.2
 soupsieve==2.5
 sqlparse==0.5.0
 typing_extensions==4.9.0
-urllib3==2.1.0
+urllib3==2.2.2
 Werkzeug==3.0.3
 zipp==3.19.1
 flask_parameter_validation==2.3.1
