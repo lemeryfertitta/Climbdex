@@ -16,14 +16,14 @@ These are the features that Climbdex provides which are currently not supported 
 - Hold filtering
   - Select holds to require them to be present in the resulting climbs.
   - Click multiple times on a hold to change the color.
-  - If "strict" color matching is selected, the color of the hold must be an exact match. If "any" color matching is selected, the color of the holds will be ignored.
+  - If "strict" color matching is selected, the color of the hold must be an exact match. If "any" color matching is selected, the color of the holds will be ignored. If "only hands" color matching is selected, the color of the hold must match one of the hand hold colors (start, middle, or finish).
   - On mirrored board layouts, the mirror image of the filtered hold sequence will also be included in the search results.
 - Precise quality and difficulty ratings
   - The exact average (to the hundredths place) of the grade and star ratings are displayed to give a better sense of the true difficulty and quality of a climb.
   - There is a "difficulty accuracy" filter which can be used in combination with minimum ascents to help find benchmark climbs of a grade.
 - Bookmarking
   - Filters are stored in query params such that a specific search or setup can be bookmarked.
-  - For example: [accurately graded Kilter V5s at 40° sorted by quality](https://climbdex.fly.dev/results?angle=40&minAscents=100&minRating=1.0&minGrade=20&maxGrade=20&gradeAccuracy=0.05&sortBy=quality&sortOrder=desc&holds=&mirroredHolds=&%3Fangle=40&minAscents=200&minRating=1.0&minGrade=20&maxGrade=21&sortBy=quality&sortOrder=desc&holds=&board=kilter&layout=1&size=10&set=1&set=20&roleMatch=strict&roleMatch=strict) or the [TB2 10x8 Mirror layout](https://climbdex.fly.dev/filter?board=tension&layout=10&size=9&set=12&set=13).
+  - For example: [Kilter V5s at 40° with at least 500 ascents, sorted by quality](https://climbdex.com/results?minGrade=20&maxGrade=20&name=&angle=40&minAscents=500&sortBy=quality&sortOrder=desc&minRating=1.0&onlyClassics=0&gradeAccuracy=1&settername=&setternameSuggestion=&holds=&mirroredHolds=&board=kilter&layout=1&size=10&set=1&set=20&roleMatch=strict) or the [TB2 mirror layout](https://climbdex.com/filter?board=tension&layout=10&size=6&set=12&set=13).
 - Web access
   - No mobile app required to search for climbs
   - To light up the climbs, the mobile app is needed, but if app links are setup correctly, you can click on the climb name in Climbdex and be taken directly to the climb on the app.
