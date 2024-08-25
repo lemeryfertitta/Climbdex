@@ -1,70 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { Button, Badge, Card, List, Row, Col, Typography, Space, Grid, Tooltip } from "antd";
 import {
   SearchOutlined,
   LeftOutlined,
   RightOutlined,
-  UpOutlined,
-  DownOutlined,
   BulbOutlined,
   InstagramOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import {
-  fetchResults,
-  fetchResultsCount,
-  // fetchBetaCount, // Uncomment if needed
-} from "./api";
+import { Button, Badge, Card, List, Typography, Space, Tooltip, Layout, Row, Col } from "antd";
+import { useParams, useLocation } from "react-router-dom";
+import { fetchResults, fetchResultsCount } from "./api";
 import KilterBoardLoader from "./KilterBoardLoader";
 import { boardLayouts } from "./board-data";
 import FilterDrawer from "./FilterDrawer";
 
-const { Title, Paragraph, Text } = Typography;
-const { useBreakpoint } = Grid;
-
-const Tick = () => (
-  <svg viewBox="0 30 280 250" height="16px" width="16px">
-    <path d="M 30,180 90,240 240,30" style={{ stroke: "#000", strokeWidth: 25, fill: "none" }} />
-  </svg>
-);
-
-const ClimbTitleHeader = (climb) => (
-  <>
-    <Title level={4} style={{ margin: 0 }}>
-      <a href={`https://kilterboardapp.com/climbs/${climb.uuid}`} target="_blank" rel="noopener noreferrer">
-        {climb.name}
-      </a>
-    </Title>
-    <Text>by {climb.setter}</Text>
-
-    <Text>
-      Grade: {climb.grade} ({climb.gradeAdjustment}) at {climb.angle}°
-    </Text>
-  </>
-);
-
-const IlluminateButton = () => <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />;
-const SearchButton = ({ onClick }) => (
-  <Button id="button-illuminate" type="default" onClick={onClick} icon={<SearchOutlined />} />
-);
-
-const BetaButton = ({ betaCount }) => (
-  <Badge count={betaCount} offset={[-5, 5]}>
-    <Button
-      id="anchor-beta"
-      type="default"
-      href="/kilter/beta/A0BC2661C68B4B00A5CDF2271CEAF246/"
-      icon={<InstagramOutlined />}
-    />
-  </Badge>
-);
+const { Title, Text } = Typography;
+const { Header, Sider, Content } = Layout;
 
 const ResultsPage = () => {
   const { board, layout, size } = useParams();
   const location = useLocation();
-  const screens = useBreakpoint();
-
-  const isSmallScreen = !screens.md;
 
   const [queryParameters, setQueryParameters] = useState({
     minGrade: 10,
@@ -87,8 +43,6 @@ const ResultsPage = () => {
   const [resultsCount, setResultsCount] = useState(0);
   const [currentClimb, setCurrentClimb] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [betaCount, setBetaCount] = useState(0);
-
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const showDrawer = () => {
@@ -100,33 +54,12 @@ const ResultsPage = () => {
   };
 
   const applyFilters = (filters) => {
-    console.log("Applied Filters: ", filters);
-    // Add logic to filter your data here
-
-    /**
- * {
-    "minGradeId": 20,
-    "maxGradeId": 24,
-    "minHoldNumber": null,
-    "maxHoldNumber": null,
-    "minAscents": 1,
-    "sortBy": "ascents",
-    "sortOrder": "desc",
-    "angle": "any",
-    "minRating": 1,
-    "onlyClassics": 0,
-    "gradeAccuracy": 1,
-    "setterName": "",
-    "roleMatch": "strict",
-    "holds": {}
-}
- */
     setQueryParameters(filters);
   };
 
   useEffect(() => {
     const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId == size) || [])[3] || "";
-    
+
     const fetchData = async () => {
       try {
         const [count, fetchedResults] = await Promise.all([
@@ -142,7 +75,6 @@ const ResultsPage = () => {
             size,
             set_ids,
           }),
-          // fetchBetaCount(currentClimb.uuid), // Uncomment if needed
         ]);
 
         setResultsCount(count);
@@ -150,7 +82,6 @@ const ResultsPage = () => {
         if (!currentClimb && fetchedResults.length > 0) {
           setCurrentClimb(fetchedResults[0]);
         }
-        // setBetaCount(beta); // Uncomment if needed
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -163,36 +94,48 @@ const ResultsPage = () => {
     setCurrentClimb(climb);
   };
 
-  const collapseIcon = <LeftOutlined />;
-  const expandIcon = <RightOutlined />;
-
   return (
-    <div>
-      <FilterDrawer
-        currentSearchValues={queryParameters}
-        boardName={board}
-        layout={layout}
-        open={drawerOpen}
-        onClose={closeDrawer}
-        onApplyFilters={applyFilters}
-      />
-      <Row gutter={[16,16]} justify="center">
-        {!isCollapsed && (
-          <Col xs={24} md={10}>
-            <Card
-              title={
-                <div>
-                  <Text strong>
-                    <SearchButton onClick={showDrawer} /> Found {resultsCount} matching climbs
-                  </Text>
-                  <Tooltip title="Collapse List">
-                    <Button type="default" icon={collapseIcon} onClick={() => setIsCollapsed(true)} />
-                  </Tooltip>
-                </div>
-              }
-              bodyStyle={{ padding: "0" }}
-              style={{ height: "100%" }}
-            >
+    <Layout style={{ height: "100vh" }}>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={isCollapsed}
+        width="35%"
+        style={{ background: "#fff", display: "flex", flexDirection: "column", overflow: "hidden" }}
+      >
+        <Card
+          title={
+            <Row justify="space-between" align="middle">
+              {isCollapsed ? null : (
+                <Col>
+                  <Badge count={resultsCount} offset={[-5, 5]}>
+                    <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
+                  </Badge>
+                </Col>
+              )}
+              <Col>{isCollapsed ? null : <Text strong>Found {resultsCount} matching climbs</Text>}</Col>
+              <Col>
+                <Button
+                  type="default"
+                  icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                />
+              </Col>
+
+              {!isCollapsed ? null : (
+                <Col>
+                  <Badge count={resultsCount} offset={[-5, 5]}>
+                    <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+          }
+          bodyStyle={{ padding: 0, flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
+          <div style={{ overflowY: "auto", flex: 1 }}>
+            {isCollapsed ? null : (
               <List
                 itemLayout="vertical"
                 dataSource={results}
@@ -221,76 +164,90 @@ const ResultsPage = () => {
                   </List.Item>
                 )}
               />
-            </Card>
-          </Col>
-        )}
-
-        {isCollapsed && (
-          <Col xs={1} md={1}>
-            <Tooltip title="Expand List">
-              <Button
-                type="default"
-                icon={expandIcon}
-                onClick={() => setIsCollapsed(false)}
-              />
-            </Tooltip>
-          </Col>
-        )}
-
-        <Col xs={isCollapsed ? 23 : 24} md={isCollapsed ? 23 : 10} style={{ transition: "all 0.3s ease" }}>
-          <Card style={{ height: "100%" }}>
-            {currentClimb ? (
-              <>
-                <Row gutter={[16, 16]} align="middle" justify="space-between" style={{ marginBottom: 16 }}>
-                  <Col>
-                    <Space>
-                      <Button
-                        type="default"
-                        icon={<LeftOutlined />}
-                        disabled={!results.length}
-                        onClick={() => {
-                          const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
-                          if (currentIndex > 0) {
-                            setCurrentClimb(results[currentIndex - 1]);
-                          }
-                        }}
-                      />
-                      <IlluminateButton />
-                    </Space>
-                  </Col>
-                  <Col style={{ textAlign: "center" }}>
-                    <ClimbTitleHeader climb={currentClimb} />
-                    
-                  </Col>
-                  <Col>
-                    <Space>
-                      <BetaButton betaCount={10} />
-                      <Button
-                        type="default"
-                        icon={<RightOutlined />}
-                        disabled={!results.length}
-                        onClick={() => {
-                          const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
-                          if (currentIndex < results.length - 1) {
-                            setCurrentClimb(results[currentIndex + 1]);
-                          }
-                        }}
-                      />
-                    </Space>
-                  </Col>
-                </Row>
-                <KilterBoardLoader litUpHolds={currentClimb.holds} />
-                {currentClimb.instructions && (
-                  <Paragraph style={{ marginTop: 16 }}>{currentClimb.instructions}</Paragraph>
-                )}
-              </>
-            ) : (
-              <Text>No climb selected</Text>
             )}
-          </Card>
-        </Col>
-      </Row>
-    </div>
+          </div>
+        </Card>
+      </Sider>
+
+      <Layout style={{ flex: 1, overflow: "hidden" }}>
+        <Header style={{ background: "#fff", padding: "0 16px" }}>
+          <Row justify="space-between" align="middle">
+            {currentClimb && (
+              <>
+                <Col>
+                  <Space>
+                    <Button
+                      type="default"
+                      icon={<LeftOutlined />}
+                      disabled={!results.length}
+                      onClick={() => {
+                        const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
+                        if (currentIndex > 0) {
+                          setCurrentClimb(results[currentIndex - 1]);
+                        }
+                      }}
+                    />
+                    <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />
+                  </Space>
+                </Col>
+                <Col flex="auto" style={{ textAlign: "center" }}>
+                  <Title level={4} style={{ margin: 0 }}>
+                    <a
+                      href={`https://kilterboardapp.com/climbs/${currentClimb.uuid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {currentClimb.name}
+                    </a>
+                  </Title>
+                  <Text>by {currentClimb.setter}</Text>
+                  <Text>
+                    Grade: {currentClimb.grade} ({currentClimb.gradeAdjustment}) at {currentClimb.angle}°
+                  </Text>
+                </Col>
+                <Col flex="none">
+                  <Space>
+                    <Badge count={10} offset={[-5, 5]}>
+                      <Button
+                        id="anchor-beta"
+                        type="default"
+                        href="/kilter/beta/A0BC2661C68B4B00A5CDF2271CEAF246/"
+                        icon={<InstagramOutlined />}
+                      />
+                    </Badge>
+                    <Button
+                      type="default"
+                      icon={<RightOutlined />}
+                      disabled={!results.length}
+                      onClick={() => {
+                        const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
+                        if (currentIndex < results.length - 1) {
+                          setCurrentClimb(results[currentIndex + 1]);
+                        }
+                      }}
+                    />
+                  </Space>
+                </Col>
+              </>
+            )}
+          </Row>
+        </Header>
+
+        <Content
+          style={{
+            padding: 16,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            overflow: "hidden",
+            height: "100%",
+          }}
+        >
+          {currentClimb ? <KilterBoardLoader litUpHolds={currentClimb.holds} /> : <Text>No climb selected</Text>}
+        </Content>
+      </Layout>
+      {/* <FilterDrawer open={drawerOpen} onClose={closeDrawer} onApply={applyFilters} /> */}
+    </Layout>
   );
 };
 

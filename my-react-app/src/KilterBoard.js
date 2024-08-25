@@ -29,7 +29,6 @@ const KilterBoard = ({
     FINISH: "#FF00FF",
   };
 
-  // Step 1: Parse the litUpHolds string into a mapping of hold IDs to states
   const parsedLitUpHolds = useMemo(() => {
     const holdStateMapping = {
       42: holdStates.STARTING,
@@ -96,7 +95,7 @@ const KilterBoard = ({
             cx: xPixel,
             cy: yPixel,
             r: xSpacing * 4,
-            state: parsedLitUpHolds[holdId] || holdStates.OFF, // Set initial state from parsedLitUpHolds
+            state: parsedLitUpHolds[holdId] || holdStates.OFF,
           });
         });
       }
@@ -133,32 +132,34 @@ const KilterBoard = ({
     }
   };
 
+  const viewBoxWidth = Object.values(imageDimensions)[0]?.width || 0;
+  const viewBoxHeight = Object.values(imageDimensions)[0]?.height || 0;
+
   return (
     <svg
-      viewBox={`0 0 ${Object.values(imageDimensions)[0]?.width || 0} ${Object.values(imageDimensions)[0]?.height || 0}`}
+      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+      preserveAspectRatio="xMidYMid meet"
+      style={{ width: "100%", height: "100%" }}
     >
       {Object.keys(imagesToHolds).map((imageUrl) => (
-        <image
-          key={imageUrl}
-          href={imageUrl}
-          width={imageDimensions[imageUrl]?.width}
-          height={imageDimensions[imageUrl]?.height}
-        />
+        <image key={imageUrl} href={imageUrl} width="100%" height="100%" />
       ))}
-      {holdsData.map((hold) => (
-        <circle
-          key={hold.id}
-          id={`hold-${hold.id}`}
-          data-mirror-id={hold.mirroredHoldId || undefined}
-          cx={hold.cx}
-          cy={hold.cy}
-          r={hold.r}
-          stroke={holdColours[hold.state]}
-          strokeWidth={6}
-          fillOpacity={0}
-          onClick={editEnabled ? () => handleCircleClick(hold.id) : null}
-        />
-      ))}
+      {holdsData
+        .filter((hold) => editEnabled || hold.state !== holdStates.OFF)
+        .map((hold) => (
+          <circle
+            key={hold.id}
+            id={`hold-${hold.id}`}
+            data-mirror-id={hold.mirroredHoldId || undefined}
+            cx={hold.cx}
+            cy={hold.cy}
+            r={hold.r}
+            stroke={holdColours[hold.state]}
+            strokeWidth={6}
+            fillOpacity={0}
+            onClick={editEnabled ? () => handleCircleClick(hold.id) : null}
+          />
+        ))}
     </svg>
   );
 };
