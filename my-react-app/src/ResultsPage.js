@@ -241,13 +241,13 @@ const ResultsPage = () => {
             alignItems: "center",
             overflow: "hidden",
             height: "100%",
-            backgroundColor: '#FFF'
+            backgroundColor: "#FFF",
           }}
         >
           {currentClimb ? <KilterBoardLoader litUpHolds={currentClimb.holds} /> : <Text>No climb selected</Text>}
         </Content>
       </Layout>
-      {/* <FilterDrawer open={drawerOpen} onClose={closeDrawer} onApply={applyFilters} /> */}
+      <FilterDrawer boardName={board} layout={layout} currentSearchValues={queryParameters} open={drawerOpen} onClose={closeDrawer} onApplyFilters={applyFilters} />
     </Layout>
   );
 };
