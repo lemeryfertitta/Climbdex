@@ -241,6 +241,7 @@ const ResultsPage = () => {
             alignItems: "center",
             overflow: "hidden",
             height: "100%",
+            backgroundColor: '#FFF'
           }}
         >
           {currentClimb ? <KilterBoardLoader litUpHolds={currentClimb.holds} /> : <Text>No climb selected</Text>}
