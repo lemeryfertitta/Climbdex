@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button, Badge, Card, List, Row, Col, Typography, Space, Grid, Tooltip } from "antd";
-import { SearchOutlined, LeftOutlined, RightOutlined, UpOutlined, DownOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  LeftOutlined,
+  RightOutlined,
+  UpOutlined,
+  DownOutlined,
+  BulbOutlined,
+  InstagramOutlined,
+} from "@ant-design/icons";
 import {
   fetchResults,
   fetchResultsCount,
@@ -19,7 +27,8 @@ const Tick = () => (
   </svg>
 );
 
-const IlluminateButton = () => <Button id="button-illuminate" type="default" icon={<SearchOutlined />} />;
+const IlluminateButton = () => <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />;
+const SearchButton = () => <Button id="button-illuminate" type="default" icon={<SearchOutlined />} />;
 
 const BetaButton = ({ betaCount }) => (
   <Badge count={betaCount} offset={[-5, 5]}>
@@ -27,11 +36,7 @@ const BetaButton = ({ betaCount }) => (
       id="anchor-beta"
       type="default"
       href="/kilter/beta/A0BC2661C68B4B00A5CDF2271CEAF246/"
-      icon={
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 0C5.829 0 5.556.01 4.703.048 ..."></path>
-        </svg>
-      }
+      icon={<InstagramOutlined />}
     />
   </Badge>
 );
@@ -112,7 +117,7 @@ const ResultsPage = () => {
     <div style={{ padding: "16px", maxWidth: "1200px", margin: "0 auto" }}>
       <Row gutter={[16, 16]} justify="center">
         {!isCollapsed && (
-          <Col xs={24} md={11}>
+          <Col xs={24} md={9}>
             <Card
               title={
                 <div
@@ -122,7 +127,9 @@ const ResultsPage = () => {
                     alignItems: "center",
                   }}
                 >
-                  <Text strong>Found {resultsCount} matching climbs</Text>
+                  <Text strong>
+                    <SearchButton /> Found {resultsCount} matching climbs
+                  </Text>
                   <Tooltip title="Collapse List">
                     <Button type="text" icon={collapseIcon} onClick={() => setIsCollapsed(true)} />
                   </Tooltip>
@@ -174,7 +181,7 @@ const ResultsPage = () => {
           </Col>
         )}
 
-        <Col xs={24} md={isCollapsed ? 23 : 11} style={{ transition: "all 0.3s ease" }}>
+        <Col xs={24} md={isCollapsed ? 23 : 12} style={{ transition: "all 0.3s ease" }}>
           <Card style={{ height: "100%" }}>
             {currentClimb ? (
               <>
@@ -213,7 +220,7 @@ const ResultsPage = () => {
                   </Col>
                   <Col>
                     <Space>
-                      <BetaButton betaCount={betaCount} />
+                      <BetaButton betaCount={10} />
                       <Button
                         type="default"
                         icon={<RightOutlined />}
