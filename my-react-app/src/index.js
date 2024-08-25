@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
+import { App as DSApp } from "antd";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PeerProvider from "./PeerProvider";
 import ResultsPage from "./ResultsPage";
@@ -13,7 +14,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/climb/:board/:layout/:size",
-    element: <ResultsPage />,
+    element: (
+      <DSApp>
+        <ResultsPage />
+      </DSApp>
+    ),
   },
 ]);
 

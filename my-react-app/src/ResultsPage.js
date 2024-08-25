@@ -28,6 +28,21 @@ const Tick = () => (
   </svg>
 );
 
+const ClimbTitleHeader = (climb) => (
+  <>
+    <Title level={4} style={{ margin: 0 }}>
+      <a href={`https://kilterboardapp.com/climbs/${climb.uuid}`} target="_blank" rel="noopener noreferrer">
+        {climb.name}
+      </a>
+    </Title>
+    <Text>by {climb.setter}</Text>
+
+    <Text>
+      Grade: {climb.grade} ({climb.gradeAdjustment}) at {climb.angle}°
+    </Text>
+  </>
+);
+
 const IlluminateButton = () => <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />;
 const SearchButton = ({ onClick }) => (
   <Button id="button-illuminate" type="default" onClick={onClick} icon={<SearchOutlined />} />
@@ -148,11 +163,11 @@ const ResultsPage = () => {
     setCurrentClimb(climb);
   };
 
-  const collapseIcon = isSmallScreen ? <UpOutlined /> : <LeftOutlined />;
-  const expandIcon = isSmallScreen ? <DownOutlined /> : <RightOutlined />;
+  const collapseIcon = <LeftOutlined />;
+  const expandIcon = <RightOutlined />;
 
   return (
-    <div style={{ padding: "16px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div>
       <FilterDrawer
         currentSearchValues={queryParameters}
         boardName={board}
@@ -161,23 +176,17 @@ const ResultsPage = () => {
         onClose={closeDrawer}
         onApplyFilters={applyFilters}
       />
-      <Row gutter={[16, 16]} justify="center">
+      <Row gutter={[16,16]} justify="center">
         {!isCollapsed && (
-          <Col xs={24} md={9}>
+          <Col xs={24} md={10}>
             <Card
               title={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
+                <div>
                   <Text strong>
                     <SearchButton onClick={showDrawer} /> Found {resultsCount} matching climbs
                   </Text>
                   <Tooltip title="Collapse List">
-                    <Button type="text" icon={collapseIcon} onClick={() => setIsCollapsed(true)} />
+                    <Button type="default" icon={collapseIcon} onClick={() => setIsCollapsed(true)} />
                   </Tooltip>
                 </div>
               }
@@ -217,19 +226,18 @@ const ResultsPage = () => {
         )}
 
         {isCollapsed && (
-          <Col xs={24} md={1} style={{ textAlign: "center" }}>
+          <Col xs={1} md={1}>
             <Tooltip title="Expand List">
               <Button
-                type="text"
+                type="default"
                 icon={expandIcon}
                 onClick={() => setIsCollapsed(false)}
-                style={{ marginBottom: isSmallScreen ? 16 : 0 }}
               />
             </Tooltip>
           </Col>
         )}
 
-        <Col xs={24} md={isCollapsed ? 23 : 12} style={{ transition: "all 0.3s ease" }}>
+        <Col xs={isCollapsed ? 23 : 24} md={isCollapsed ? 23 : 10} style={{ transition: "all 0.3s ease" }}>
           <Card style={{ height: "100%" }}>
             {currentClimb ? (
               <>
@@ -251,20 +259,8 @@ const ResultsPage = () => {
                     </Space>
                   </Col>
                   <Col style={{ textAlign: "center" }}>
-                    <Title level={4} style={{ margin: 0 }}>
-                      <a
-                        href={`https://kilterboardapp.com/climbs/${currentClimb.uuid}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {currentClimb.name}
-                      </a>
-                    </Title>
-                    <Text>by {currentClimb.setter}</Text>
-                    <br />
-                    <Text>
-                      Grade: {currentClimb.grade} ({currentClimb.gradeAdjustment}) at {currentClimb.angle}°
-                    </Text>
+                    <ClimbTitleHeader climb={currentClimb} />
+                    
                   </Col>
                   <Col>
                     <Space>
