@@ -3,3 +3,4 @@ tmp/
 .DS_STORE
 .venv/
 __pycache__/
+node_modules
