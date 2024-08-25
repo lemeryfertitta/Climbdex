@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 const KilterBoard = ({
   editEnabled = false,
   litUpHolds = "",
-  imagesToHolds,
+  imagesToHolds = defaultImagesToHolds,
   edgeLeft = 24,
   edgeRight = 120,
   edgeBottom = 0,
@@ -12,6 +12,7 @@ const KilterBoard = ({
 }) => {
   const [imageDimensions, setImageDimensions] = useState({});
   const [holdsData, setHoldsData] = useState([]);
+
   const holdStates = {
     OFF: "OFF",
     STARTING: "STARTING",
@@ -27,6 +28,29 @@ const KilterBoard = ({
     FOOT: "#FFA500",
     FINISH: "#FF00FF",
   };
+
+  // Step 1: Parse the litUpHolds string into a mapping of hold IDs to states
+  const parsedLitUpHolds = useMemo(() => {
+    const holdStateMapping = {
+      42: holdStates.STARTING,
+      43: holdStates.HAND,
+      44: holdStates.FINISH,
+      45: holdStates.FOOT,
+    };
+
+    const litUpHoldsMap = {};
+
+    if (litUpHolds) {
+      litUpHolds.split("p").forEach((holdData) => {
+        if (holdData) {
+          const [holdId, stateCode] = holdData.split("r");
+          litUpHoldsMap[holdId] = holdStateMapping[stateCode];
+        }
+      });
+    }
+
+    return litUpHoldsMap;
+  }, [litUpHolds]);
 
   useEffect(() => {
     const loadImages = async () => {
@@ -72,14 +96,14 @@ const KilterBoard = ({
             cx: xPixel,
             cy: yPixel,
             r: xSpacing * 4,
-            state: holdStates.OFF, // Initial state is OFF
+            state: parsedLitUpHolds[holdId] || holdStates.OFF, // Set initial state from parsedLitUpHolds
           });
         });
       }
 
       setHoldsData(newHoldsData);
     }
-  }, [imageDimensions, imagesToHolds, edgeLeft, edgeRight, edgeBottom, edgeTop]);
+  }, [imageDimensions, imagesToHolds, edgeLeft, edgeRight, edgeBottom, edgeTop, parsedLitUpHolds]);
 
   const handleCircleClick = (id) => {
     setHoldsData((prevHolds) =>
@@ -92,8 +116,6 @@ const KilterBoard = ({
           : hold,
       ),
     );
-
-    getNextHoldState(holdsData.find((hold) => hold.id === id).state);
   };
 
   const getNextHoldState = (currentState) => {
