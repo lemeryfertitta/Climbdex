@@ -1,4 +1,5 @@
 from flask_parameter_validation import ValidateParameters, Query
+from werkzeug.exceptions import HTTPException
 
 import boardlib.api.aurora
 import flask
@@ -14,8 +15,7 @@ blueprint = flask.Blueprint("api", __name__)
 def parameter_error(e):
     code = 400
     name = str(type(e).__name__)
-    description = f"Parameters were missing and/or misconfigured. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={
-        str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
+    description = f"Parameters were missing and/or misconfigured. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
 
     response = {
         "error": True,
@@ -30,16 +30,27 @@ def parameter_error(e):
 
 @blueprint.errorhandler(Exception)
 def handle_exception(e):
-    response = e.get_response()
-    response.data = json.dumps({
-        "error": True,
-        "code": e.code,
-        "name": e.name,
-        "description": f"There was a problem while getting results from the server. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" target='_blank'>report it</a> (code: {e.code})",
-    })
-    response.content_type = "application/json"
+    if isinstance(e, HTTPException):
+        response = e.get_response()
+        response.data = json.dumps({
+            "error": True,
+            "code": e.code,
+            "name": e.name,
+            "description": f"There was a problem while getting results from the server. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" target='_blank'>report it</a> (code: {e.code})",
+        })
+        response.content_type = "application/json"
+    else:
+        response = flask.jsonify({
+            "error": True,
+            "code": 500,
+            "name": type(e).__name__,
+            "description": str(e),
+        })
+        response.status_code = 500
+
     logging.error(response.data)
     return response
+
 
 
 @blueprint.route("/api/v1/<board_name>/layouts")
@@ -136,13 +147,26 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
     })
 
 
-@blueprint.route("/api/v1/get_led_colors/<board_name>/<layout_id>")
+@blueprint.route("/api/v1/led_colors/<board_name>/<layout_id>")
 def get_led_colors(board_name, layout_id):
     binds = {"layout_id": layout_id}
     return flask.jsonify({
         role_id: color
         for role_id, color in climbdex.db.get_data(board_name, "led_colors", binds)
     })
+
+
+@blueprint.route("/api/v1/angles/<board_name>/<layout_id>")
+def get_angles(board_name, layout_id):
+    data = climbdex.db.get_data(board_name, "angles", {"layout_id": layout_id})
+    return flask.jsonify(data)
+
+
+@blueprint.route("/api/v1/grades/<board_name>")
+def get_grades(board_name):
+    return flask.jsonify(
+        climbdex.db.get_data(board_name, "grades")
+    )
 
 
 @blueprint.route("/api/v1/<board_name>/beta/<uuid>")
