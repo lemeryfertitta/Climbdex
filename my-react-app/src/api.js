@@ -14,6 +14,21 @@ export const fetchResultsCount = async (pageNumber, pageSize, queryParameters, r
   return response.json();
 };
 
+const gradesCache = new Map();
+
+export const fetchGrades = async (boardName) => {
+  if (gradesCache.has(boardName)) {
+    return gradesCache.get(boardName);
+  }
+
+  const response = await fetch(`/api/v1/grades/${boardName}`, { headers });
+  const data = await response.json();
+
+  gradesCache.set(boardName, data);
+
+  return data;
+};
+
 export const fetchResults = async (pageNumber, pageSize, queryParameters, routeParameters) => {
   const urlParams = new URLSearchParams({
     ...queryParameters,

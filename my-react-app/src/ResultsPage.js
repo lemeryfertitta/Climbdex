@@ -17,6 +17,7 @@ import {
 } from "./api";
 import KilterBoardLoader from "./KilterBoardLoader";
 import { boardLayouts } from "./board-data";
+import FilterDrawer from "./FilterDrawer";
 
 const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -28,7 +29,9 @@ const Tick = () => (
 );
 
 const IlluminateButton = () => <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />;
-const SearchButton = () => <Button id="button-illuminate" type="default" icon={<SearchOutlined />} />;
+const SearchButton = ({ onClick }) => (
+  <Button id="button-illuminate" type="default" onClick={onClick} icon={<SearchOutlined />} />
+);
 
 const BetaButton = ({ betaCount }) => (
   <Badge count={betaCount} offset={[-5, 5]}>
@@ -48,7 +51,7 @@ const ResultsPage = () => {
 
   const isSmallScreen = !screens.md;
 
-  const [queryParameters] = useState({
+  const [queryParameters, setQueryParameters] = useState({
     minGrade: 10,
     maxGrade: 33,
     name: "",
@@ -71,9 +74,44 @@ const ResultsPage = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [betaCount, setBetaCount] = useState(0);
 
-  useEffect(() => {
-    const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId === size) || [])[3] || "";
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerVisible(false);
+  };
+
+  const applyFilters = (filters) => {
+    console.log("Applied Filters: ", filters);
+    // Add logic to filter your data here
+
+    /**
+ * {
+    "minGradeId": 20,
+    "maxGradeId": 24,
+    "minHoldNumber": null,
+    "maxHoldNumber": null,
+    "minAscents": 1,
+    "sortBy": "ascents",
+    "sortOrder": "desc",
+    "angle": "any",
+    "minRating": 1,
+    "onlyClassics": 0,
+    "gradeAccuracy": 1,
+    "setterName": "",
+    "roleMatch": "strict",
+    "holds": {}
+}
+ */
+    setQueryParameters(filters);
+  };
+
+  useEffect(() => {
+    const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId == size) || [])[3] || "";
+    
     const fetchData = async () => {
       try {
         const [count, fetchedResults] = await Promise.all([
@@ -115,6 +153,13 @@ const ResultsPage = () => {
 
   return (
     <div style={{ padding: "16px", maxWidth: "1200px", margin: "0 auto" }}>
+      <FilterDrawer
+        currentSearchValues={queryParameters}
+        boardName={board}
+        visible={drawerVisible}
+        onClose={closeDrawer}
+        onApplyFilters={applyFilters}
+      />
       <Row gutter={[16, 16]} justify="center">
         {!isCollapsed && (
           <Col xs={24} md={9}>
@@ -128,7 +173,7 @@ const ResultsPage = () => {
                   }}
                 >
                   <Text strong>
-                    <SearchButton /> Found {resultsCount} matching climbs
+                    <SearchButton onClick={showDrawer} /> Found {resultsCount} matching climbs
                   </Text>
                   <Tooltip title="Collapse List">
                     <Button type="text" icon={collapseIcon} onClick={() => setIsCollapsed(true)} />
@@ -149,6 +194,8 @@ const ResultsPage = () => {
                       cursor: "pointer",
                       padding: "16px",
                       borderBottom: "1px solid #f0f0f0",
+                      backgroundColor: currentClimb?.uuid === climb.uuid ? "#f0f0f0" : "transparent",
+                      borderLeft: currentClimb?.uuid === climb.uuid ? "5px solid #1890ff" : "none",
                     }}
                   >
                     <Title level={5} style={{ marginBottom: 4 }}>
