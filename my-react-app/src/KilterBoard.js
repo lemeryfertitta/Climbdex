@@ -31,10 +31,17 @@ const KilterBoard = ({
 
   const parsedLitUpHolds = useMemo(() => {
     const holdStateMapping = {
+      //TODO: Use rest api
+      //kilterhw
       42: holdStates.STARTING,
       43: holdStates.HAND,
       44: holdStates.FINISH,
       45: holdStates.FOOT,
+      //kilter og
+      12: holdStates.STARTING,
+      13: holdStates.HAND,
+      14: holdStates.FINISH,
+      15: holdStates.FOOT,
     };
 
     const litUpHoldsMap = {};
