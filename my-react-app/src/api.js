@@ -29,6 +29,22 @@ export const fetchGrades = async (boardName) => {
   return data;
 };
 
+const anglesCache = new Map();
+
+export const fetchAngles = async (boardName, layout) => {
+  const cacheKey = `${boardName}_${layout}`
+  if (anglesCache.has(cacheKey)) {
+    return anglesCache.get(cacheKey);
+  }
+
+  const response = await fetch(`/api/v1/angles/${boardName}/${layout}`, { headers });
+  const data = (await response.json()).flat();
+
+  anglesCache.set(cacheKey, data);
+
+  return data;
+};
+
 export const fetchResults = async (pageNumber, pageSize, queryParameters, routeParameters) => {
   const urlParams = new URLSearchParams({
     ...queryParameters,

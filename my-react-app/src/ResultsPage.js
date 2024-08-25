@@ -74,14 +74,14 @@ const ResultsPage = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [betaCount, setBetaCount] = useState(0);
 
-  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const showDrawer = () => {
-    setDrawerVisible(true);
+    setDrawerOpen(true);
   };
 
   const closeDrawer = () => {
-    setDrawerVisible(false);
+    setDrawerOpen(false);
   };
 
   const applyFilters = (filters) => {
@@ -156,7 +156,8 @@ const ResultsPage = () => {
       <FilterDrawer
         currentSearchValues={queryParameters}
         boardName={board}
-        visible={drawerVisible}
+        layout={layout}
+        open={drawerOpen}
         onClose={closeDrawer}
         onApplyFilters={applyFilters}
       />
