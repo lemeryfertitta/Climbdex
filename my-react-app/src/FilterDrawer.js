@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Drawer,
-  List, Card,
+  List,
+  Card,
   Button,
   Input,
   Select,
@@ -11,15 +12,19 @@ import {
   Form,
   Row,
   Col,
-  Space,
+  Collapse,
   Spin,
   Typography,
 } from "antd";
 import {fetchAngles, fetchGrades} from './api'
 const { Option } = Select;
 const { Title, Text } = Typography;
+const { Panel } = Collapse;
+
 const FilterDrawer = ({
-  currentClimb, climbs, handleClimbClick,
+  currentClimb,
+  climbs,
+  handleClimbClick,
   climbCount,
   open,
   currentSearchValues,
@@ -49,13 +54,35 @@ const FilterDrawer = ({
   const [fetchedAngles, setFetchedAngles] = useState(false);
   const [angles, setAngles] = useState([]);
 
+  // Debounce setup
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  const debouncedApplyFilters = useCallback(
+    debounce((filters) => {
+      onApplyFilters(filters);
+    }, 500),
+    [],
+  );
+
   useEffect(() => {
     const fetchGradeValues = async () => {
       try {
         const data = await fetchGrades(boardName);
         setGrades(data);
-        setminGrade(data[0][0]); // Set default min gradeId
-        setmaxGrade(data[data.length - 1][0]); // Set default max gradeId
+        if (data.length > 0) {
+          setminGrade(data[0][0]); // Set default min gradeId
+          setmaxGrade(data[data.length - 1][0]); // Set default max gradeId
+        }
         setLoading(false);
         setFetchedGrades(true);
       } catch (error) {
@@ -85,6 +112,38 @@ const FilterDrawer = ({
       fetchAngleValues();
     }
   }, [layout, boardName]);
+
+  useEffect(() => {
+    const filters = {
+      minGrade,
+      maxGrade,
+      minAscents,
+      sortBy,
+      sortOrder,
+      angle,
+      minRating,
+      onlyClassics,
+      gradeAccuracy,
+      settername,
+      roleMatch,
+      holds,
+    };
+    debouncedApplyFilters(filters);
+  }, [
+    minGrade,
+    maxGrade,
+    minAscents,
+    sortBy,
+    sortOrder,
+    angle,
+    minRating,
+    onlyClassics,
+    gradeAccuracy,
+    settername,
+    roleMatch,
+    holds,
+    debouncedApplyFilters,
+  ]);
 
   const handleHoldClick = (holdId, mirroredHoldId) => {
     const currentColor = holds[holdId] || "black";
@@ -124,11 +183,9 @@ const FilterDrawer = ({
   };
 
   const handleApplyFilters = () => {
-    onApplyFilters({
+    const filters = {
       minGrade,
       maxGrade,
-      //   minHoldNumber,
-      //   maxHoldNumber,
       minAscents,
       sortBy,
       sortOrder,
@@ -139,11 +196,12 @@ const FilterDrawer = ({
       settername,
       roleMatch,
       holds,
-    });
+    };
+    onApplyFilters(filters);
     onClose();
   };
 
-  if (loading) {
+  if (loading || grades.length === 0) {
     return (
       <Drawer title="Advanced Filters" placement="left" onClose={onClose} width={400}>
         <Spin />
@@ -156,143 +214,138 @@ const FilterDrawer = ({
       title="Advanced Filters"
       placement="left"
       onClose={onClose}
-      width={'80%'}
+      width={"80%"}
       open={open}
-      footer={
-        <Button type="primary" onClick={handleApplyFilters} block>
-          Apply Filters
-        </Button>
-      }
     >
-      <Form layout="vertical">
-        <Form.Item label="Grade Range">
-          <Slider
-            range
-            min={grades[0][0]}
-            max={grades[grades.length - 1][0]}
-            value={[minGrade, maxGrade]}
-            marks={{
-              [minGrade]: grades.find(([id]) => id === minGrade)[1],
-              [maxGrade]: grades.find(([id]) => id === maxGrade)[1],
-            }}
-            onChange={(value) => {
-              setminGrade(value[0]);
-              setmaxGrade(value[1]);
-            }}
-            tooltip={{
-              formatter: (value) => grades.find(([id]) => id === value)[1],
-            }}
-          />
-        </Form.Item>
-
-        <Form.Item label="Min Ascents">
-          <InputNumber min={1} value={minAscents} onChange={setMinAscents} style={{ width: "100%" }} />
-        </Form.Item>
-
-        <Form.Item label="Sort By">
-          <Row gutter={8}>
-            <Col span={16}>
-              <Select value={sortBy} onChange={setSortBy} style={{ width: "100%" }}>
-                <Option value="ascents">Ascents</Option>
-                <Option value="difficulty">Difficulty</Option>
-                <Option value="name">Name</Option>
-                <Option value="quality">Quality</Option>
-              </Select>
-            </Col>
-            <Col span={8}>
-              <Select value={sortOrder} onChange={setSortOrder} style={{ width: "100%" }}>
-                <Option value="desc">Descending</Option>
-                <Option value="asc">Ascending</Option>
-              </Select>
-            </Col>
-          </Row>
-        </Form.Item>
-
-        <Form.Item label="Angle">
-          <Select
-            value={typeof angle === "string" ? angle.toLowerCase() : angle}
-            onChange={setAngle}
-            style={{ width: "100%" }}
-          >
-            {angles.map((angle) => (
-              <Option key={angle} value={typeof angle === "string" ? angle.toLowerCase() : angle}>
-                {angle}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="Min Rating">
-          <InputNumber
-            min={1.0}
-            max={3.0}
-            step={0.1}
-            value={minRating}
-            onChange={setMinRating}
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
-
-        <Form.Item label="Classics Only">
-          <Select value={onlyClassics} onChange={setOnlyClassics} style={{ width: "100%" }}>
-            <Option value="0">No</Option>
-            <Option value="1">Yes</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="Grade Accuracy">
-          <Select value={gradeAccuracy} onChange={setGradeAccuracy} style={{ width: "100%" }}>
-            <Option value={1}>Any</Option>
-            <Option value={0.2}>Somewhat Accurate (&lt;0.2)</Option>
-            <Option value={0.1}>Very Accurate (&lt;0.1)</Option>
-            <Option value={0.05}>Extremely Accurate (&lt;0.05)</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="Setter Name">
-          <Input value={settername} onChange={(e) => setsettername(e.target.value)} />
-        </Form.Item>
-
-        <Form.Item label="Hold Filters">
-          <Button type="dashed" onClick={resetHoldFilter} block>
-            Reset Hold Filter ({holdFilterCount} Selected)
-          </Button>
-          <Row gutter={8} style={{ marginTop: 16 }}>
-            <Col span={12}>
-              <Checkbox onChange={(e) => setMinHoldNumber(e.target.checked ? 1 : null)}>Min Hand Holds</Checkbox>
-              {minHoldNumber !== null && (
-                <InputNumber
-                  min={1}
-                  max={30}
-                  value={minHoldNumber}
-                  onChange={setMinHoldNumber}
-                  style={{ width: "100%", marginTop: 8 }}
+      <Collapse defaultActiveKey={[]} accordion>
+        <Panel header={`Found ${climbCount} matching climbs`} key="1">
+          <Form layout="vertical">
+            {grades.length > 0 && (
+              <Form.Item label="Grade Range">
+                <Slider
+                  range
+                  min={grades[0][0]}
+                  max={grades[grades.length - 1][0]}
+                  value={[minGrade, maxGrade]}
+                  marks={{
+                    [minGrade]: grades.find(([id]) => id === minGrade)[1],
+                    [maxGrade]: grades.find(([id]) => id === maxGrade)[1],
+                  }}
+                  onChange={(value) => {
+                    setminGrade(value[0]);
+                    setmaxGrade(value[1]);
+                  }}
+                  tooltip={{
+                    formatter: (value) => grades.find(([id]) => id === value)[1],
+                  }}
                 />
-              )}
-            </Col>
-            <Col span={12}>
-              <Checkbox onChange={(e) => setMaxHoldNumber(e.target.checked ? 1 : null)}>Max Hand Holds</Checkbox>
-              {maxHoldNumber !== null && (
-                <InputNumber
-                  min={1}
-                  max={30}
-                  value={maxHoldNumber}
-                  onChange={setMaxHoldNumber}
-                  style={{ width: "100%", marginTop: 8 }}
-                />
-              )}
-            </Col>
-          </Row>
-        </Form.Item>
-      </Form>
+              </Form.Item>
+            )}
+
+            <Form.Item label="Min Ascents">
+              <InputNumber min={1} value={minAscents} onChange={setMinAscents} style={{ width: "100%" }} />
+            </Form.Item>
+
+            <Form.Item label="Sort By">
+              <Row gutter={8}>
+                <Col span={16}>
+                  <Select value={sortBy} onChange={setSortBy} style={{ width: "100%" }}>
+                    <Option value="ascents">Ascents</Option>
+                    <Option value="difficulty">Difficulty</Option>
+                    <Option value="name">Name</Option>
+                    <Option value="quality">Quality</Option>
+                  </Select>
+                </Col>
+                <Col span={8}>
+                  <Select value={sortOrder} onChange={setSortOrder} style={{ width: "100%" }}>
+                    <Option value="desc">Descending</Option>
+                    <Option value="asc">Ascending</Option>
+                  </Select>
+                </Col>
+              </Row>
+            </Form.Item>
+
+            <Form.Item label="Angle">
+              <Select
+                value={typeof angle === "string" ? angle.toLowerCase() : angle}
+                onChange={setAngle}
+                style={{ width: "100%" }}
+              >
+                {angles.map((angle) => (
+                  <Option key={angle} value={typeof angle === "string" ? angle.toLowerCase() : angle}>
+                    {angle}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Min Rating">
+              <InputNumber
+                min={1.0}
+                max={3.0}
+                step={0.1}
+                value={minRating}
+                onChange={setMinRating}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+
+            <Form.Item label="Classics Only">
+              <Select value={onlyClassics} onChange={setOnlyClassics} style={{ width: "100%" }}>
+                <Option value="0">No</Option>
+                <Option value="1">Yes</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Grade Accuracy">
+              <Select value={gradeAccuracy} onChange={setGradeAccuracy} style={{ width: "100%" }}>
+                <Option value={1}>Any</Option>
+                <Option value={0.2}>Somewhat Accurate (&lt;0.2)</Option>
+                <Option value={0.1}>Very Accurate (&lt;0.1)</Option>
+                <Option value={0.05}>Extremely Accurate (&lt;0.05)</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Setter Name">
+              <Input value={settername} onChange={(e) => setsettername(e.target.value)} />
+            </Form.Item>
+
+            <Form.Item label="Hold Filters">
+              <Button type="dashed" onClick={resetHoldFilter} block>
+                Reset Hold Filter ({holdFilterCount} Selected)
+              </Button>
+              <Row gutter={8} style={{ marginTop: 16 }}>
+                <Col span={12}>
+                  <Checkbox onChange={(e) => setMinHoldNumber(e.target.checked ? 1 : null)}>Min Hand Holds</Checkbox>
+                  {minHoldNumber !== null && (
+                    <InputNumber
+                      min={1}
+                      max={30}
+                      value={minHoldNumber}
+                      onChange={setMinHoldNumber}
+                      style={{ width: "100%", marginTop: 8 }}
+                    />
+                  )}
+                </Col>
+                <Col span={12}>
+                  <Checkbox onChange={(e) => setMaxHoldNumber(e.target.checked ? 1 : null)}>Max Hand Holds</Checkbox>
+                  {maxHoldNumber !== null && (
+                    <InputNumber
+                      min={1}
+                      max={30}
+                      value={maxHoldNumber}
+                      onChange={setMaxHoldNumber}
+                      style={{ width: "100%", marginTop: 8 }}
+                    />
+                  )}
+                </Col>
+              </Row>
+            </Form.Item>
+          </Form>
+        </Panel>
+      </Collapse>
+
       <Card
-        title={
-          <Row justify="space-between" align="middle">
-            <Col>
-              <Text strong>Found {climbCount} matching climbs</Text>
-            </Col>
-          </Row>
-        }
         bodyStyle={{ padding: 0, flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
         style={{ display: "flex", flexDirection: "column", height: "100%" }}
       >

@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  SearchOutlined,
-  LeftOutlined,
-  RightOutlined,
-  BulbOutlined,
-  InstagramOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from "@ant-design/icons";
-import { Button, Badge, Card, List, Typography, Space, Layout, Row, Col } from "antd";
+import { SearchOutlined, LeftOutlined, RightOutlined, BulbOutlined, InstagramOutlined } from "@ant-design/icons";
+import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation } from "react-router-dom";
 import { fetchResults, fetchResultsCount } from "./api";
 import KilterBoardLoader from "./KilterBoardLoader";
@@ -17,7 +9,7 @@ import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
 
 const { Title, Text } = Typography;
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
 const ResultsPage = () => {
   const { board, layout, size } = useParams();
@@ -43,8 +35,44 @@ const ResultsPage = () => {
   const [results, setResults] = useState([]);
   const [resultsCount, setResultsCount] = useState(0);
   const [currentClimb, setCurrentClimb] = useState(null);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const getResponsiveStyles = () => {
+    if (viewportWidth > 1200) {
+      return {
+        titleSize: "24px",
+        textSize: "16px",
+        padding: "0 24px",
+      };
+    } else if (viewportWidth > 768) {
+      return {
+        titleSize: "20px",
+        textSize: "14px",
+        padding: "0 16px",
+      };
+    } else {
+      return {
+        titleSize: "16px",
+        textSize: "12px",
+        padding: "0 8px",
+      };
+    }
+  };
+
+  const styles = getResponsiveStyles();
 
   const showDrawer = () => {
     setDrawerOpen(true);
@@ -93,6 +121,7 @@ const ResultsPage = () => {
 
   const handleClimbClick = (climb) => {
     setCurrentClimb(climb);
+    closeDrawer();
   };
 
   const navigateClimbsLeft = () => {
@@ -136,40 +165,75 @@ const ResultsPage = () => {
 
   return (
     <Layout style={{ height: "100vh" }} {...handlers}>
-      <Layout style={{ flex: 1, overflow: "hidden" }}>
-        <Header style={{ background: "#fff", padding: "0 16px" }}>
-          <Row justify="space-between" align="middle">
+      <Layout>
+        <Header
+          style={{
+            background: "#fff",
+            padding: styles.padding,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Row justify="space-between" align="middle" style={{ width: "100%" }}>
             {currentClimb && (
               <>
                 <Col>
                   <Space>
-                    <Button
-                      type="default"
-                      icon={<LeftOutlined />}
-                      disabled={!results.length}
-                      onClick={navigateClimbsLeft}
-                    />
                     <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />
                     <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
-                
                   </Space>
                 </Col>
                 <Col flex="auto" style={{ textAlign: "center" }}>
-                  <Title level={4} style={{ margin: 0 }}>
+                  <Title
+                    level={4}
+                    style={{
+                      margin: 0,
+                      fontSize: styles.titleSize,
+                      lineHeight: "1.2",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     <a
                       href={`https://kilterboardapp.com/climbs/${currentClimb.uuid}`}
                       target="_blank"
                       rel="noopener noreferrer"
+                      style={{
+                        display: "block",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: styles.titleSize,
+                      }}
                     >
                       {currentClimb.name}
                     </a>
                   </Title>
-                  <Text>by {currentClimb.setter}</Text>
-                  <Text>
+                  <Text
+                    style={{
+                      display: "block",
+                      fontSize: styles.textSize,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    by {currentClimb.setter}
+                  </Text>
+                  <Text
+                    style={{
+                      display: "block",
+                      fontSize: styles.textSize,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     Grade: {currentClimb.grade} ({currentClimb.gradeAdjustment}) at {currentClimb.angle}°
                   </Text>
                 </Col>
-                <Col flex="none">
+                <Col>
                   <Space>
                     <Badge count={10} offset={[-5, 5]}>
                       <Button
@@ -179,12 +243,6 @@ const ResultsPage = () => {
                         icon={<InstagramOutlined />}
                       />
                     </Badge>
-                    <Button
-                      type="default"
-                      icon={<RightOutlined />}
-                      disabled={!results.length}
-                      onClick={navigateClimbsRight}
-                    />
                   </Space>
                 </Col>
               </>
@@ -198,7 +256,6 @@ const ResultsPage = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            overflow: "hidden",
             height: "100%",
             backgroundColor: "#FFF",
           }}
