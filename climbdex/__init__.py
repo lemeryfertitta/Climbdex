@@ -22,6 +22,12 @@ def create_app():
     )
     app.url_map.strict_slashes = False
 
+
+    @app.before_request
+    def log_request_info():
+        app.logger.info(f"Request Headers: {flask.request.headers}")
+        app.logger.info(f"Request Path: {flask.request.path}")
+
     # Register blueprints for the Flask app
     app.register_blueprint(climbdex.api.blueprint)
     app.register_blueprint(climbdex.views.blueprint)
@@ -30,10 +36,12 @@ def create_app():
     @app.route('/react', defaults={'path': ''})
     @app.route('/react/<path:path>')
     def serve_react_app(path):
-        # Serve index.html if no specific file is found
-        if path == "" or not os.path.exists(os.path.join(app.static_folder, path)):
-            return app.send_static_file('index.html')
-        else:
+        # TODO: Just use NGINX so that deep links work
+        # If the path exists in the static folder, serve the static file
+        if path and os.path.exists(os.path.join(app.static_folder, path)):
             return app.send_static_file(path)
+        else:
+            # Serve index.html for all other routes to handle deep linking
+            return app.send_static_file('index.html')
 
     return app

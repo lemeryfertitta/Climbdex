@@ -8,12 +8,13 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Button, Badge, Card, List, Typography, Space, Tooltip, Layout, Row, Col } from "antd";
+import { Button, Badge, Card, List, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation } from "react-router-dom";
 import { fetchResults, fetchResultsCount } from "./api";
 import KilterBoardLoader from "./KilterBoardLoader";
 import { boardLayouts } from "./board-data";
 import FilterDrawer from "./FilterDrawer";
+import { useSwipeable } from "react-swipeable";
 
 const { Title, Text } = Typography;
 const { Header, Sider, Content } = Layout;
@@ -94,8 +95,47 @@ const ResultsPage = () => {
     setCurrentClimb(climb);
   };
 
+  const navigateClimbsLeft = () => {
+    const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
+    if (currentIndex > 0) {
+      setCurrentClimb(results[currentIndex - 1]);
+    }
+  };
+
+  const navigateClimbsRight = () => {
+    const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
+    if (currentIndex < results.length - 1) {
+      setCurrentClimb(results[currentIndex + 1]);
+    }
+  };
+
+  // Keyboard event listener
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowLeft") {
+        navigateClimbsLeft();
+      } else if (event.key === "ArrowRight") {
+        navigateClimbsRight();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentClimb, results]);
+
+  // Swipe event handlers
+  const handlers = useSwipeable({
+    onSwipedLeft: () => navigateClimbsRight(),
+    onSwipedRight: () => navigateClimbsLeft(),
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true, // optional, enables mouse swipe events
+  });
+
   return (
-    <Layout style={{ height: "100vh" }}>
+    <Layout style={{ height: "100vh" }} {...handlers}>
       <Sider
         trigger={null}
         collapsible
@@ -178,12 +218,7 @@ const ResultsPage = () => {
                       type="default"
                       icon={<LeftOutlined />}
                       disabled={!results.length}
-                      onClick={() => {
-                        const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
-                        if (currentIndex > 0) {
-                          setCurrentClimb(results[currentIndex - 1]);
-                        }
-                      }}
+                      onClick={navigateClimbsLeft}
                     />
                     <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />
                   </Space>
@@ -217,12 +252,7 @@ const ResultsPage = () => {
                       type="default"
                       icon={<RightOutlined />}
                       disabled={!results.length}
-                      onClick={() => {
-                        const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
-                        if (currentIndex < results.length - 1) {
-                          setCurrentClimb(results[currentIndex + 1]);
-                        }
-                      }}
+                      onClick={navigateClimbsRight}
                     />
                   </Space>
                 </Col>
@@ -245,7 +275,14 @@ const ResultsPage = () => {
           {currentClimb ? <KilterBoardLoader litUpHolds={currentClimb.holds} /> : <Text>No climb selected</Text>}
         </Content>
       </Layout>
-      <FilterDrawer boardName={board} layout={layout} currentSearchValues={queryParameters} open={drawerOpen} onClose={closeDrawer} onApplyFilters={applyFilters} />
+      <FilterDrawer
+        boardName={board}
+        layout={layout}
+        currentSearchValues={queryParameters}
+        open={drawerOpen}
+        onClose={closeDrawer}
+        onApplyFilters={applyFilters}
+      />
     </Layout>
   );
 };

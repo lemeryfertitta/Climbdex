@@ -120,10 +120,14 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
 
         if not image_filename:
             continue  # Skip if no image filename is found
-        base_url = boardlib.api.aurora.API_HOSTS[board_name]
-        base_url = 'https://localhost:3000'
+        # base_url = boardlib.api.aurora.API_HOSTS[board_name]
+        # base_url = 'https://localhost:3000'
+
+        # TODO: Just return image names and let FE deal with the baseurls
+        # image_url = f"{
+        # base_url}/react/img/{image_filename[0][0].split('/')[1]}"
         image_url = f"{
-            base_url}/img/{image_filename[0][0].split('/')[1]}"
+            boardlib.api.aurora.API_HOSTS[board_name]}/img/{image_filename[0][0]}"
 
         # Get holds from the database
         holds = climbdex.db.get_data(

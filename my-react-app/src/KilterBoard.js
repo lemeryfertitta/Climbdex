@@ -141,7 +141,7 @@ const KilterBoard = ({
 
   const viewBoxWidth = Object.values(imageDimensions)[0]?.width || 0;
   const viewBoxHeight = Object.values(imageDimensions)[0]?.height || 0;
-
+  
   return (
     <svg
       viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}

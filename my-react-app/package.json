@@ -14,7 +14,8 @@
     "react-dom": "^18.0.0",
     "react-fontawesome": "^1.7.1",
     "react-router-dom": "^6.26.1",
-    "react-scripts": "5.0.0"
+    "react-scripts": "5.0.0",
+    "react-swipeable": "^7.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
