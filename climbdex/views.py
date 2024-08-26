@@ -151,9 +151,7 @@ def get_ticked_climbs(board, login_cookie):
 def get_bids(board, login_cookie):
     db_path = f"data/{board}/db.sqlite3"
     login_info = json.loads(login_cookie)
-    user_id = login_info["user_id"]
-    token = login_info["token"]
-    full_logbook_df = boardlib.api.aurora.logbook_entries(board, username=None, password=None, token=token, user_id=user_id, db_path=db_path)
+    full_logbook_df = boardlib.api.aurora.logbook_entries(board, token=login_info["token"], user_id=login_info["user_id"] , db_path=db_path)
     
     if full_logbook_df.empty:
         return pd.DataFrame(columns=['climb_angle_uuid', 'board', 'climb_name', 'date', 'sessions', 'tries'])

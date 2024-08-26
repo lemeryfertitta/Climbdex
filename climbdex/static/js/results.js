@@ -114,11 +114,11 @@ document.getElementById("saveTick").addEventListener("click", function () {
       .textContent.match(/\d+°/)[0]
   );
   const is_mirror = false;
-  const attempt_id =
+  const attempt_id = 0;
+  const bid_count = 
     document.querySelector('input[name="attemptType"]:checked').id === "flash"
       ? 1
       : parseInt(document.getElementById("attempts").value);
-  const bid_count = attempt_id;
   const quality =
     parseInt(document.querySelector(".star-rating input:checked")?.value) || 0;
   const selectedAttemptType = document.querySelector(
