@@ -2,6 +2,7 @@
   "name": "my-react-app",
   "version": "1.0.0",
   "private": true,
+  "homepage": "/react",
   "proxy": "https://0d3b-188-88-101-112.ngrok-free.app",
   "dependencies": {
     "antd": "^5.20.2",

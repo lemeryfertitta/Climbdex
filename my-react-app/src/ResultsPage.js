@@ -108,9 +108,7 @@ const ResultsPage = () => {
             <Row justify="space-between" align="middle">
               {isCollapsed ? null : (
                 <Col>
-                  <Badge count={resultsCount} offset={[-5, 5]}>
-                    <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
-                  </Badge>
+                  <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
                 </Col>
               )}
               <Col>{isCollapsed ? null : <Text strong>Found {resultsCount} matching climbs</Text>}</Col>

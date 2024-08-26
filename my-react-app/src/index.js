@@ -7,20 +7,25 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PeerProvider from "./PeerProvider";
 import ResultsPage from "./ResultsPage";
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <App />,
+    },
+    {
+      path: "/climb/:board/:layout/:size",
+      element: (
+        <DSApp>
+          <ResultsPage />
+        </DSApp>
+      ),
+    },
+  ],
   {
-    path: "/",
-    element: <App />,
+    basename: "/react", // Add this line to set the base path
   },
-  {
-    path: "/climb/:board/:layout/:size",
-    element: (
-      <DSApp>
-        <ResultsPage />
-      </DSApp>
-    ),
-  },
-]);
+);
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
