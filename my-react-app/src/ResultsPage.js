@@ -136,77 +136,6 @@ const ResultsPage = () => {
 
   return (
     <Layout style={{ height: "100vh" }} {...handlers}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={isCollapsed}
-        width="35%"
-        style={{ background: "#fff", display: "flex", flexDirection: "column", overflow: "hidden" }}
-      >
-        <Card
-          title={
-            <Row justify="space-between" align="middle">
-              {isCollapsed ? null : (
-                <Col>
-                  <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
-                </Col>
-              )}
-              <Col>{isCollapsed ? null : <Text strong>Found {resultsCount} matching climbs</Text>}</Col>
-              <Col>
-                <Button
-                  type="default"
-                  icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                  onClick={() => setIsCollapsed(!isCollapsed)}
-                />
-              </Col>
-
-              {!isCollapsed ? null : (
-                <Col>
-                  <Badge count={resultsCount} offset={[-5, 5]}>
-                    <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
-                  </Badge>
-                </Col>
-              )}
-            </Row>
-          }
-          bodyStyle={{ padding: 0, flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
-          style={{ display: "flex", flexDirection: "column", height: "100%" }}
-        >
-          <div style={{ overflowY: "auto", flex: 1 }}>
-            {isCollapsed ? null : (
-              <List
-                itemLayout="vertical"
-                dataSource={results}
-                renderItem={(climb) => (
-                  <List.Item
-                    key={climb.uuid}
-                    onClick={() => handleClimbClick(climb)}
-                    style={{
-                      cursor: "pointer",
-                      padding: "16px",
-                      borderBottom: "1px solid #f0f0f0",
-                      backgroundColor: currentClimb?.uuid === climb.uuid ? "#f0f0f0" : "transparent",
-                      borderLeft: currentClimb?.uuid === climb.uuid ? "5px solid #1890ff" : "none",
-                    }}
-                  >
-                    <Title level={5} style={{ marginBottom: 4 }}>
-                      {climb.name}
-                    </Title>
-                    <Text>
-                      Grade: {climb.grade} ({climb.gradeAdjustment}) at {climb.angle}°
-                    </Text>
-                    <br />
-                    <Text type="secondary">
-                      {climb.ascents} ascents, {climb.stars}★
-                    </Text>
-                  </List.Item>
-                )}
-              />
-            )}
-          </div>
-        </Card>
-      </Sider>
-
       <Layout style={{ flex: 1, overflow: "hidden" }}>
         <Header style={{ background: "#fff", padding: "0 16px" }}>
           <Row justify="space-between" align="middle">
@@ -221,6 +150,8 @@ const ResultsPage = () => {
                       onClick={navigateClimbsLeft}
                     />
                     <Button id="button-illuminate" type="default" icon={<BulbOutlined />} />
+                    <Button type="default" onClick={showDrawer} icon={<SearchOutlined />} />
+                
                   </Space>
                 </Col>
                 <Col flex="auto" style={{ textAlign: "center" }}>
@@ -276,8 +207,12 @@ const ResultsPage = () => {
         </Content>
       </Layout>
       <FilterDrawer
+        currentClimb={currentClimb}
+        handleClimbClick={handleClimbClick}
         boardName={board}
         layout={layout}
+        climbCount={resultsCount}
+        climbs={results}
         currentSearchValues={queryParameters}
         open={drawerOpen}
         onClose={closeDrawer}

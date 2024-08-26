@@ -1,9 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { Drawer, Button, Input, Select, Slider, InputNumber, Checkbox, Form, Row, Col, Space, Spin } from "antd";
+import {
+  Drawer,
+  List, Card,
+  Button,
+  Input,
+  Select,
+  Slider,
+  InputNumber,
+  Checkbox,
+  Form,
+  Row,
+  Col,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
 import {fetchAngles, fetchGrades} from './api'
 const { Option } = Select;
-
-const FilterDrawer = ({ open, currentSearchValues, onClose, onApplyFilters, boardName, layout }) => {
+const { Title, Text } = Typography;
+const FilterDrawer = ({
+  currentClimb, climbs, handleClimbClick,
+  climbCount,
+  open,
+  currentSearchValues,
+  onClose,
+  onApplyFilters,
+  boardName,
+  layout,
+}) => {
   const [holdFilterCount, setHoldFilterCount] = useState(0);
   const [holds, setHolds] = useState({});
   const [grades, setGrades] = useState([]);
@@ -45,22 +69,22 @@ const FilterDrawer = ({ open, currentSearchValues, onClose, onApplyFilters, boar
     }
   }, [boardName]);
 
-   useEffect(() => {
-     const fetchAngleValues = async () => {
-       try {
-         const data = ["any", ...(await fetchAngles(boardName, layout))];
-         setAngles(data);
-         setAngle(data[0]); 
-         setFetchedGrades(true);
-       } catch (error) {
-         console.error("Error fetching angles:", error);
-       }
-     };
+  useEffect(() => {
+    const fetchAngleValues = async () => {
+      try {
+        const data = ["any", ...(await fetchAngles(boardName, layout))];
+        setAngles(data);
+        setAngle(data[0]);
+        setFetchedGrades(true);
+      } catch (error) {
+        console.error("Error fetching angles:", error);
+      }
+    };
 
-     if (!fetchedAngles) {
-       fetchAngleValues();
-     }
-   }, [layout, boardName]);
+    if (!fetchedAngles) {
+      fetchAngleValues();
+    }
+  }, [layout, boardName]);
 
   const handleHoldClick = (holdId, mirroredHoldId) => {
     const currentColor = holds[holdId] || "black";
@@ -132,7 +156,7 @@ const FilterDrawer = ({ open, currentSearchValues, onClose, onApplyFilters, boar
       title="Advanced Filters"
       placement="left"
       onClose={onClose}
-      width={400}
+      width={'80%'}
       open={open}
       footer={
         <Button type="primary" onClick={handleApplyFilters} block>
@@ -185,9 +209,15 @@ const FilterDrawer = ({ open, currentSearchValues, onClose, onApplyFilters, boar
         </Form.Item>
 
         <Form.Item label="Angle">
-          <Select value={typeof angle === 'string' ? angle.toLowerCase() : angle} onChange={setAngle} style={{ width: "100%" }}>
+          <Select
+            value={typeof angle === "string" ? angle.toLowerCase() : angle}
+            onChange={setAngle}
+            style={{ width: "100%" }}
+          >
             {angles.map((angle) => (
-              <Option key={angle} value={typeof angle === 'string' ? angle.toLowerCase() : angle}>{angle}</Option>
+              <Option key={angle} value={typeof angle === "string" ? angle.toLowerCase() : angle}>
+                {angle}
+              </Option>
             ))}
           </Select>
         </Form.Item>
@@ -255,6 +285,48 @@ const FilterDrawer = ({ open, currentSearchValues, onClose, onApplyFilters, boar
           </Row>
         </Form.Item>
       </Form>
+      <Card
+        title={
+          <Row justify="space-between" align="middle">
+            <Col>
+              <Text strong>Found {climbCount} matching climbs</Text>
+            </Col>
+          </Row>
+        }
+        bodyStyle={{ padding: 0, flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
+        style={{ display: "flex", flexDirection: "column", height: "100%" }}
+      >
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          <List
+            itemLayout="vertical"
+            dataSource={climbs}
+            renderItem={(climb) => (
+              <List.Item
+                key={climb.uuid}
+                onClick={() => handleClimbClick(climb)}
+                style={{
+                  cursor: "pointer",
+                  padding: "16px",
+                  borderBottom: "1px solid #f0f0f0",
+                  backgroundColor: currentClimb?.uuid === climb.uuid ? "#f0f0f0" : "transparent",
+                  borderLeft: currentClimb?.uuid === climb.uuid ? "5px solid #1890ff" : "none",
+                }}
+              >
+                <Title level={5} style={{ marginBottom: 4 }}>
+                  {climb.name}
+                </Title>
+                <Text>
+                  Grade: {climb.grade} ({climb.gradeAdjustment}) at {climb.angle}°
+                </Text>
+                <br />
+                <Text type="secondary">
+                  {climb.ascents} ascents, {climb.stars}★
+                </Text>
+              </List.Item>
+            )}
+          />
+        </div>
+      </Card>
     </Drawer>
   );
 };
