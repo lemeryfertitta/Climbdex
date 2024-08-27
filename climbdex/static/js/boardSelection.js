@@ -127,6 +127,9 @@ const boardSelect = document.getElementById("select-board");
 boardSelect.addEventListener("change", handleBoardSelection);
 handleBoardSelection();
 
+const modal = new bootstrap.Modal(document.getElementById("div-modal"), {
+  keyboard: false,
+});
 const loginForm = document.getElementById("form-login");
 loginForm.addEventListener("submit", function (event) {
   const username = document.getElementById("input-username").value;
@@ -152,11 +155,20 @@ loginForm.addEventListener("submit", function (event) {
         document.cookie = `${boardName}_login=${JSON.stringify(
           json
         )}; SameSite=Strict; Secure;`;
-        const modal = bootstrap.Modal.getInstance("#div-modal");
         modal.hide();
         populateLoginForm(boardName);
       }
     });
   });
   event.preventDefault();
+});
+
+const loginButton = document.getElementById("button-login");
+loginButton.addEventListener("click", function () {
+  modal.show();
+});
+
+const closeButton = document.getElementById("button-close");
+closeButton.addEventListener("click", function () {
+  modal.hide();
 });
