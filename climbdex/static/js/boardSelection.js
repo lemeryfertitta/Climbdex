@@ -157,6 +157,7 @@ loginForm.addEventListener("submit", function (event) {
         )}; SameSite=Strict; Secure;`;
         modal.hide();
         populateLoginForm(boardName);
+        location.reload();
       }
     });
   });

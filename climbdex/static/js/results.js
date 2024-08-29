@@ -9,7 +9,9 @@ function drawClimb(
   frames,
   setter,
   difficultyAngleSpan,
-  description
+  description,
+  attempts_infotext,
+  difficulty
 ) {
   document
     .getElementById("svg-climb")
@@ -33,6 +35,11 @@ function drawClimb(
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
 
+  const diffForSave = document.getElementById("difficulty");
+  diffForSave.value = difficulty;
+  const event = new Event("change");
+  diffForSave.dispatchEvent(event);
+
   const climbNameHeader = document.getElementById("header-climb-name");
   climbNameHeader.innerHTML = "";
   climbNameHeader.appendChild(anchor);
@@ -41,7 +48,6 @@ function drawClimb(
 
   const climbSetterHeader = document.getElementById("header-climb-setter");
   climbSetterHeader.textContent = `by ${setter}`;
-
   const climbStatsParagraph = document.getElementById("paragraph-climb-stats");
   climbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
@@ -54,6 +60,15 @@ function drawClimb(
   } else {
     climbDescriptionParagraph.classList.remove("d-none");
     climbDescriptionParagraph.innerHTML = `Description: ${trimmedDescription.italics()}`;
+  }
+
+  const climbedAttempts = document.getElementById("paragraph-climb-attempts");
+
+  if (attempts_infotext === undefined) {
+    climbedAttempts.classList.add("d-none");
+  } else {
+    climbedAttempts.classList.remove("d-none");
+    climbedAttempts.innerHTML = `${attempts_infotext}`;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -74,7 +89,109 @@ function drawClimb(
     );
     illuminateClimb(board, bluetoothPacket);
   };
+
+  const modalclimbNameHeader = document.getElementById("modal-climb-name");
+  modalclimbNameHeader.innerHTML = name;
+
+  const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
+  modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 }
+const gradeMappingObject = gradeMapping.reduce((acc, [difficulty, grade]) => {
+  acc[grade] = difficulty;
+  return acc;
+}, {});
+
+document
+  .getElementById("button-log-ascent")
+  .addEventListener("click", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const board = urlParams.get("board");
+    const climb_uuid = document
+      .querySelector("#header-climb-name a")
+      .href.split("/")
+      .pop();
+    const angle = parseInt(
+      document
+        .querySelector("#modal-climb-stats span")
+        .textContent.match(/\d+°/)[0]
+    );
+    const is_mirror = false;
+    const attempt_id = 0;
+    const bid_count =
+      document.querySelector('input[name="attemptType"]:checked').id === "flash"
+        ? 1
+        : parseInt(document.getElementById("attempts").value);
+    const quality =
+      parseInt(document.querySelector(".star-rating input:checked")?.value) ||
+      0;
+    const selectedAttemptType = document.querySelector(
+      'input[name="attemptType"]:checked'
+    ).id;
+    const difficultyValue = document.getElementById("difficulty").value;
+    const convertedDifficulty = gradeMappingObject[difficultyValue];
+
+    const finalDifficulty = ["flash", "send"].includes(selectedAttemptType)
+      ? parseInt(convertedDifficulty)
+      : 0;
+
+    const is_benchmark = document
+      .querySelector("#paragraph-climb-stats span")
+      .textContent.includes("©")
+      ? true
+      : false;
+    const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
+    const comment = document.getElementById("comment").value;
+
+    const data = {
+      board: board,
+      climb_uuid: climb_uuid,
+      angle: angle,
+      is_mirror: is_mirror,
+      attempt_id: attempt_id,
+      bid_count: bid_count,
+      quality: quality,
+      difficulty: finalDifficulty,
+      is_benchmark: is_benchmark,
+      comment: comment,
+      climbed_at: climbed_at,
+    };
+
+    fetch("/api/v1/save_ascent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok " + response.statusText);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const successAlert = document.querySelector(".alert-success");
+        successAlert.style.display = "block";
+
+        setTimeout(() => {
+          successAlert.style.display = "none";
+          const logModal = document.getElementById("div-log-modal");
+          const modalInstance = bootstrap.Modal.getInstance(logModal);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
+        }, 3000);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        const errorAlert = document.querySelector(".alert-danger");
+        errorAlert.style.display = "block";
+
+        setTimeout(() => {
+          errorAlert.style.display = "none";
+        }, 3000);
+      });
+  });
 
 async function fetchBetaCount(board, uuid) {
   const response = await fetch(`/api/v1/${board}/beta/${uuid}`);
@@ -87,9 +204,10 @@ async function fetchResultsCount() {
   const response = await fetch("/api/v1/search/count?" + urlParams);
   const resultsCount = await response.json();
 
-  if (resultsCount['error'] == true) {
-    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
-    alert.classList.add('show-alert')
+  if (resultsCount["error"] == true) {
+    alert.querySelector(".alert-content").innerHTML =
+      resultsCount["description"];
+    alert.classList.add("show-alert");
   } else {
     return resultsCount;
   }
@@ -102,9 +220,9 @@ async function fetchResults(pageNumber, pageSize) {
   const response = await fetch("/api/v1/search?" + urlParams);
   const results = await response.json();
 
-  if (results['error'] == true) {
-    alert.querySelector('.alert-content').innerHTML = resultsCount['description']
-    alert.classList.add('show-alert')
+  if (results["error"] == true) {
+    alert.querySelector(".alert-content").innerHTML = results["description"];
+    alert.classList.add("show-alert");
   } else {
     return results;
   }
@@ -182,7 +300,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficulty,
       rating,
       difficultyError,
-      classic
+      classic,
     ] = result;
 
     const classicSymbol = classic !== null ? "\u00A9" : "";
@@ -198,12 +316,30 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     difficultyAngleSpan.appendChild(
       document.createTextNode(difficultyAngleText)
     );
+
+    const show_attempts = attemptedClimbs[`${uuid}-${angle}`];
+    let attempts_infotext;
+    if (show_attempts !== undefined) {
+      listButton.classList.add("bg-warning-subtle");
+      attempts_infotext =
+        "You had " +
+        show_attempts["total_tries"] +
+        (show_attempts["total_tries"] === 1 ? " try in " : " tries in ") +
+        show_attempts["total_sessions"] +
+        " session. <br> The last session was: " +
+        show_attempts["last_try"];
+    } else {
+      attempts_infotext = "You had no tries so far.";
+    }
+
     const tickType = tickedClimbs[`${uuid}-${angle}`];
     if (tickType !== undefined) {
-      listButton.classList.add("bg-secondary-subtle");
+      listButton.classList.add("bg-success-subtle");
+      listButton.classList.remove("bg-warning-subtle"); //remove class if a climb used to be a attemped but was ticked later
       difficultyAngleSpan.appendChild(document.createTextNode(" "));
       difficultyAngleSpan.appendChild(getTickSvg(tickType));
     }
+
     listButton.addEventListener("click", function (event) {
       const index = Number(event.currentTarget.getAttribute("data-index"));
       const prevButton = document.getElementById("button-prev");
@@ -216,7 +352,16 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       nextButton.onclick = function () {
         clickClimbButton(index + 1, pageSize, resultsCount);
       };
-      drawClimb(uuid, name, frames, setter, difficultyAngleSpan, description);
+      drawClimb(
+        uuid,
+        name,
+        frames,
+        setter,
+        difficultyAngleSpan,
+        description,
+        attempts_infotext,
+        difficulty
+      );
     });
     const nameText = document.createElement("p");
     nameText.innerHTML = `${name} ${difficultyAngleSpan.outerHTML}`;
