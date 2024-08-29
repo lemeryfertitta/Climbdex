@@ -3,6 +3,25 @@ const colorMap = colors.reduce((acc, colorRow) => {
   return acc;
 }, {});
 
+function mirrorClimb() {
+    document
+    .getElementById("svg-climb")
+    .querySelectorAll('circle[stroke-opacity="1"]')
+    .forEach((circle) => {
+      // get attributes and reset to 0
+      const stroke = circle.getAttribute("stroke");
+      const strokeOpacity = circle.getAttribute("stroke-opacity");
+      const mirroredPlacementId = circle.getAttribute("data-mirror-id");
+      // set current circle to 0
+      circle.setAttribute("stroke", 0.0);
+      circle.setAttribute("stroke-opacity", 0.0);
+      // set mirrored to 1
+      const mirroredCircle = document.getElementById(`hold-${mirroredPlacementId}`);
+      mirroredCircle.setAttribute("stroke", stroke);
+      mirroredCircle.setAttribute("stroke-opacity", strokeOpacity);
+    });
+}
+
 function drawClimb(
   uuid,
   name,
