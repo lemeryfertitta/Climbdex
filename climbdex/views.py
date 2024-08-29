@@ -2,7 +2,7 @@ import boardlib.api.aurora
 import flask
 import climbdex.db
 import json
-import pandas as pd
+import pandas
 
 blueprint = flask.Blueprint("view", __name__)
 
@@ -152,29 +152,46 @@ def get_ticked_climbs(board, login_cookie):
 def get_bids(board, login_cookie):
     db_path = f"data/{board}/db.sqlite3"
     login_info = json.loads(login_cookie)
-    full_logbook_df = boardlib.api.aurora.logbook_entries(board, token=login_info["token"], user_id=login_info["user_id"] , db_path=db_path)
-    
+    full_logbook_df = boardlib.api.aurora.logbook_entries(
+        board, token=login_info["token"], user_id=login_info["user_id"], db_path=db_path
+    )
+
     if full_logbook_df.empty:
-        return pd.DataFrame(columns=['climb_angle_uuid', 'board', 'climb_name', 'date', 'sessions', 'tries'])
+        return pandas.DataFrame(
+            columns=[
+                "climb_angle_uuid",
+                "board",
+                "climb_name",
+                "date",
+                "sessions",
+                "tries",
+            ]
+        )
 
-    aggregated_logbook = full_logbook_df.groupby(['climb_angle_uuid', 'board', 'climb_name']).agg(
-        date=('date', 'max'),
-        sessions=('climb_angle_uuid', 'count'),
-        tries=('tries', 'sum')
-    ).reset_index()
+    aggregated_logbook = (
+        full_logbook_df.groupby(["climb_angle_uuid", "board", "climb_name"])
+        .agg(
+            date=("date", "max"),
+            sessions=("climb_angle_uuid", "count"),
+            tries=("tries", "sum"),
+        )
+        .reset_index()
+    )
 
-    aggregated_logbook['date'] = aggregated_logbook['date'].dt.strftime('%d/%m/%Y')
+    aggregated_logbook["date"] = aggregated_logbook["date"].dt.strftime("%d/%m/%Y")
 
-    aggregated_json = aggregated_logbook.to_dict(orient='records')
+    aggregated_json = aggregated_logbook.to_dict(orient="records")
     formatted_json = {
-        entry['climb_angle_uuid']: {
-            'total_tries': entry['tries'],
-            'total_sessions': entry['sessions'],
-            'last_try': entry['date']
-        } for entry in aggregated_json
+        entry["climb_angle_uuid"]: {
+            "total_tries": entry["tries"],
+            "total_sessions": entry["sessions"],
+            "last_try": entry["date"],
+        }
+        for entry in aggregated_json
     }
-    
+
     return formatted_json
+
 
 def get_placement_positions(board_name, layout_id, size_id):
     binds = {"layout_id": layout_id, "size_id": size_id}
