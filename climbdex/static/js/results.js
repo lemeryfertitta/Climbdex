@@ -101,94 +101,97 @@ const gradeMappingObject = gradeMapping.reduce((acc, [difficulty, grade]) => {
   return acc;
 }, {});
 
-document.getElementById("saveTick").addEventListener("click", function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const board = urlParams.get("board");
-  const climb_uuid = document
-    .querySelector("#header-climb-name a")
-    .href.split("/")
-    .pop();
-  const angle = parseInt(
-    document
-      .querySelector("#modal-climb-stats span")
-      .textContent.match(/\d+°/)[0]
-  );
-  const is_mirror = false;
-  const attempt_id = 0;
-  const bid_count = 
-    document.querySelector('input[name="attemptType"]:checked').id === "flash"
-      ? 1
-      : parseInt(document.getElementById("attempts").value);
-  const quality =
-    parseInt(document.querySelector(".star-rating input:checked")?.value) || 0;
-  const selectedAttemptType = document.querySelector(
-    'input[name="attemptType"]:checked'
-  ).id;
-  const difficultyValue = document.getElementById("difficulty").value;
-  const convertedDifficulty = gradeMappingObject[difficultyValue];
+document
+  .getElementById("button-log-ascent")
+  .addEventListener("click", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const board = urlParams.get("board");
+    const climb_uuid = document
+      .querySelector("#header-climb-name a")
+      .href.split("/")
+      .pop();
+    const angle = parseInt(
+      document
+        .querySelector("#modal-climb-stats span")
+        .textContent.match(/\d+°/)[0]
+    );
+    const is_mirror = false;
+    const attempt_id = 0;
+    const bid_count =
+      document.querySelector('input[name="attemptType"]:checked').id === "flash"
+        ? 1
+        : parseInt(document.getElementById("attempts").value);
+    const quality =
+      parseInt(document.querySelector(".star-rating input:checked")?.value) ||
+      0;
+    const selectedAttemptType = document.querySelector(
+      'input[name="attemptType"]:checked'
+    ).id;
+    const difficultyValue = document.getElementById("difficulty").value;
+    const convertedDifficulty = gradeMappingObject[difficultyValue];
 
-  const finalDifficulty = ["flash", "send"].includes(selectedAttemptType)
-    ? parseInt(convertedDifficulty)
-    : 0;
+    const finalDifficulty = ["flash", "send"].includes(selectedAttemptType)
+      ? parseInt(convertedDifficulty)
+      : 0;
 
-  const is_benchmark = document
-    .querySelector("#paragraph-climb-stats span")
-    .textContent.includes("©")
-    ? true
-    : false;
-  const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
-  const comment = document.getElementById("comment").value;
+    const is_benchmark = document
+      .querySelector("#paragraph-climb-stats span")
+      .textContent.includes("©")
+      ? true
+      : false;
+    const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
+    const comment = document.getElementById("comment").value;
 
-  const data = {
-    board: board,
-    climb_uuid: climb_uuid,
-    angle: angle,
-    is_mirror: is_mirror,
-    attempt_id: attempt_id,
-    bid_count: bid_count,
-    quality: quality,
-    difficulty: finalDifficulty,
-    is_benchmark: is_benchmark,
-    comment: comment,
-    climbed_at: climbed_at,
-  };
+    const data = {
+      board: board,
+      climb_uuid: climb_uuid,
+      angle: angle,
+      is_mirror: is_mirror,
+      attempt_id: attempt_id,
+      bid_count: bid_count,
+      quality: quality,
+      difficulty: finalDifficulty,
+      is_benchmark: is_benchmark,
+      comment: comment,
+      climbed_at: climbed_at,
+    };
 
-  fetch("/api/v1/save_ascent", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok " + response.statusText);
-      }
-      return response.json();
+    fetch("/api/v1/save_ascent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     })
-    .then((data) => {
-      const successAlert = document.querySelector(".alert-success");
-      successAlert.style.display = "block";
-
-      setTimeout(() => {
-        successAlert.style.display = "none";
-        const tickModal = document.getElementById("tickModal");
-        const modalInstance = bootstrap.Modal.getInstance(tickModal);
-        if (modalInstance) {
-          modalInstance.hide();
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok " + response.statusText);
         }
-      }, 3000);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      const errorAlert = document.querySelector(".alert-danger");
-      errorAlert.style.display = "block";
+        return response.json();
+      })
+      .then((data) => {
+        const successAlert = document.querySelector(".alert-success");
+        successAlert.style.display = "block";
 
-      setTimeout(() => {
-        errorAlert.style.display = "none";
-      }, 3000);
-    });
-});
+        setTimeout(() => {
+          successAlert.style.display = "none";
+          const logModal = document.getElementById("div-log-modal");
+          const modalInstance = bootstrap.Modal.getInstance(logModal);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
+        }, 3000);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        const errorAlert = document.querySelector(".alert-danger");
+        errorAlert.style.display = "block";
+
+        setTimeout(() => {
+          errorAlert.style.display = "none";
+        }, 3000);
+      });
+  });
 
 async function fetchBetaCount(board, uuid) {
   const response = await fetch(`/api/v1/${board}/beta/${uuid}`);

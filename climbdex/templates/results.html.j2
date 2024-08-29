@@ -5,8 +5,9 @@
   {% include 'head.html.j2'%}
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+
   <style>
     #div-results-list {
       max-height: 800px;
@@ -19,11 +20,6 @@
 
     .fw-light {
       font-size: 0.9em;
-    }
-
-    .rounded-cornders {
-    border-top-right-radius: 6px !important;
-    border-bottom-right-radius: 6px !important;
     }
 
     /* simulate button click for swipe gestures */
@@ -56,18 +52,15 @@
     .star-rating label:hover~label {
       color: #ffd700;
     }
-
-    button#button-prev,
-    button#button-next {
-      margin-bottom: 10px;
-    }
   </style>
 </head>
 
 <body>
   <div class="container-sm text-center">
-    {% include 'heading.html.j2' %}
-    {% include 'alert.html.j2' %}
+    <div class="row justify-content-md-center">
+      {% include 'heading.html.j2' %}
+      {% include 'alert.html.j2' %}
+    </div>
     <div class="row justify-content-md-center">
       <div class="col-md-5 card p-3 g-2 vh-100">
         <h4 id="header-results-count"></h4>
@@ -77,7 +70,7 @@
       <div class="col-md-5 card p-3 g-2 vh-100" id="div-climb">
         <div class="row g-0">
           <div class="col-2">
-            <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
+            <button type="button" class="btn btn-outline-primary mb-2" id="button-prev" disabled>&larr;</button>
             <br>
             <button id="button-illuminate" class="btn btn-outline-primary position-relative" type="button">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb"
@@ -92,9 +85,8 @@
             <h6 id="header-climb-setter"></h6>
             <p id="paragraph-climb-stats"></p>
           </div>
-
           <div class="col-2">
-            <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
+            <button type="button" class="btn btn-outline-primary mb-2" id="button-next" disabled>&rarr;</button>
             <br>
             <!-- Dropdown menu -->
             <button type="button" class="btn btn-outline-primary dropdown" data-toggle="dropdown"
@@ -107,8 +99,13 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               {% if request.cookies %}
-              <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tickModal">Log Climb</li>
-              <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#statsModal">Your Attempts</li>
+              <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#div-log-modal">Log
+                  Climb
+              </li>
+              <li><button class="dropdown-item" href="#" data-bs-toggle="modal"
+                  data-bs-target="#div-logbook-modal">Logbook
+                  Entries
+              </li>
               {% endif %}
               <li>
                 <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
@@ -117,131 +114,126 @@
                   </span>
                 </a>
               </li>
-                {% if request.cookies %}
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
-                {% endif %}
             </ul>
+          </div>
         </div>
-        <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg id="svg-climb" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="row">
-          <p id="paragraph-climb-description" class="small mt-2 d-none"></p>
+          <div class="col">
+            <p id="paragraph-climb-description" class="small mt-2 d-none"></p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row justify-content-md-center mt-3">
+    <div class="row mt-3">
       {% include 'footer.html.j2' %}
     </div>
 
-<!-- Tick Modal -->
-<div class="modal fade" id="tickModal" tabindex="-1" aria-labelledby="tickModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Tick, Rate and Comment</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div>
-          <h4 id="modal-climb-name"></h4>
-          <p id="modal-climb-stats"></p>
+    <!-- Log Ascent Modal -->
+    <div class="modal fade" id="div-log-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Log an ascent:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h4 id="modal-climb-name"></h4>
+              <p id="modal-climb-stats"></p>
+            </div>
+            <form id="ratingForm">
+              <div class="mb-3">
+                <div class="star-rating">
+                  <input type="radio" id="star3" name="rating" value="3">
+                  <label for="star3">&#9733;</label>
+                  <input type="radio" id="star2" name="rating" value="2">
+                  <label for="star2">&#9733;</label>
+                  <input type="radio" id="star1" name="rating" value="1">
+                  <label for="star1">&#9733;</label>
+                </div>
+              </div>
+              <div class="btn-group mb-3 d-flex" role="group">
+                <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off"
+                  checked>
+                <label class="btn btn-outline-primary flex-fill" for="flash">Flash</label>
+                <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
+                <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
+              </div>
+              <div class="mb-3 pt-3" id="attemptsSection" style="display: none;">
+                <div class="input-group">
+                  <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
+                  <input type="text" class="form-control text-center" id="attempts" value="1 try" readonly>
+                  <button class="btn btn-outline-secondary" type="button" id="increaseAttempts">+</button>
+                </div>
+              </div>
+              <div class="mb-3 pt-3">
+                <div class="input-group">
+                  <button class="btn btn-outline-secondary" type="button" id="decreaseDifficulty">-</button>
+                  <input type="text" class="form-control text-center" id="difficulty" value="" readonly>
+                  <button class="btn btn-outline-secondary" type="button" id="increaseDifficulty">+</button>
+                </div>
+              </div>
+              <div class="mb-3 pt-3">
+                <textarea class="form-control" id="comment" rows="3"
+                  placeholder="Add comments, beta, notes..."></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="button-log-ascent">Log Ascent</button>
+          </div>
+          <div class="alter-settings alert alert-success" role="alert">
+            Ascent logged successfully!
+          </div>
+          <div class="alter-settings alert alert-danger" role="alert">
+            An error occurred, please try again later.
+          </div>
         </div>
-        <form id="ratingForm">
-          <div class="mb-3">
-            <div class="star-rating">
-              <input type="radio" id="star3" name="rating" value="3">
-              <label for="star3">&#9733;</label>
-              <input type="radio" id="star2" name="rating" value="2">
-              <label for="star2">&#9733;</label>
-              <input type="radio" id="star1" name="rating" value="1">
-              <label for="star1">&#9733;</label>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="btn-group d-flex" role="group">
-              <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off"
-                checked>
-              <label class="btn btn-outline-primary flex-fill" for="flash">Flash</label>
-              <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
-              <label class="btn btn-outline-primary flex-fill rounded-cornders" for="send">Send</label>
-              <input class="btn-check" type="radio" name="attemptType" id="attempt" value="attempt" autocomplete="off"
-                style="display:none">
-              <label class="btn btn-outline-primary flex-fill" for="attempt" style="display:none">Attempt</label>
-            </div>
-          </div>
-          <div class="mb-3 pt-3" id="attemptsSection" style="display: none;">
-            <div class="input-group">
-              <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
-              <input type="text" class="form-control text-center" id="attempts" value="1 try" readonly>
-              <button class="btn btn-outline-secondary" type="button" id="increaseAttempts">+</button>
-            </div>
-          </div>
-          <div class="mb-3 pt-3">
-            <div class="input-group">
-              <button class="btn btn-outline-secondary" type="button" id="decreaseDifficulty">-</button>
-              <input type="text" class="form-control text-center" id="difficulty" value="" readonly>
-              <button class="btn btn-outline-secondary" type="button" id="increaseDifficulty">+</button>
-            </div>
-          </div>
-          <div class="mb-3 pt-3">
-            <textarea class="form-control" id="comment" rows="3" placeholder="Add comments, beta, notes..."></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="saveTick">Save tick</button>
-      </div>
-      <div class="alter-settings alert alert-success" role="alert">
-        Tick successfully saved!
-      </div>
-      <div class="alter-settings alert alert-danger" role="alert">
-        An error occurred, please try again later!
       </div>
     </div>
-  </div>
-</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const attemptTypeRadios = document.querySelectorAll('input[name="attemptType"]');
-      attemptTypeRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-          const attemptsSection = document.getElementById('attemptsSection');
-          if (this.id === 'flash') {
-            attemptsSection.style.display = 'none';
-          } else {
-            attemptsSection.style.display = 'block';
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const attemptTypeRadios = document.querySelectorAll('input[name="attemptType"]');
+        attemptTypeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
+            const attemptsSection = document.getElementById('attemptsSection');
+            if (this.id === 'flash') {
+              attemptsSection.style.display = 'none';
+            } else {
+              attemptsSection.style.display = 'block';
+            }
+          });
+        });
+
+        function updateAttemptsDisplay(value) {
+          return value + (value === 1 ? ' try' : ' tries');
+        }
+
+        document.getElementById('increaseAttempts').addEventListener('click', function () {
+          const attemptsInput = document.getElementById('attempts');
+          let numericValue = parseInt(attemptsInput.value);
+          if (numericValue < 10) {
+            attemptsInput.value = updateAttemptsDisplay(numericValue + 1);
           }
         });
-      });
 
-      function updateAttemptsDisplay(value) {
-        return value + (value === 1 ? ' try' : ' tries');
-      }
+        document.getElementById('decreaseAttempts').addEventListener('click', function () {
+          const attemptsInput = document.getElementById('attempts');
+          let numericValue = parseInt(attemptsInput.value);
+          if (numericValue > 1) {
+            attemptsInput.value = updateAttemptsDisplay(numericValue - 1);
+          }
+        });
 
-      document.getElementById('increaseAttempts').addEventListener('click', function () {
-        const attemptsInput = document.getElementById('attempts');
-        let numericValue = parseInt(attemptsInput.value);
-        if (numericValue < 10) {
-          attemptsInput.value = updateAttemptsDisplay(numericValue + 1);
-        }
-      });
-
-      document.getElementById('decreaseAttempts').addEventListener('click', function () {
-        const attemptsInput = document.getElementById('attempts');
-        let numericValue = parseInt(attemptsInput.value);
-        if (numericValue > 1) {
-          attemptsInput.value = updateAttemptsDisplay(numericValue - 1);
-        }
-      });
-
-       const gradeMapping = {
+        const gradeMapping = {
         {% for grade in grades %}
         "{{grade[1]}}": "{{grade[0]}}",
-        {% endfor %}
+          {% endfor %}
       };
- 
+
       const gradeKeys = Object.keys(gradeMapping);
       let currentGradeIndex = gradeKeys.indexOf(document.getElementById('difficulty').value);
 
@@ -253,7 +245,7 @@
         }
         const difficultyInput = document.getElementById('difficulty');
         difficultyInput.value = gradeKeys[currentGradeIndex];
-      
+
         const event = new Event('change');
         difficultyInput.dispatchEvent(event);
       }
@@ -281,84 +273,51 @@
         }
       });
 
-      // Reset star rating and comment when the modal is opened
-      const tickModal = document.getElementById('tickModal');
-      tickModal.addEventListener('show.bs.modal', function () {
-        // Reset star rating
+      // Reset log modal on show
+      const logModal = document.getElementById('div-log-modal');
+      logModal.addEventListener('show.bs.modal', function () {
         const starRadios = document.querySelectorAll('.star-rating input');
         starRadios.forEach(radio => radio.checked = false);
-
-        // Reset comment
         document.getElementById('comment').value = '';
-        // Reset disabled save button
-        document.getElementById('saveTick').disabled = false;
+        document.getElementById('button-log-ascent').disabled = false;
       });
     });
 
-      document.getElementById('saveTick').addEventListener('click', function () {
+      document.getElementById('button-log-ascent').addEventListener('click', function () {
         this.disabled = true; // Disable the button to prevent multiple submissions
       });
 
 
-  </script>
+    </script>
 
-<!-- Stats Modal -->
-<div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="logoutModalLabel">Your Attempts</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p id="paragraph-climb-attempts"></p>
+    <!-- Logbook Entries Modal -->
+    <div class="modal fade" id="div-logbook-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Logbook entries:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="paragraph-climb-attempts"></p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- Logout Modal -->
-<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to logout?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-        <button type="button" class="btn btn-primary" id="confirmLogout">Yes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  document.getElementById('confirmLogout').addEventListener('click', function () {
-    document.cookie.split(";").forEach(function (cookie) {
-      document.cookie = cookie.trim().split("=")[0] + '=; Max-Age=0; path=/;';
-    });
-    location.reload();
-  });
-</script>
-
-<script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
-<script src="{{url_for('static', filename='js/common.js')}}"></script>
-<script>
-  const appUrl = "{{ app_url }}";
-  const colors = {{ colors | tojson}};
-  const ledColors = {{ led_colors | tojson}};
-  const attemptedClimbs = {{ attempted_climbs | tojson}};
-  const tickedClimbs = {{ ticked_climbs | tojson}};
-  const placementPositions = {{ placement_positions | tojson}};
-  const gradeMapping = {{ grades | tojson }};
-  drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
-</script>
-<script src="{{url_for('static', filename='js/results.js')}}"></script>
-<script src="{{url_for('static', filename='js/swipe.js')}}"></script>
+    <script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
+    <script src="{{url_for('static', filename='js/common.js')}}"></script>
+    <script>
+      const appUrl = "{{ app_url }}";
+      const colors = {{ colors | tojson}};
+      const ledColors = {{ led_colors | tojson}};
+      const attemptedClimbs = {{ attempted_climbs | tojson}};
+      const tickedClimbs = {{ ticked_climbs | tojson}};
+      const placementPositions = {{ placement_positions | tojson}};
+      const gradeMapping = {{ grades | tojson }};
+      drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
+    </script>
+    <script src="{{url_for('static', filename='js/results.js')}}"></script>
+    <script src="{{url_for('static', filename='js/swipe.js')}}"></script>
 
 
 </body>
