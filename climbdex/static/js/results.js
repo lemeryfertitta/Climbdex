@@ -8,14 +8,11 @@ function mirrorClimb() {
     .getElementById("svg-climb")
     .querySelectorAll('circle[stroke-opacity="1"]')
     .forEach((circle) => {
-      // get attributes and reset to 0
       const stroke = circle.getAttribute("stroke");
       const strokeOpacity = circle.getAttribute("stroke-opacity");
       const mirroredPlacementId = circle.getAttribute("data-mirror-id");
-      // set current circle to 0
       circle.setAttribute("stroke", 0.0);
       circle.setAttribute("stroke-opacity", 0.0);
-      // set mirrored to 1
       const mirroredCircle = document.getElementById(`hold-${mirroredPlacementId}`);
       mirroredCircle.setAttribute("stroke", stroke);
       mirroredCircle.setAttribute("stroke-opacity", strokeOpacity);
@@ -114,6 +111,11 @@ function drawClimb(
 
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
+
+  const is_mirror = document.getElementById("button-mirror").classList.contains("active");
+  if(is_mirror) {
+    mirrorClimb();
+  }
 }
 const gradeMappingObject = gradeMapping.reduce((acc, [difficulty, grade]) => {
   acc[grade] = difficulty;
@@ -134,7 +136,7 @@ document
         .querySelector("#modal-climb-stats span")
         .textContent.match(/\d+°/)[0]
     );
-    const is_mirror = false;
+    const is_mirror = document.getElementById("button-mirror").classList.contains("active");
     const attempt_id = 0;
     const bid_count =
       document.querySelector('input[name="attemptType"]:checked').id === "flash"
