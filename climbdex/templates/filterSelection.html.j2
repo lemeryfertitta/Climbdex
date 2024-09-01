@@ -40,9 +40,11 @@
           <div class="input-group mb-3">
             <span class="input-group-text">Angle</span>
             <select class="form-select" id="select-angle" name="angle">
-              <option value="any" selected>Any</option>
-              {% for angle in angles %}
-              <option value="{{angle[0]}}">{{angle[0]}}</option>
+              <option value="any" {% if not params.angle %}selected{% endif %}>Any</option>
+              {% for angle_option in angles %}
+              <option value="{{ angle_option[0] }}" {% if params.angle and params.angle|int == angle_option[0] %}selected{% endif %}>
+                {{ angle_option[0] }}
+              </option>
               {% endfor %}
             </select>
           </div>
@@ -105,7 +107,16 @@
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Setter Name</span>
-                  <input type="text" class="form-control" id="settername" name="settername" />
+                  <input type="text" class="form-control" id="settername" name="settername" list="setternameList"/>
+                  <datalist id="setternameList" name="setternameList">
+                    <label for="setternameSuggestion">or pick a setter</label>
+                    <select class="form-select" id="setternameSuggestion" name="setternameSuggestion">
+                      <option value="" selected>Any</option>
+                      {% for setter in setters %}
+                      <option value="{{setter[0]}}">{{setter[0]}} {{setter[1]}}</option>
+                      {% endfor %}
+                    </select>
+                  </datalist>
                 </div>
               </div>
             </div>

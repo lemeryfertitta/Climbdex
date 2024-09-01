@@ -3,11 +3,17 @@
 
 <head>
   {% include 'head.html.j2'%}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+
   <style>
     #div-results-list {
       max-height: 800px;
       overflow-y: scroll;
     }
+
     .fw-light {
       font-size: 0.9em;
     }
@@ -18,13 +24,39 @@
       background-color: var(--bs-btn-hover-bg);
       border-color: var(--bs-btn-hover-border-color);
     }
+
+    .star-rating {
+      direction: rtl;
+      display: inline-flex;
+      font-size: 2rem;
+    }
+
+    .star-rating input {
+      display: none;
+    }
+
+    .star-rating label {
+      cursor: pointer;
+      color: #ddd;
+    }
+
+    .star-rating input:checked~label {
+      color: #ffd700;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover~label {
+      color: #ffd700;
+    }
   </style>
 </head>
 
 <body>
   <div class="container-sm text-center">
-    {% include 'heading.html.j2' %}
-    {% include 'alert.html.j2' %}
+    <div class="row justify-content-md-center">
+      {% include 'heading.html.j2' %}
+      {% include 'alert.html.j2' %}
+    </div>
     <div class="row justify-content-md-center">
       <div class="col-md-5 card p-3 g-2 vh-100">
         <h4 id="header-results-count"></h4>
@@ -33,10 +65,9 @@
       </div>
       <div class="col-md-5 card p-3 g-2 vh-100" id="div-climb">
         <div class="row g-0">
-          <div class="col-1">
-            <button type="button" class="btn btn-outline-primary" id="button-prev" disabled>&larr;</button>
-          </div>
           <div class="col-2">
+            <button type="button" class="btn btn-outline-primary mb-2" id="button-prev" disabled>&larr;</button>
+            <br>
             <button id="button-illuminate" class="btn btn-outline-primary position-relative" type="button">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb"
                 viewBox="0 0 16 16">
@@ -45,59 +76,245 @@
               </svg>
               </a>
           </div>
-          <div class="col-6">
+          <div class="col-8">
             <h4 id="header-climb-name"></h4>
             <h6 id="header-climb-setter"></h6>
             <p id="paragraph-climb-stats"></p>
           </div>
           <div class="col-2">
-            <a id="anchor-beta" class="btn btn-outline-primary position-relative">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram"
+            <button type="button" class="btn btn-outline-primary mb-2" id="button-next" disabled>&rarr;</button>
+            <br>
+            <!-- Dropdown menu -->
+            <button type="button" class="btn btn-outline-primary dropdown" data-toggle="dropdown"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list"
                 viewBox="0 0 16 16">
-                <path
-                  d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334">
-                </path>
+                <path fill-rule="evenodd"
+                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
               </svg>
-              <span id="span-beta-count"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                0
-              </span>
-            </a>
-          </div>
-          <div class="col-1">
-            <button type="button" class="btn btn-outline-primary" id="button-mirror" onclick="mirrorClimb()">&rlarr;</button>
-          </div>
-          <div class="col-1">
-            <button type="button" class="btn btn-outline-primary" id="button-next" disabled>&rarr;</button>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if request.cookies %}
+              <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#div-log-modal">Log
+                  Climb
+              </li>
+              <li><button class="dropdown-item" href="#" data-bs-toggle="modal"
+                  data-bs-target="#div-logbook-modal">Logbook
+                  Entries
+              </li>
+              {% endif %}
+              <li>
+                <a id="anchor-beta" class="btn btn-outline-primary position-relative dropdown-item">Beta
+                  <span id="span-beta-count" class="position-absolute badge rounded-pill bg-danger">
+                    0
+                  </span>
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
-        <div class="row g-0">
-
-        </div>  
-        <svg id="svg-climb" viewbox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg id="svg-climb" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="row">
-          <p id="paragraph-climb-description" class="small mt-2 d-none"></p>
+          <div class="col">
+            <p id="paragraph-climb-description" class="small mt-2 d-none"></p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row justify-content-md-center mt-3">
+    <div class="row mt-3">
       {% include 'footer.html.j2' %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"></script>
+
+    <!-- Log Ascent Modal -->
+    <div class="modal fade" id="div-log-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Log an ascent:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h4 id="modal-climb-name"></h4>
+              <p id="modal-climb-stats"></p>
+            </div>
+            <form id="ratingForm">
+              <div class="mb-3">
+                <div class="star-rating">
+                  <input type="radio" id="star3" name="rating" value="3">
+                  <label for="star3">&#9733;</label>
+                  <input type="radio" id="star2" name="rating" value="2">
+                  <label for="star2">&#9733;</label>
+                  <input type="radio" id="star1" name="rating" value="1">
+                  <label for="star1">&#9733;</label>
+                </div>
+              </div>
+              <div class="btn-group mb-3 d-flex" role="group">
+                <input class="btn-check" type="radio" name="attemptType" id="flash" value="flash" autocomplete="off"
+                  checked>
+                <label class="btn btn-outline-primary flex-fill" for="flash">Flash</label>
+                <input class="btn-check" type="radio" name="attemptType" id="send" value="send" autocomplete="off">
+                <label class="btn btn-outline-primary flex-fill" for="send">Send</label>
+              </div>
+              <div class="mb-3 pt-3" id="attemptsSection" style="display: none;">
+                <div class="input-group">
+                  <button class="btn btn-outline-secondary" type="button" id="decreaseAttempts">-</button>
+                  <input type="text" class="form-control text-center" id="attempts" value="1 try" readonly>
+                  <button class="btn btn-outline-secondary" type="button" id="increaseAttempts">+</button>
+                </div>
+              </div>
+              <div class="mb-3 pt-3">
+                <div class="input-group">
+                  <button class="btn btn-outline-secondary" type="button" id="decreaseDifficulty">-</button>
+                  <input type="text" class="form-control text-center" id="difficulty" value="" readonly>
+                  <button class="btn btn-outline-secondary" type="button" id="increaseDifficulty">+</button>
+                </div>
+              </div>
+              <div class="mb-3 pt-3">
+                <textarea class="form-control" id="comment" rows="3"
+                  placeholder="Add comments, beta, notes..."></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="button-log-ascent">Log Ascent</button>
+          </div>
+          <div class="alter-settings alert alert-success" role="alert">
+            Ascent logged successfully!
+          </div>
+          <div class="alter-settings alert alert-danger" role="alert">
+            An error occurred, please try again later.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const attemptTypeRadios = document.querySelectorAll('input[name="attemptType"]');
+        attemptTypeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
+            const attemptsSection = document.getElementById('attemptsSection');
+            if (this.id === 'flash') {
+              attemptsSection.style.display = 'none';
+            } else {
+              attemptsSection.style.display = 'block';
+            }
+          });
+        });
+
+        function updateAttemptsDisplay(value) {
+          return value + (value === 1 ? ' try' : ' tries');
+        }
+
+        document.getElementById('increaseAttempts').addEventListener('click', function () {
+          const attemptsInput = document.getElementById('attempts');
+          let numericValue = parseInt(attemptsInput.value);
+          if (numericValue < 10) {
+            attemptsInput.value = updateAttemptsDisplay(numericValue + 1);
+          }
+        });
+
+        document.getElementById('decreaseAttempts').addEventListener('click', function () {
+          const attemptsInput = document.getElementById('attempts');
+          let numericValue = parseInt(attemptsInput.value);
+          if (numericValue > 1) {
+            attemptsInput.value = updateAttemptsDisplay(numericValue - 1);
+          }
+        });
+
+        const gradeMapping = {
+        {% for grade in grades %}
+        "{{grade[1]}}": "{{grade[0]}}",
+          {% endfor %}
+      };
+
+      const gradeKeys = Object.keys(gradeMapping);
+      let currentGradeIndex = gradeKeys.indexOf(document.getElementById('difficulty').value);
+
+      function difficultySlider(increase) {
+        if (increase && currentGradeIndex < gradeKeys.length - 1) {
+          currentGradeIndex++;
+        } else if (!increase && currentGradeIndex > 0) {
+          currentGradeIndex--;
+        }
+        const difficultyInput = document.getElementById('difficulty');
+        difficultyInput.value = gradeKeys[currentGradeIndex];
+
+        const event = new Event('change');
+        difficultyInput.dispatchEvent(event);
+      }
+
+      const difficultyInput = document.getElementById('difficulty');
+      currentGradeIndex = gradeKeys.indexOf(difficultyInput.value);
+      if (currentGradeIndex === -1) {
+        currentGradeIndex = 0; // Default to the first grade if not found
+        difficultyInput.value = gradeKeys[currentGradeIndex];
+      }
+
+      document.getElementById('increaseDifficulty').addEventListener('click', function () {
+        difficultySlider(true);
+      });
+
+      document.getElementById('decreaseDifficulty').addEventListener('click', function () {
+        difficultySlider(false);
+      });
+
+      document.getElementById('difficulty').addEventListener('change', function () {
+        currentGradeIndex = gradeKeys.indexOf(this.value);
+        if (currentGradeIndex === -1) {
+          currentGradeIndex = 0;
+          this.value = gradeKeys[currentGradeIndex];
+        }
+      });
+
+      // Reset log modal on show
+      const logModal = document.getElementById('div-log-modal');
+      logModal.addEventListener('show.bs.modal', function () {
+        const starRadios = document.querySelectorAll('.star-rating input');
+        starRadios.forEach(radio => radio.checked = false);
+        document.getElementById('comment').value = '';
+        document.getElementById('button-log-ascent').disabled = false;
+      });
+    });
+
+      document.getElementById('button-log-ascent').addEventListener('click', function () {
+        this.disabled = true; // Disable the button to prevent multiple submissions
+      });
+
+
+    </script>
+
+    <!-- Logbook Entries Modal -->
+    <div class="modal fade" id="div-logbook-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Logbook entries:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="paragraph-climb-attempts"></p>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
     <script src="{{url_for('static', filename='js/common.js')}}"></script>
     <script>
       const appUrl = "{{ app_url }}";
       const colors = {{ colors | tojson}};
       const ledColors = {{ led_colors | tojson}};
+      const attemptedClimbs = {{ attempted_climbs | tojson}};
       const tickedClimbs = {{ ticked_climbs | tojson}};
       const placementPositions = {{ placement_positions | tojson}};
+      const gradeMapping = {{ grades | tojson }};
       drawBoard('svg-climb', {{ images_to_holds | tojson}}, {{ edge_left }}, {{ edge_right }}, {{ edge_bottom }}, {{ edge_top }});
     </script>
     <script src="{{url_for('static', filename='js/results.js')}}"></script>
     <script src="{{url_for('static', filename='js/swipe.js')}}"></script>
+
 
 </body>
 

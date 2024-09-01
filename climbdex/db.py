@@ -129,6 +129,14 @@ QUERIES = {
         AND climb_stats.quality_average >= $min_rating
         AND ABS(ROUND(climb_stats.display_difficulty) - climb_stats.difficulty_average) <= $grade_accuracy
         """,
+    "setters": """
+        SELECT
+            setter_username,
+            COUNT(*) AS count
+        FROM climbs
+        WHERE layout_id = $layout_id
+        GROUP BY setter_username
+        ORDER BY setter_username""",
     "sets": """
         SELECT
             sets.id,

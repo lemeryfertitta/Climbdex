@@ -1,21 +1,21 @@
-from flask_parameter_validation import ValidateParameters, Query
-
-import boardlib.api.aurora
 import flask
-import requests
-import json
+from flask_parameter_validation import ValidateParameters, Json, Query
+import boardlib.api.aurora 
 import logging
-
 import climbdex.db
+import requests
 
 blueprint = flask.Blueprint("api", __name__)
 
 def parameter_error(e):
     code = 400
     name = str(type(e).__name__)
-    description = f"Parameters were missing and/or misconfigured. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
+    description = (
+        f"Parameters were missing and/or misconfigured. If the issue persists, please "
+        f"<a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={str(type(e).__name__)}: {str(e)} ({code})\" target='_blank'>report it</a> (code: {code})"
+    )
 
-    response =  {
+    response = {
         "error": True,
         "code": code,
         "name": name,
@@ -27,30 +27,31 @@ def parameter_error(e):
 
 @blueprint.errorhandler(Exception)
 def handle_exception(e):
+    logging.error(f"Unhandled exception: {str(e)}", exc_info=True)
     response = e.get_response()
-    response.data = json.dumps({
+    response.data = flask.json.dumps({
         "error": True,
         "code": e.code,
         "name": e.name,
-        "description": f"There was a problem while getting results from the server. If the issue persists, please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" target='_blank'>report it</a> (code: {e.code})",
+        "description": (
+            f"There was a problem while getting results from the server. If the issue persists, "
+            f"please <a href=\"https://github.com/lemeryfertitta/Climbdex/issues/new?title={e.name} ({e.code})&body={e.description}\" "
+            f"target='_blank'>report it</a> (code: {e.code})"
+        ),
     })
     response.content_type = "application/json"
     logging.error(response.data)
     return response
 
-
-
 @blueprint.route("/api/v1/<board_name>/layouts")
 def layouts(board_name):
     return flask.jsonify(climbdex.db.get_data(board_name, "layouts"))
-
 
 @blueprint.route("/api/v1/<board_name>/layouts/<layout_id>/sizes")
 def sizes(board_name, layout_id):
     return flask.jsonify(
         climbdex.db.get_data(board_name, "sizes", {"layout_id": int(layout_id)})
     )
-
 
 @blueprint.route("/api/v1/<board_name>/layouts/<layout_id>/sizes/<size_id>/sets")
 def sets(board_name, layout_id, size_id):
@@ -59,7 +60,6 @@ def sets(board_name, layout_id, size_id):
             board_name, "sets", {"layout_id": int(layout_id), "size_id": int(size_id)}
         )
     )
-
 
 @blueprint.route("/api/v1/search/count")
 @ValidateParameters(parameter_error)
@@ -87,11 +87,9 @@ def search(
 ):
     return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
 
-
 @blueprint.route("/api/v1/<board_name>/beta/<uuid>")
 def beta(board_name, uuid):
     return flask.jsonify(climbdex.db.get_data(board_name, "beta", {"uuid": uuid}))
-
 
 @blueprint.route("/api/v1/login/", methods=["POST"])
 def login():
@@ -112,3 +110,47 @@ def login():
             )
         else:
             return flask.jsonify({"error": str(e)}), e.response.status_code
+
+@blueprint.route("/api/v1/save_ascent", methods=["POST"])
+@ValidateParameters(parameter_error)
+def api_save_ascent(
+    board: str = Json(),
+    climb_uuid: str = Json(),
+    angle: int = Json(),
+    is_mirror: bool = Json(),
+    attempt_id: int = Json(),
+    bid_count: int = Json(),
+    quality: int = Json(),
+    difficulty: int = Json(),
+    is_benchmark: bool = Json(),
+    comment: str = Json(),
+    climbed_at: str = Json(),
+):
+    try:
+        login_cookie = flask.request.cookies.get(f"{board}_login")
+        if not login_cookie:
+            return flask.jsonify({"error": "Login required"}), 401
+
+        login_info = flask.json.loads(login_cookie)
+        token = login_info["token"]
+        user_id = login_info["user_id"]
+
+        result = boardlib.api.aurora.save_ascent(
+            board=board,
+            token=token,
+            user_id=user_id,
+            climb_uuid=climb_uuid,
+            angle=angle,
+            is_mirror=is_mirror,
+            attempt_id=attempt_id,
+            bid_count=bid_count,
+            quality=quality,
+            difficulty=difficulty,
+            is_benchmark=is_benchmark,
+            comment=comment,
+            climbed_at=climbed_at
+        )
+        return flask.jsonify(result)
+    except Exception as e:
+        logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
+        return flask.jsonify({"error": str(e)}), 500
