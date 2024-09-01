@@ -94,8 +94,10 @@
               </svg>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><button class="dropdown-item" href="#" onclick="mirrorClimb()">
+              <li>
+                <button id="button-mirror" type="button" class="dropdown-item btn" data-bs-toggle="button" onclick="mirrorClimb()">
                   Mirror Climb
+                </button>
               </li>
               {% if request.cookies %}
               <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#div-log-modal">Log
