@@ -139,7 +139,7 @@ document
       .textContent.includes("©")
       ? true
       : false;
-    const climbed_at = new Date().toISOString().split("T")[0] + " 00:00:00";
+    const climbed_at = new Date().toLocaleString('sv', { timeZone: 'America/New_York'});
     const comment = document.getElementById("comment").value;
 
     const data = {
