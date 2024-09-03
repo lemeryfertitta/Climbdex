@@ -94,7 +94,7 @@
               </svg>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li>
+              <li id="button-mirror-list-item">
                 <button id="button-mirror" type="button" class="dropdown-item btn" data-bs-toggle="button" onclick="mirrorClimb()">
                   Mirror Climb
                 </button>
@@ -320,6 +320,16 @@
     <script src="{{url_for('static', filename='js/results.js')}}"></script>
     <script src="{{url_for('static', filename='js/swipe.js')}}"></script>
 
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const layout_is_mirrored= document.getElementById("svg-climb").querySelector("circle").hasAttribute("data-mirror-id");
+        if(!layout_is_mirrored) {
+          const buttonMirrorListItem = document.getElementById("button-mirror-list-item");
+          buttonMirrorListItem.hidden = true;
+        }
+      });
+    </script>
 
 </body>
 
