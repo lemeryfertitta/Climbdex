@@ -112,8 +112,8 @@ function drawClimb(
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
-  const is_mirror = document.getElementById("button-mirror").classList.contains("active");
-  if(is_mirror) {
+  const is_mirrored_mode = document.getElementById("button-mirror").classList.contains("active");
+  if(is_mirrored_mode) {
     mirrorClimb();
   }
 }
