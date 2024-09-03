@@ -23,6 +23,7 @@ function drawClimb(
   uuid,
   name,
   frames,
+  mirroredFrames,
   setter,
   difficultyAngleSpan,
   description,
@@ -40,10 +41,17 @@ function drawClimb(
     if (frame.length > 0) {
       const [placementId, colorId] = frame.split("r");
       const circle = document.getElementById(`hold-${placementId}`);
+      if(circle.hasAttribute("data-mirror-id")) {
+        const mirroredPlacementId = circle.getAttribute("data-mirror-id");
+        mirroredFrames = mirroredFrames + "p" + mirroredPlacementId + "r" + colorId;
+      }
       circle.setAttribute("stroke", colorMap[colorId]);
       circle.setAttribute("stroke-opacity", 1.0);
     }
   }
+  console.log("FRAME:" + frames);
+  console.log("\n");
+  console.log("MIRRORED:" + mirroredFrames);
 
   const anchor = document.createElement("a");
   anchor.textContent = name;
@@ -310,12 +318,14 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     listButton.setAttribute("class", "list-group-item list-group-item-action");
     listButton.setAttribute("data-index", pageNumber * pageSize + index);
 
+    // this is the result of db.search
     const [
       uuid,
       setter,
       name,
       description,
       frames,
+      mirroredFrames,
       angle,
       ascents,
       difficulty,
@@ -323,7 +333,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficultyError,
       classic,
     ] = result;
-
+    // console.log(result);
     const classicSymbol = classic !== null ? "\u00A9" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
@@ -377,6 +387,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
         uuid,
         name,
         frames,
+        mirroredFrames,
         setter,
         difficultyAngleSpan,
         description,
