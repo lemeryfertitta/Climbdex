@@ -105,7 +105,8 @@ QUERIES = {
             climbs.name,
             climbs.description,
             climbs.frames,
-            "",
+            layouts.is_mirrored,
+            climbs.frames,
             climb_stats.angle,
             climb_stats.ascensionist_count,
             (SELECT boulder_name FROM difficulty_grades WHERE difficulty = ROUND(climb_stats.display_difficulty)) AS difficulty,
@@ -117,6 +118,8 @@ QUERIES = {
         ON climb_stats.climb_uuid = climbs.uuid
         INNER JOIN product_sizes
         ON product_sizes.id = $size_id
+        JOIN layouts
+        ON layouts.id = $layout_id
         WHERE climbs.frames_count = 1
         AND climbs.is_draft = 0
         AND climbs.is_listed = 1

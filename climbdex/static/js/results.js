@@ -3,6 +3,10 @@ const colorMap = colors.reduce((acc, colorRow) => {
   return acc;
 }, {});
 
+function isMirroredMode() {
+  return document.getElementById("button-mirror").classList.contains("active");
+}
+
 function mirrorClimb() {
     document
     .getElementById("svg-climb")
@@ -23,6 +27,7 @@ function drawClimb(
   uuid,
   name,
   frames,
+  is_mirrored,
   mirroredFrames,
   setter,
   difficultyAngleSpan,
@@ -37,6 +42,10 @@ function drawClimb(
       circle.setAttribute("stroke-opacity", 0.0);
     });
 
+  if(is_mirrored) {
+    mirroredFrames="";
+  }
+
   for (const frame of frames.split("p")) {
     if (frame.length > 0) {
       const [placementId, colorId] = frame.split("r");
@@ -49,9 +58,6 @@ function drawClimb(
       circle.setAttribute("stroke-opacity", 1.0);
     }
   }
-  console.log("FRAME:" + frames);
-  console.log("\n");
-  console.log("MIRRORED:" + mirroredFrames);
 
   const anchor = document.createElement("a");
   anchor.textContent = name;
@@ -111,7 +117,16 @@ function drawClimb(
       placementPositions,
       ledColors
     );
-    illuminateClimb(board, bluetoothPacket);
+    const mirroredBluetoothPacket = getBluetoothPacket(
+      mirroredFrames,
+      placementPositions,
+      ledColors
+    );
+    if(isMirroredMode()) {
+      illuminateClimb(board, bluetoothPacket);
+    } else {
+      illuminateClimb(board, mirroredBluetoothPacket);
+    }
   };
 
   const modalclimbNameHeader = document.getElementById("modal-climb-name");
@@ -120,8 +135,7 @@ function drawClimb(
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
 
-  const is_mirrored_mode = document.getElementById("button-mirror").classList.contains("active");
-  if(is_mirrored_mode) {
+  if(isMirroredMode()) {
     mirrorClimb();
   }
 }
@@ -144,7 +158,7 @@ document
         .querySelector("#modal-climb-stats span")
         .textContent.match(/\d+°/)[0]
     );
-    const is_mirror = document.getElementById("button-mirror").classList.contains("active");
+    const is_mirror = isMirroredMode();
     const attempt_id = 0;
     const bid_count =
       document.querySelector('input[name="attemptType"]:checked').id === "flash"
@@ -325,6 +339,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       name,
       description,
       frames,
+      is_mirrored,
       mirroredFrames,
       angle,
       ascents,
@@ -333,7 +348,6 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficultyError,
       classic,
     ] = result;
-    // console.log(result);
     const classicSymbol = classic !== null ? "\u00A9" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
@@ -387,6 +401,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
         uuid,
         name,
         frames,
+        is_mirrored,
         mirroredFrames,
         setter,
         difficultyAngleSpan,
