@@ -123,9 +123,9 @@ function drawClimb(
       ledColors
     );
     if(isMirroredMode()) {
-      illuminateClimb(board, bluetoothPacket);
-    } else {
       illuminateClimb(board, mirroredBluetoothPacket);
+    } else {
+      illuminateClimb(board, bluetoothPacket);
     }
   };
 
