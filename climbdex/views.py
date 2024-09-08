@@ -57,6 +57,7 @@ def results():
         placement_positions=placement_positions,
         grades=climbdex.db.get_data(board_name, "grades"),
         led_colors=get_led_colors(board_name, layout_id),
+        layout_is_mirrored=climbdex.db.layout_is_mirrored(board_name,layout_id),
         **get_draw_board_kwargs(
             board_name,
             layout_id,
