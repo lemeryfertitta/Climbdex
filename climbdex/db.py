@@ -116,8 +116,6 @@ QUERIES = {
         ON climb_stats.climb_uuid = climbs.uuid
         INNER JOIN product_sizes
         ON product_sizes.id = $size_id
-        JOIN layouts
-        ON layouts.id = $layout_id
         WHERE climbs.frames_count = 1
         AND climbs.is_draft = 0
         AND climbs.is_listed = 1
