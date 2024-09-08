@@ -105,8 +105,6 @@ QUERIES = {
             climbs.name,
             climbs.description,
             climbs.frames,
-            layouts.is_mirrored,
-            climbs.frames,
             climb_stats.angle,
             climb_stats.ascensionist_count,
             (SELECT boulder_name FROM difficulty_grades WHERE difficulty = ROUND(climb_stats.display_difficulty)) AS difficulty,

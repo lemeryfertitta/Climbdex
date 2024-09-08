@@ -27,8 +27,6 @@ function drawClimb(
   uuid,
   name,
   frames,
-  is_mirrored,
-  mirroredFrames,
   setter,
   difficultyAngleSpan,
   description,
@@ -42,9 +40,7 @@ function drawClimb(
       circle.setAttribute("stroke-opacity", 0.0);
     });
 
-  if(is_mirrored) {
-    mirroredFrames="";
-  }
+  let mirroredFrames="";
 
   for (const frame of frames.split("p")) {
     if (frame.length > 0) {
@@ -113,20 +109,11 @@ function drawClimb(
 
   document.getElementById("button-illuminate").onclick = function () {
     const bluetoothPacket = getBluetoothPacket(
-      frames,
+      isMirroredMode() ? mirroredFrames : frames,
       placementPositions,
       ledColors
     );
-    const mirroredBluetoothPacket = getBluetoothPacket(
-      mirroredFrames,
-      placementPositions,
-      ledColors
-    );
-    if(isMirroredMode()) {
-      illuminateClimb(board, mirroredBluetoothPacket);
-    } else {
-      illuminateClimb(board, bluetoothPacket);
-    }
+    illuminateClimb(board, bluetoothPacket);
   };
 
   const modalclimbNameHeader = document.getElementById("modal-climb-name");
@@ -339,8 +326,6 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       name,
       description,
       frames,
-      is_mirrored,
-      mirroredFrames,
       angle,
       ascents,
       difficulty,
@@ -401,8 +386,6 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
         uuid,
         name,
         frames,
-        is_mirrored,
-        mirroredFrames,
         setter,
         difficultyAngleSpan,
         description,
