@@ -4,7 +4,7 @@ const colorMap = colors.reduce((acc, colorRow) => {
 }, {});
 
 function isMirroredMode() {
-  return document.getElementById("button-mirror").classList.contains("active");
+  return (document.getElementById("button-mirror")!=null) && (document.getElementById("button-mirror").classList.contains("active"));
 }
 
 function mirrorClimb() {
@@ -333,6 +333,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficultyError,
       classic,
     ] = result;
+    
     const classicSymbol = classic !== null ? "\u00A9" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
