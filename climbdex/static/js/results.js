@@ -169,7 +169,7 @@ document
       .textContent.includes("©")
       ? true
       : false;
-    const climbed_at = new Date().toLocaleString('sv', { timeZone: 'America/New_York'});
+    const climbed_at = new Date().toLocaleString('sv');
     const comment = document.getElementById("comment").value;
 
     const data = {
