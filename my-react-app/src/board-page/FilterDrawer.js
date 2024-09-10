@@ -16,7 +16,7 @@ import {
   Spin,
   Typography,
 } from "antd";
-import {fetchAngles, fetchGrades} from './api'
+import {fetchAngles, fetchGrades} from '../api'
 const { Option } = Select;
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
