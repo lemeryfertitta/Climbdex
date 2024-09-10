@@ -3,6 +3,26 @@ const colorMap = colors.reduce((acc, colorRow) => {
   return acc;
 }, {});
 
+function isMirroredMode() {
+  return (document.getElementById("button-mirror")!=null) && (document.getElementById("button-mirror").classList.contains("active"));
+}
+
+function mirrorClimb() {
+    document
+    .getElementById("svg-climb")
+    .querySelectorAll('circle[stroke-opacity="1"]')
+    .forEach((circle) => {
+      const stroke = circle.getAttribute("stroke");
+      const strokeOpacity = circle.getAttribute("stroke-opacity");
+      const mirroredPlacementId = circle.getAttribute("data-mirror-id");
+      circle.setAttribute("stroke", 0.0);
+      circle.setAttribute("stroke-opacity", 0.0);
+      const mirroredCircle = document.getElementById(`hold-${mirroredPlacementId}`);
+      mirroredCircle.setAttribute("stroke", stroke);
+      mirroredCircle.setAttribute("stroke-opacity", strokeOpacity);
+    });
+}
+
 function drawClimb(
   uuid,
   name,
@@ -20,10 +40,16 @@ function drawClimb(
       circle.setAttribute("stroke-opacity", 0.0);
     });
 
+  let mirroredFrames="";
+
   for (const frame of frames.split("p")) {
     if (frame.length > 0) {
       const [placementId, colorId] = frame.split("r");
       const circle = document.getElementById(`hold-${placementId}`);
+      if(circle.hasAttribute("data-mirror-id")) {
+        const mirroredPlacementId = circle.getAttribute("data-mirror-id");
+        mirroredFrames = mirroredFrames + "p" + mirroredPlacementId + "r" + colorId;
+      }
       circle.setAttribute("stroke", colorMap[colorId]);
       circle.setAttribute("stroke-opacity", 1.0);
     }
@@ -83,7 +109,7 @@ function drawClimb(
 
   document.getElementById("button-illuminate").onclick = function () {
     const bluetoothPacket = getBluetoothPacket(
-      frames,
+      isMirroredMode() ? mirroredFrames : frames,
       placementPositions,
       ledColors
     );
@@ -95,6 +121,10 @@ function drawClimb(
 
   const modalclimbStatsParagraph = document.getElementById("modal-climb-stats");
   modalclimbStatsParagraph.innerHTML = difficultyAngleSpan.outerHTML;
+
+  if(isMirroredMode()) {
+    mirrorClimb();
+  }
 }
 const gradeMappingObject = gradeMapping.reduce((acc, [difficulty, grade]) => {
   acc[grade] = difficulty;
@@ -115,7 +145,7 @@ document
         .querySelector("#modal-climb-stats span")
         .textContent.match(/\d+°/)[0]
     );
-    const is_mirror = false;
+    const is_mirror = isMirroredMode();
     const attempt_id = 0;
     const bid_count =
       document.querySelector('input[name="attemptType"]:checked').id === "flash"
@@ -139,7 +169,7 @@ document
       .textContent.includes("©")
       ? true
       : false;
-    const climbed_at = new Date().toLocaleString('sv', { timeZone: 'America/New_York'});
+    const climbed_at = new Date().toLocaleString('sv');
     const comment = document.getElementById("comment").value;
 
     const data = {
@@ -289,6 +319,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
     listButton.setAttribute("class", "list-group-item list-group-item-action");
     listButton.setAttribute("data-index", pageNumber * pageSize + index);
 
+    // this is the result of db.search
     const [
       uuid,
       setter,
@@ -302,7 +333,7 @@ function drawResultsPage(results, pageNumber, pageSize, resultsCount) {
       difficultyError,
       classic,
     ] = result;
-
+    
     const classicSymbol = classic !== null ? "\u00A9" : "";
     const difficultyErrorPrefix = Number(difficultyError) > 0 ? "+" : "-";
     const difficultyErrorSuffix = String(
