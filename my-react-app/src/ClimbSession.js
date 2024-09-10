@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { PeerContext } from "./PeerProvider";
-import KilterBoard from "./KilterBoard";
+import KilterBoard from "./kilter-board";
 const headers = new Headers({ "ngrok-skip-browser-warning": "true" });
 
 const ClimbSession = ({ boardName, setBoardName, onLoginButtonClick }) => {
