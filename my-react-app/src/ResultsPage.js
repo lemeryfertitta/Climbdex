@@ -3,7 +3,7 @@ import { SearchOutlined, LeftOutlined, RightOutlined, BulbOutlined, InstagramOut
 import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation } from "react-router-dom";
 import { fetchResults, fetchResultsCount } from "./api";
-import KilterBoardLoader from "./KilterBoardLoader";
+import KilterBoardLoader from "./KilterBoard/KilterBoardLoader";
 import { boardLayouts } from "./board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
