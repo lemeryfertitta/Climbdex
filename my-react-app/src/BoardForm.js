@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 // import KilterBoard from "./KilterBoard";
 import { PeerContext } from "./PeerProvider";
 import { Link } from "react-router-dom";
-import { defaultLayouts, boardLayouts } from "./board-data";
+import { defaultLayouts, boardLayouts } from "./board-page/board-data";
 const headers = new Headers({ "ngrok-skip-browser-warning": "true" });
 
 const BoardForm = ({ setBoardName }) => {

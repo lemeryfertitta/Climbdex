@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import KilterBoard from "./KilterBoard";
-import { fetchBoardDetails } from "../api";
-import { boardLayouts } from "../board-data";
+import { fetchBoardDetails } from "../board-page/api";
+import { boardLayouts } from "../board-page/board-data";
 
 // TODO: Unhardcode set_ids
 const KilterBoardLoader = ({ litUpHolds }) => {

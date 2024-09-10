@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { SearchOutlined, LeftOutlined, RightOutlined, BulbOutlined, InstagramOutlined } from "@ant-design/icons";
 import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation } from "react-router-dom";
-import { fetchResults, fetchResultsCount } from "../api";
+import { fetchResults, fetchResultsCount } from "./api";
 import KilterBoardLoader from "../kilter-board/loader";
-import { boardLayouts } from "../board-data";
+import { boardLayouts } from "./board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
 
