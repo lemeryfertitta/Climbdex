@@ -126,8 +126,7 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
         # TODO: Just return image names and let FE deal with the baseurls
         # image_url = f"{
         # base_url}/react/img/{image_filename[0][0].split('/')[1]}"
-        image_url = f"{
-            boardlib.api.aurora.API_HOSTS[board_name]}/img/{image_filename[0][0]}"
+        image_url = f"{image_filename[0][0].split('/')[1]}"
 
         # Get holds from the database
         holds = climbdex.db.get_data(

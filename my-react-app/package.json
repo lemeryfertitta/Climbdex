@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "homepage": "/react",
-  "proxy": "https://0d3b-188-88-101-112.ngrok-free.app",
+  "proxy": "http://127.0.0.1:8000",
   "dependencies": {
     "antd": "^5.20.2",
     "bootstrap": "^5.3.2",

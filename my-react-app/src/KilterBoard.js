@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 
+const getImageUrl = (imageUrl) => `/react/img/${imageUrl}`;
+
 const KilterBoard = ({
   editEnabled = false,
   litUpHolds = "",
@@ -69,7 +71,7 @@ const KilterBoard = ({
             dimensions[imageUrl] = { width: image.width, height: image.height };
             resolve();
           };
-          image.src = imageUrl;
+          image.src = getImageUrl(imageUrl);
         });
       }
 
@@ -149,7 +151,7 @@ const KilterBoard = ({
       style={{ width: "100%", height: "100%" }}
     >
       {Object.keys(imagesToHolds).map((imageUrl) => (
-        <image key={imageUrl} href={imageUrl} width="100%" height="100%" />
+        <image key={imageUrl} href={getImageUrl(imageUrl)} width="100%" height="100%" />
       ))}
       {holdsData
         .filter((hold) => editEnabled || hold.state !== holdStates.OFF)
