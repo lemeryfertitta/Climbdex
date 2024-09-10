@@ -4,7 +4,7 @@ import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation } from "react-router-dom";
 import { fetchResults, fetchResultsCount } from "./api";
 import KilterBoardLoader from "../kilter-board/loader";
-import { boardLayouts } from "./board-data";
+import { boardLayouts } from "../kilter-board/board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
 
