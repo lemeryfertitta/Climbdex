@@ -195,5 +195,5 @@ def api_climbs(
         )
         return flask.jsonify(result)
     except Exception as e:
-        logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
+        logging.error(f"Error in api_climbs: {str(e)}", exc_info=True)
         return flask.jsonify({"error": str(e)}), 500
