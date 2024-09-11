@@ -55,23 +55,40 @@
               <div class="modal-body">
                 <form id="ratingForm">
                     <div class="mb-3 pt-3">
-                        <textarea class="form-control" id="comment" rows="1" placeholder="Name"></textarea>
+                        <textarea class="form-control" id="name" rows="1" placeholder="Name"></textarea>
                       </div>
                     <div class="mb-3 pt-3">
-                        <textarea class="form-control" id="comment" rows="3" placeholder="Description (optional)"></textarea>
+                        <textarea class="form-control" id="description" rows="3" placeholder="Description (optional)"></textarea>
                     </div>
                     <div class="btn-group mb-3 d-flex" role="group">
-                        <input class="btn-check" type="radio" name="attemptType" id="draft" value="draft" autocomplete="off"
+                        <input class="btn-check" type="radio" name="is_draft" id="draft" value="draft" autocomplete="off"
                           checked>
                         <label class="btn btn-outline-primary flex-fill" for="draft">Draft</label>
-                        <input class="btn-check" type="radio" name="attemptType" id="final" value="final" autocomplete="off">
+                        <input class="btn-check" type="radio" name="is_draft" id="final" value="final" autocomplete="off">
                         <label class="btn btn-outline-primary flex-fill" for="final">Final</label>
+
+                        <input class="btn-check" type="radio" name="is_matching" id="No matching" value="No matching" autocomplete="off"
+                          checked>
+                        <label class="btn btn-outline-primary flex-fill" for="No matching">No matching</label>
+
+                        <input class="btn-check" type="radio" name="is_matching" id="matching" value="matching" autocomplete="off">
+                        <label class="btn btn-outline-primary flex-fill" for="matching">Matching</label>
+
+                        <span class="input-group-text">Angle</span>
+                        <select class="form-select" id="select-angle" name="angle">
+                            <option value="-1" >None</option>
+                            {% for angle_option in angles %}
+                            <option value="{{ angle_option[0] }}">
+                            {{ angle_option[0] }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="button-log-ascent">Save</button>
+                <button type="button" class="btn btn-primary" id="button-save-climb">Save</button>
               </div>
               <div class="alter-settings alert alert-success" role="alert">
                 Boulder saved successfully!

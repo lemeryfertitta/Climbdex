@@ -154,3 +154,56 @@ def api_save_ascent(
     except Exception as e:
         logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
         return flask.jsonify({"error": str(e)}), 500
+
+@blueprint.route("/api/v2/climbs", methods=["POST"])
+@ValidateParameters(parameter_error)
+def api_climbs(
+    board: str = Json(),
+    layout_id: int = Json(),
+    name: str = Json(),
+    description: str = Json(),
+    is_draft: bool = Json(),
+    frames: str = Json(),
+    angle: int = Json(),
+):
+    if angle == -1:
+        angle = None
+
+    try:
+        login_cookie = flask.request.cookies.get(f"{board}_login")
+        if not login_cookie:
+            return flask.jsonify({"error": "Login required"}), 401
+
+        login_info = flask.json.loads(login_cookie)
+        token = login_info["token"]
+        setter_id = login_info["user_id"]
+        frames_count=1
+        frames_pace=0
+        # print(board)
+        # print(token)
+        # print(layout_id)
+        # print(setter_id)
+        # print(name)
+        # print(description)
+        # print(is_draft)
+        # print(frames)
+        # print(frames_count)
+        # print(frames_pace)
+        # print(angle)
+        result = boardlib.api.aurora.save_climb(
+            board=board,
+            token=token,
+            layout_id=layout_id,
+            setter_id=setter_id,
+            name=name,
+            description=description,
+            is_draft=is_draft,
+            frames=frames,
+            frames_count=frames_count,
+            frames_pace=frames_pace,
+            angle=angle,
+        )
+        return flask.jsonify(result)
+    except Exception as e:
+        logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
+        return flask.jsonify({"error": str(e)}), 500

@@ -101,6 +101,7 @@ def create():
         colors=colors,
         led_colors=get_led_colors(board_name, layout_id),
         placement_positions=placement_positions,
+        angles=climbdex.db.get_data(board_name, "angles", {"layout_id": layout_id}),
         **get_draw_board_kwargs(board_name, layout_id, size_id, set_ids),
     )
 

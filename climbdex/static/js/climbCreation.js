@@ -42,6 +42,69 @@ document
     illuminateClimb(board, bluetoothPacket);
   });
 
+document
+  .getElementById("button-save-climb")
+  .addEventListener("click", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const board = urlParams.get("board");
+    const layout_id = parseInt(urlParams.get("layout"));
+    const name = document.getElementById("name").value;
+    const is_matching = document.querySelector('input[name="is_matching"]:checked').id === "matching";
+    const hasDescription = document.getElementById("description").value != "";
+    const description = (is_matching ? "" : "No matching.") + (hasDescription ? " " : "") + document.getElementById("description").value;
+    const is_draft = document.querySelector('input[name="is_draft"]:checked').id === "draft";
+    const frames = getFrames();
+    const angle = parseInt(document.getElementById("select-angle").value);
+
+    const data = {
+      board: board,
+      layout_id: layout_id,
+      name: name,
+      description: description,
+      is_draft: is_draft,
+      frames: frames,
+      angle: angle,
+    };
+
+    console.log(data);
+
+    fetch("/api/v2/climbs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok " + response.statusText);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const successAlert = document.querySelector(".alert-success");
+        successAlert.style.display = "block";
+
+        setTimeout(() => {
+          successAlert.style.display = "none";
+          const setModal = document.getElementById("div-set-modal");
+          const modalInstance = bootstrap.Modal.getInstance(setModal);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
+        }, 3000);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        const errorAlert = document.querySelector(".alert-danger");
+        errorAlert.style.display = "block";
+
+        setTimeout(() => {
+          errorAlert.style.display = "none";
+        }, 3000);
+      });
+  });
+
 const backAnchor = document.getElementById("anchor-back");
 backAnchor.href = location.origin;
 if (document.referrer) {
