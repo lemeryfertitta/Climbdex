@@ -179,17 +179,7 @@ def api_climbs(
         setter_id = login_info["user_id"]
         frames_count=1
         frames_pace=0
-        # print(board)
-        # print(token)
-        # print(layout_id)
-        # print(setter_id)
-        # print(name)
-        # print(description)
-        # print(is_draft)
-        # print(frames)
-        # print(frames_count)
-        # print(frames_pace)
-        # print(angle)
+
         result = boardlib.api.aurora.save_climb(
             board=board,
             token=token,

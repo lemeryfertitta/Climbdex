@@ -66,8 +66,6 @@ document
       angle: angle,
     };
 
-    console.log(data);
-
     fetch("/api/v2/climbs", {
       method: "POST",
       headers: {
