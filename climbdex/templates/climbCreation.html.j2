@@ -13,6 +13,9 @@
             overflow: auto;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -33,14 +36,81 @@
                         </svg>
                     </button>
                 </div>
+                <div class="d-grid mt-3">
+                    <button class="btn btn-warning" type="button" id="button-reset-holds">Reset Holds</button>
+                </div>
+                {% if login_cookie %}
+                <div class="d-grid mt-3">
+                    <button id="button-set-climb" class="btn btn-primary position-relative" href="#" data-bs-toggle="modal" data-bs-target="#div-set-modal" type="button">
+                        Publish
+                    </button>
+                </div>
+                {% endif %}
+              </div>
             </div>
         </div>
         <div class="row justify-content-md-center mt-3">
             {% include 'footer.html.j2' %}
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
+
+        <!-- Set Climb Modal -->
+        <div class="modal fade" id="div-set-modal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Publish a boulder:</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form id="ratingForm">
+                    <div class="mb-3 pt-3">
+                        <textarea class="form-control" id="name" rows="1" placeholder="Name"></textarea>
+                      </div>
+                    <div class="mb-3 pt-3">
+                        <textarea class="form-control" id="description" rows="3" placeholder="Description (optional)"></textarea>
+                    </div>
+                    <div class="btn-group mb-3 d-flex" role="group">
+                        <input class="btn-check" type="radio" name="is_draft" id="draft" value="draft" autocomplete="off"
+                          checked>
+                        <label class="btn btn-outline-primary flex-fill" for="draft">Draft</label>
+                        <input class="btn-check" type="radio" name="is_draft" id="final" value="final" autocomplete="off">
+                        <label class="btn btn-outline-primary flex-fill" for="final">Final</label>
+                    </div>
+                    <div class="btn-group mb-3 d-flex" role="group">
+                        <input class="btn-check" type="radio" name="is_matching" id="No matching" value="No matching" autocomplete="off"
+                          checked>
+                        <label class="btn btn-outline-primary flex-fill" for="No matching">No matching</label>
+
+                        <input class="btn-check" type="radio" name="is_matching" id="matching" value="matching" autocomplete="off">
+                        <label class="btn btn-outline-primary flex-fill" for="matching">Matching</label>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Angle</span>
+                        <select class="form-select" id="select-angle" name="angle">
+                            <option value="-1" >None</option>
+                            {% for angle_option in angles %}
+                            <option value="{{ angle_option[0] }}">
+                            {{ angle_option[0] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="button-publish-climb">Publish</button>
+              </div>
+              <div class="alter-settings alert alert-success" role="alert">
+                Boulder published successfully!
+              </div>
+              <div class="alter-settings alert alert-danger" role="alert">
+                An error occurred, please try again later.
+              </div>
+            </div>
+          </div>
+        </div>
+
         <script src="{{url_for('static', filename='js/common.js')}}"></script>
         <script src="{{url_for('static', filename='js/bluetooth.js')}}"></script>
         <script src="{{url_for('static', filename='js/climbCreation.js')}}"></script>

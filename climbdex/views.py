@@ -88,6 +88,7 @@ def create():
     colors = climbdex.db.get_data(board_name, "colors", {"layout_id": layout_id})
     app_url = boardlib.api.aurora.WEB_HOSTS[board_name]
     placement_positions = get_placement_positions(board_name, layout_id, size_id)
+    login_cookie = flask.request.cookies.get(f"{board_name}_login")
     return flask.render_template(
         "climbCreation.html.j2",
         app_url=app_url,
@@ -101,6 +102,8 @@ def create():
         colors=colors,
         led_colors=get_led_colors(board_name, layout_id),
         placement_positions=placement_positions,
+        angles=climbdex.db.get_data(board_name, "angles", {"layout_id": layout_id}),
+        login_cookie=login_cookie,
         **get_draw_board_kwargs(board_name, layout_id, size_id, set_ids),
     )
 
