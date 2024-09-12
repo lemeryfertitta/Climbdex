@@ -27,6 +27,21 @@ function getFrames() {
   return frames.join("");
 }
 
+function resetHolds() {
+  const circles = document.getElementsByTagNameNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  for (const circle of circles) {
+    circle.setAttribute("stroke-opacity", 0.0);
+    circle.setAttribute("stroke", "black");
+  }
+}
+
+document
+  .getElementById("button-reset-holds")
+  .addEventListener("click", resetHolds);
+
 document
   .getElementById("button-illuminate")
   .addEventListener("click", function () {
