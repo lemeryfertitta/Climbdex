@@ -40,7 +40,7 @@
                 <div class="d-grid mt-3">
                     {% if login_cookie %}
                     <button id="button-set-climb" class="btn btn-primary position-relative" href="#" data-bs-toggle="modal" data-bs-target="#div-set-modal" type="button">
-                        +
+                        Publish
                     </button>
                     {% endif %}
                 </div>
@@ -96,10 +96,10 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="button-save-climb">Save</button>
+                <button type="button" class="btn btn-primary" id="button-publish-climb">Publish</button>
               </div>
               <div class="alter-settings alert alert-success" role="alert">
-                Boulder saved successfully!
+                Boulder published successfully!
               </div>
               <div class="alter-settings alert alert-danger" role="alert">
                 An error occurred, please try again later.
@@ -120,11 +120,11 @@
                     document.getElementById('No matching').checked = true;
                     document.getElementById('matching').checked = false;
                     document.getElementById("select-angle").value = -1;
-                    document.getElementById('button-save-climb').disabled = false;
+                    document.getElementById('button-publish-climb').disabled = false;
                 });
             });
 
-            document.getElementById('button-save-climb').addEventListener('click', function () {
+            document.getElementById('button-publish-climb').addEventListener('click', function () {
                 this.disabled = true; // Disable the button to prevent multiple submissions
             });
         </script>

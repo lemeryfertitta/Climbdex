@@ -43,7 +43,7 @@ document
   });
 
 document
-  .getElementById("button-save-climb")
+  .getElementById("button-publish-climb")
   .addEventListener("click", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const board = urlParams.get("board");
