@@ -189,8 +189,8 @@ def api_climbs(
             description=description,
             is_draft=is_draft,
             frames=frames,
-            frames_count=frames_count,
-            frames_pace=frames_pace,
+            ,
+            ,
             angle=angle,
         )
         return flask.jsonify(result)
