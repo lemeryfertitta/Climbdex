@@ -177,8 +177,6 @@ def api_climbs(
         login_info = flask.json.loads(login_cookie)
         token = login_info["token"]
         setter_id = login_info["user_id"]
-        frames_count=1
-        frames_pace=0
 
         result = boardlib.api.aurora.save_climb(
             board=board,
@@ -189,8 +187,8 @@ def api_climbs(
             description=description,
             is_draft=is_draft,
             frames=frames,
-            ,
-            ,
+            frames_count=1,
+            frames_pace=0,
             angle=angle,
         )
         return flask.jsonify(result)
