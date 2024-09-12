@@ -66,7 +66,7 @@ document
       angle: angle,
     };
 
-    fetch("/api/v2/climbs", {
+    fetch("/api/v1/climbs", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

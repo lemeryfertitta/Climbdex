@@ -155,7 +155,7 @@ def api_save_ascent(
         logging.error(f"Error in save_ascent: {str(e)}", exc_info=True)
         return flask.jsonify({"error": str(e)}), 500
 
-@blueprint.route("/api/v2/climbs", methods=["POST"])
+@blueprint.route("/api/v1/climbs", methods=["POST"])
 @ValidateParameters(parameter_error)
 def api_climbs(
     board: str = Json(),
