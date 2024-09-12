@@ -38,6 +38,25 @@ function resetHolds() {
   }
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+  // Reset log modal on show
+  const setModal = document.getElementById('div-set-modal');
+  setModal.addEventListener('show.bs.modal', function () {
+    document.getElementById('name').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('draft').checked = true;
+    document.getElementById('final').checked = false;
+    document.getElementById('No matching').checked = true;
+    document.getElementById('matching').checked = false;
+    document.getElementById("select-angle").value = -1;
+    document.getElementById('button-publish-climb').disabled = false;
+  });
+});
+
+document.getElementById('button-publish-climb').addEventListener('click', function () {
+  this.disabled = true; // Disable the button to prevent multiple submissions
+});
+
 document
   .getElementById("button-reset-holds")
   .addEventListener("click", resetHolds);
