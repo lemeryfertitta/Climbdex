@@ -9,6 +9,7 @@ const PeerProvider = ({ children }) => {
   const [connections, setConnections] = useState([]);
   const [receivedData, setReceivedData] = useState([]);
   const [peerId, setPeerId] = useState(null);
+  const [readyToConnect, setReadyToConnect] = useState(false);
 
   useEffect(() => {
     if (!peerInstance) {
@@ -18,6 +19,7 @@ const PeerProvider = ({ children }) => {
         console.log("My peer ID is:", id);
         // Handle peer connections here
         setPeerId(id);
+        setReadyToConnect(true);
       });
 
       p.on("connection", (newConn) => {
@@ -25,7 +27,7 @@ const PeerProvider = ({ children }) => {
 
         newConn.on("data", (data) => {
           console.log("Received data:", data);
-          setReceivedData((prevData) => [...prevData, data]); // Store received data in an array
+          setReceivedData(data); // Store received data in an array
         });
 
         setConnections((prevConnections) => [...prevConnections, newConn]);
@@ -44,6 +46,7 @@ const PeerProvider = ({ children }) => {
   }, []);
 
   const sendData = (data, connectionId = null) => {
+    console.log(`Sending `, data)
     if (connectionId) {
       const connection = connections.find((conn) => conn.peer === connectionId);
       if (connection) {
@@ -61,7 +64,7 @@ const PeerProvider = ({ children }) => {
     const newConn = peer.connect(connectionId);
     newConn.on("data", (data) => {
       console.log("Received data:", data);
-      setReceivedData((prevData) => [...prevData, data]); // Store received data in an array
+      setReceivedData(data); // Store received data in an array
     });
 
     setConnections((prevConnections) => [...prevConnections, newConn]);
@@ -69,7 +72,7 @@ const PeerProvider = ({ children }) => {
 
   window.connections = connections;
   return (
-    <PeerContext.Provider value={{ peer, connections, peerId, receivedData, sendData, connectToPeer }}>
+    <PeerContext.Provider value={{ readyToConnect, receivedData, sendData, connectToPeer }}>
       {children}
     </PeerContext.Provider>
   );

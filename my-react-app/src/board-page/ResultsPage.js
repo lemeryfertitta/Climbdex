@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { PeerContext } from "../PeerProvider";
 import { SearchOutlined, LeftOutlined, RightOutlined, BulbOutlined, InstagramOutlined } from "@ant-design/icons";
 import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { fetchResults, fetchResultsCount } from "./api";
 import KilterBoardLoader from "../kilter-board/loader";
 import { boardLayouts } from "../kilter-board/board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
 import { PAGE_LIMIT } from "./constants";
-
+ 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
-
-
 
 const ResultsPage = () => {
   const { board, layout, size } = useParams();
   const location = useLocation();
   const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId == size) || [])[3] || "";
-  
+
   const [queryParameters, setQueryParameters] = useState({
     minGrade: 10,
     maxGrade: 33,
@@ -38,10 +37,42 @@ const ResultsPage = () => {
 
   const [results, setResults] = useState([]);
   const [resultsCount, setResultsCount] = useState(0);
-  const [currentClimb, setCurrentClimb] = useState(null);
+  const [currentClimb, setCurrentClimbState] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const setCurrentClimb = (newClimb) => {
+    setCurrentClimbState(newClimb);
+    sendData({
+      type: "set-current-climb",
+      data: newClimb,
+    });
+  }
+
+  const { readyToConnect, receivedData, sendData, connectToPeer } = useContext(PeerContext);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (receivedData) {
+      console.log("New data received:", receivedData);
+      if (receivedData.type === "set-current-climb") {
+        setCurrentClimbState(receivedData.data);
+      }
+      // Handle the received data
+    }
+  }, [receivedData]); // Effect runs whenever receivedData changes
+
+  const handleSendMessage = () => {
+    sendData({ message });
+  };
+
+  useEffect(() => {
+    if (readyToConnect && searchParams && searchParams.get("hostId")) {
+      connectToPeer(searchParams.get("hostId"));
+    }
+  }, [searchParams, readyToConnect]); // Effect runs whenever receivedData changes
 
   useEffect(() => {
     const handleResize = () => {
@@ -124,7 +155,6 @@ const ResultsPage = () => {
     fetchData();
   }, [location.search, board, layout, size, queryParameters, pageNumber]);
 
-
   const handleClimbClick = (climb) => {
     setCurrentClimb(climb);
     closeDrawer();
@@ -139,8 +169,8 @@ const ResultsPage = () => {
 
   const navigateClimbsRight = () => {
     const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
-    
-    if (currentIndex > (results.length - 10)) {
+
+    if (currentIndex > results.length - 10) {
       setPageNumber(pageNumber + 1);
     }
     if (currentIndex < results.length - 1) {
