@@ -122,7 +122,6 @@ const FilterDrawer = ({
     const fetchClimbCount = async () => {
       try {
         const data = await fetchResultsCount(0, PAGE_LIMIT, currentSearchValues, { board, layout, size, set_ids });
-        console.log(data);
         setResultsCount(data);
       } catch (error) {
         console.error("Error fetching climb count:", error);
