@@ -1,24 +1,20 @@
 import React, { useState } from "react";
-import { ShareAltOutlined } from "@ant-design/icons";
+import { ShareAltOutlined, CopyOutlined } from "@ant-design/icons";
 import { useLocation, useHref } from "react-router-dom";
-import { Button, Input, Modal, QRCode } from "antd";
+import { Button, Input, Modal, QRCode, Flex, message } from "antd";
 
 const getShareUrl = (peerId) => {
   const location = useLocation();
 
-  // Use useHref to generate a URL that respects the basename
   const params = new URLSearchParams(location.search);
-
-  // Add or update the hostId query parameter
   params.set("hostId", peerId);
 
-  // Use useHref to generate the correct URL with the basename
   const newUrl = useHref({
     pathname: location.pathname,
     search: `?${params.toString()}`,
   });
 
-  return `${window.location.origin}${newUrl}`; // Generate the full absolute URL
+  return `${window.location.origin}${newUrl}`;
 };
 
 export const ShareBoardButton = ({ peerId, hostId }) => {
@@ -32,25 +28,50 @@ export const ShareBoardButton = ({ peerId, hostId }) => {
     setIsModalOpen(false);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-  // If hostId is defined, the current connection is connected to a host.
-  // If its not defined we use the current peerId which others can use to make the current session a host.
   const shareUrl = getShareUrl(hostId || peerId);
+
+  const copyToClipboard = () => {
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => {
+        message.success("Share URL copied to clipboard!");
+        handleOk();
+      })
+      .catch(() => {
+        message.error("Failed to copy URL.");
+      });
+  };
 
   return (
     <>
       <Button type="default" onClick={showModal} icon={<ShareAltOutlined />} />
-      <Modal title="Share Session" style={{ top: 20 }} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        {/* Display the shareable URL */}
-        <Input value={shareUrl} readOnly />
-
-        {/* Center and adjust the QR code size */}
-        <div style={{ marginTop: 20, textAlign: "center" }}>
-          {/* Increase QR code size to 200px */}
-          <QRCode value={shareUrl} size={200} />
-        </div>
+      <Modal
+        title="Share Session"
+        style={{ top: 20 }}
+        footer={[
+          <Button type="primary" key="share-modal-ok" onClick={handleOk}>
+            Ok
+          </Button>,
+        ]}
+        open={isModalOpen}
+        onOk={handleOk}
+      >
+        <Flex gap="middle" align="start" vertical>
+          <Flex style={{ width: "100%" }} justify="center" align="center">
+            <Input
+              width="100%"
+              value={shareUrl}
+              readOnly
+              addonAfter={
+                <Button icon={<CopyOutlined />} onClick={copyToClipboard} />
+              }
+            />
+          </Flex>
+          <Flex justify="center" align="center">
+            {/* Increase QR code size to 200px */}
+            <QRCode value={shareUrl} size={200} bordered={false} />
+          </Flex>
+        </Flex>
       </Modal>
     </>
   );
