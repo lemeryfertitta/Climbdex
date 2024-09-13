@@ -84,8 +84,6 @@ const ClimbSession = ({ boardName, setBoardName, onLoginButtonClick }) => {
     event.preventDefault();
   };
 
-  debugger;
-  console.log(peer);
   return (
     <div className="card p-3 bg-light">
       <KilterBoard editEnabled={true} />

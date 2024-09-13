@@ -1,3 +1,5 @@
+# TODO: SQL INJECTION!!!
+
 from flask_parameter_validation import ValidateParameters, Query
 from werkzeug.exceptions import HTTPException
 
@@ -101,6 +103,8 @@ def search(
     minRating: float = Query(),
     size: int = Query(),
 ):
+    # TODO: When filtering on angle any, don't return climbs twice at different angles.
+    # Best way would probably to aggregate by angle uuid, and then getting the max of quality fields
     return flask.jsonify(climbdex.db.get_search_results(flask.request.args))
 
 
