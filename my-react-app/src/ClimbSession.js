@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { PeerContext } from "./PeerProvider";
+import { PeerContext } from "./connection-manager/PeerProvider";
 import KilterBoard from "./kilter-board";
 const headers = new Headers({ "ngrok-skip-browser-warning": "true" });
 

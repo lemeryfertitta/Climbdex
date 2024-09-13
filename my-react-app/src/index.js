@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import { App as DSApp } from "antd";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import PeerProvider from "./PeerProvider";
+import PeerProvider from "./connection-manager/PeerProvider";
 import ResultsPage from "./board-page/ResultsPage";
 
 const router = createBrowserRouter(

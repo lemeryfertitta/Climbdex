@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { PeerContext } from "../PeerProvider";
+import { PeerContext } from "../connection-manager/PeerProvider";
 import { SearchOutlined, LeftOutlined, RightOutlined, BulbOutlined, InstagramOutlined } from "@ant-design/icons";
 import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation, useSearchParams } from "react-router-dom";

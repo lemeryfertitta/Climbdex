@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Form, Select, Input, Button, Row, Col, Typography } from "antd";
-import { PeerContext } from "./PeerProvider";
+import { PeerContext } from "./connection-manager/PeerProvider";
 import { Link } from "react-router-dom";
 import { defaultLayouts, boardLayouts } from "./kilter-board/board-data";
 
