@@ -7,19 +7,23 @@ import KilterBoardLoader from "../kilter-board/loader";
 import { boardLayouts } from "../kilter-board/board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
+import { PAGE_LIMIT } from "./constants";
 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
+
+
 const ResultsPage = () => {
   const { board, layout, size } = useParams();
   const location = useLocation();
-
+  const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId == size) || [])[3] || "";
+  
   const [queryParameters, setQueryParameters] = useState({
     minGrade: 10,
     maxGrade: 33,
     name: "",
-    angle: "any",
+    angle: 40,
     minAscents: 1,
     sortBy: "ascents",
     sortOrder: "desc",
@@ -35,11 +39,13 @@ const ResultsPage = () => {
   const [results, setResults] = useState([]);
   const [resultsCount, setResultsCount] = useState(0);
   const [currentClimb, setCurrentClimb] = useState(null);
+  const [pageNumber, setPageNumber] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     const handleResize = () => {
+      //TODO: Use media queries
       setViewportWidth(window.innerWidth);
     };
 
@@ -51,6 +57,7 @@ const ResultsPage = () => {
   }, []);
 
   const getResponsiveStyles = () => {
+    // TODO: Just use media queries instead
     if (viewportWidth > 1200) {
       return {
         titleSize: "24px",
@@ -83,22 +90,15 @@ const ResultsPage = () => {
   };
 
   const applyFilters = (filters) => {
+    setPageNumber(0);
     setQueryParameters(filters);
   };
 
   useEffect(() => {
-    const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId == size) || [])[3] || "";
-
     const fetchData = async () => {
       try {
-        const [count, fetchedResults] = await Promise.all([
-          fetchResultsCount(0, 10, queryParameters, {
-            board,
-            layout,
-            size,
-            set_ids,
-          }),
-          fetchResults(0, 10, queryParameters, {
+        const [fetchedResults] = await Promise.all([
+          fetchResults(pageNumber, PAGE_LIMIT, queryParameters, {
             board,
             layout,
             size,
@@ -106,8 +106,13 @@ const ResultsPage = () => {
           }),
         ]);
 
-        setResultsCount(count);
-        setResults(fetchedResults);
+        // Append results if pageNumber increases, otherwise reset results
+        if (pageNumber > 0) {
+          setResults((prevResults) => [...prevResults, ...fetchedResults]);
+        } else {
+          setResults(fetchedResults);
+        }
+
         if (!currentClimb && fetchedResults.length > 0) {
           setCurrentClimb(fetchedResults[0]);
         }
@@ -117,7 +122,8 @@ const ResultsPage = () => {
     };
 
     fetchData();
-  }, [location.search, board, layout, size, queryParameters]);
+  }, [location.search, board, layout, size, queryParameters, pageNumber]);
+
 
   const handleClimbClick = (climb) => {
     setCurrentClimb(climb);
@@ -133,6 +139,10 @@ const ResultsPage = () => {
 
   const navigateClimbsRight = () => {
     const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
+    
+    if (currentIndex > (results.length - 10)) {
+      setPageNumber(pageNumber + 1);
+    }
     if (currentIndex < results.length - 1) {
       setCurrentClimb(results[currentIndex + 1]);
     }
@@ -266,14 +276,15 @@ const ResultsPage = () => {
       <FilterDrawer
         currentClimb={currentClimb}
         handleClimbClick={handleClimbClick}
-        boardName={board}
+        board={board}
         layout={layout}
-        climbCount={resultsCount}
         climbs={results}
         currentSearchValues={queryParameters}
         open={drawerOpen}
         onClose={closeDrawer}
         onApplyFilters={applyFilters}
+        size={size}
+        set_ids={set_ids}
       />
     </Layout>
   );

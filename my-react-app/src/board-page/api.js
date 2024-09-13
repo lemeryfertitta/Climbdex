@@ -1,4 +1,6 @@
 // api.js
+// 
+
 const headers = new Headers({ "ngrok-skip-browser-warning": "true" });
 export const fetchResultsCount = async (pageNumber, pageSize, queryParameters, routeParameters) => {
   const urlParams = new URLSearchParams({
