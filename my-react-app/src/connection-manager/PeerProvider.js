@@ -62,6 +62,7 @@ const PeerProvider = ({ children }) => {
 
   const connectToPeer = (connectionId) => {
     const newConn = peer.connect(connectionId);
+
     newConn.on("data", (data) => {
       console.log("Received data:", data);
       setReceivedData(data); // Store received data in an array
@@ -72,7 +73,7 @@ const PeerProvider = ({ children }) => {
 
   window.connections = connections;
   return (
-    <PeerContext.Provider value={{ readyToConnect, receivedData, sendData, connectToPeer }}>
+    <PeerContext.Provider value={{ readyToConnect, receivedData, sendData, connectToPeer, peerId }}>
       {children}
     </PeerContext.Provider>
   );

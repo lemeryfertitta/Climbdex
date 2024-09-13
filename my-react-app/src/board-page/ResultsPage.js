@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
 import { PeerContext } from "../connection-manager/PeerProvider";
-import { SearchOutlined, LeftOutlined, RightOutlined, BulbOutlined, InstagramOutlined } from "@ant-design/icons";
+import {
+  ShareAltOutlined,
+  SearchOutlined,
+  LeftOutlined,
+  RightOutlined,
+  BulbOutlined,
+  InstagramOutlined,
+} from "@ant-design/icons";
 import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { fetchResults, fetchResultsCount } from "./api";
@@ -9,6 +16,7 @@ import { boardLayouts } from "../kilter-board/board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
 import { PAGE_LIMIT } from "./constants";
+import { ShareBoardButton } from "./share-button";
  
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
@@ -41,7 +49,9 @@ const ResultsPage = () => {
   const [pageNumber, setPageNumber] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [hostId, setHostId] = useState(null);
+  const [searchParams] = useSearchParams();
+  
 
   const setCurrentClimb = (newClimb) => {
     setCurrentClimbState(newClimb);
@@ -51,8 +61,7 @@ const ResultsPage = () => {
     });
   }
 
-  const { readyToConnect, receivedData, sendData, connectToPeer } = useContext(PeerContext);
-  const [message, setMessage] = useState("");
+  const { readyToConnect, receivedData, sendData, connectToPeer, peerId } = useContext(PeerContext);
 
   useEffect(() => {
     if (receivedData) {
@@ -64,15 +73,17 @@ const ResultsPage = () => {
     }
   }, [receivedData]); // Effect runs whenever receivedData changes
 
-  const handleSendMessage = () => {
-    sendData({ message });
-  };
-
   useEffect(() => {
-    if (readyToConnect && searchParams && searchParams.get("hostId")) {
-      connectToPeer(searchParams.get("hostId"));
+    if (searchParams && searchParams.get("hostId")) {
+      setHostId(searchParams.get("hostId"));
     }
-  }, [searchParams, readyToConnect]); // Effect runs whenever receivedData changes
+  }, [searchParams]); // Effect runs whenever receivedData changes
+  
+  useEffect(() => {
+    if (readyToConnect && hostId) {
+      connectToPeer(hostId);
+    }
+  }, [hostId, readyToConnect]); // Effect runs whenever receivedData changes
 
   useEffect(() => {
     const handleResize = () => {
@@ -275,6 +286,7 @@ const ResultsPage = () => {
                 </Col>
                 <Col>
                   <Space>
+                    <ShareBoardButton peerId={peerId} hostId={hostId} />
                     <Badge count={10} offset={[-5, 5]}>
                       <Button
                         id="anchor-beta"
