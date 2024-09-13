@@ -7,7 +7,7 @@ import { defaultLayouts, boardLayouts } from "./kilter-board/board-data";
 const { Option } = Select;
 const { Title } = Typography;
 
-const BoardForm = ({ setBoardName }) => {
+const BoardForm = () => {
   const [layouts, setLayouts] = useState(defaultLayouts);
   const [sets, setSets] = useState([]);
 
@@ -25,7 +25,7 @@ const BoardForm = ({ setBoardName }) => {
     setSizes(boardLayouts[value]);
   };
 
-  const { peer, peerId, receivedData, sendData, connectToPeer } = useContext(PeerContext);
+  const { peerId, receivedData, sendData, connectToPeer } = useContext(PeerContext);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -37,18 +37,6 @@ const BoardForm = ({ setBoardName }) => {
 
   const handleSendMessage = () => {
     sendData({ message });
-  };
-
-  const onConnectButtonClick = (event) => {
-    const connId = document.querySelector("#todo-remove-id").value;
-    connectToPeer(connId);
-    event.preventDefault();
-  };
-
-  const onStartSessionClick = (event) => {
-    const connId = document.querySelector("#todo-remove-id").value;
-    connectToPeer(connId);
-    event.preventDefault();
   };
 
   return (
@@ -91,7 +79,7 @@ const BoardForm = ({ setBoardName }) => {
 
         <Row gutter={16}>
           <Col span={12}>
-            <Button type="primary" block onClick={onConnectButtonClick}>
+            <Button type="primary" block>
               Join a session
             </Button>
           </Col>

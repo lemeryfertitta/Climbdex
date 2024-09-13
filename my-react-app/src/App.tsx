@@ -18,7 +18,7 @@ const App = () => {
     <div className="container-sm text-center">
       <div className="row justify-content-md-center">
         <div className="col-md-5">
-          <BoardForm boardName={boardName} setBoardName={setBoardName} onLoginButtonClick={handleLoginButtonClick} />
+          <BoardForm />
         </div>
       </div>
       <div className="row justify-content-md-center mt-3">

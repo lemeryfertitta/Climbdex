@@ -1,19 +1,32 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { ImagesToHolds, HoldTuple } from "../rest-api/types";
 
 const getImageUrl = (imageUrl) => `/react/img/${imageUrl}`;
 
+type KilterBoardProps = {
+  editEnabled: boolean;
+  litUpHolds: string;
+  imagesToHolds: ImagesToHolds;
+  edgeLeft: number;
+  edgeRight: number;
+  edgeBottom: number;
+  edgeTop: number;
+  onCircleClick: () => void;
+};
+
+type HoldsArray = Array<{ id: number; mirroredHoldId: number | null; cx: number; cy: number; r: number; state: string }>
 const KilterBoard = ({
   editEnabled = false,
   litUpHolds = "",
-  imagesToHolds = defaultImagesToHolds,
+  imagesToHolds,
   edgeLeft = 24,
   edgeRight = 120,
   edgeBottom = 0,
   edgeTop = 156,
   onCircleClick = undefined,
-}) => {
-  const [imageDimensions, setImageDimensions] = useState({});
-  const [holdsData, setHoldsData] = useState([]);
+}: KilterBoardProps) => {
+  const [imageDimensions, setImageDimensions] = useState<Record<string, { width: number; height: number }>>({});
+  const [holdsData, setHoldsData] = useState<HoldsArray>([]);
 
   const holdStates = {
     OFF: "OFF",
@@ -62,14 +75,14 @@ const KilterBoard = ({
 
   useEffect(() => {
     const loadImages = async () => {
-      const dimensions = {};
+      const dimensions: Record<string, { width: number; height: number }> = {};
 
       for (const imageUrl of Object.keys(imagesToHolds)) {
         const image = new Image();
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           image.onload = () => {
             dimensions[imageUrl] = { width: image.width, height: image.height };
-            resolve();
+            resolve(); // This is now correct, since Promise<void> expects no arguments
           };
           image.src = getImageUrl(imageUrl);
         });
@@ -85,7 +98,7 @@ const KilterBoard = ({
     if (Object.keys(imageDimensions).length > 0) {
       const newHoldsData = [];
 
-      for (const [imageUrl, holds] of Object.entries(imagesToHolds)) {
+      for (const [imageUrl, holds] of Object.entries<HoldTuple[]>(imagesToHolds)) {
         const { width, height } = imageDimensions[imageUrl];
         const xSpacing = width / (edgeRight - edgeLeft);
         const ySpacing = height / (edgeTop - edgeBottom);
@@ -141,8 +154,10 @@ const KilterBoard = ({
     }
   };
 
-  const viewBoxWidth = Object.values(imageDimensions)[0]?.width || 0;
-  const viewBoxHeight = Object.values(imageDimensions)[0]?.height || 0;
+  const firstImageDimensions = Object.values(imageDimensions)[0] as { width: number; height: number } | undefined;
+
+  const viewBoxWidth = firstImageDimensions?.width || 0;
+  const viewBoxHeight = firstImageDimensions?.height || 0;
   
   return (
     <svg

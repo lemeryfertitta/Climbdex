@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import KilterBoard from "./KilterBoard";
-import { fetchBoardDetails } from "../board-page/api";
+import { fetchBoardDetails } from "../rest-api/api";
 import { boardLayouts } from "./board-data";
 
 // TODO: Unhardcode set_ids
-const KilterBoardLoader = ({ litUpHolds }) => {
+const KilterBoardLoader = (props) => {
   const { board, layout, size } = useParams();
 
   // Memoize the set_ids to prevent unnecessary re-renders
@@ -18,6 +18,7 @@ const KilterBoardLoader = ({ litUpHolds }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('wtf')
     fetchBoardDetails(board, layout, size, set_ids)
       .then((data) => {
         setBoardDetails(data);
@@ -44,7 +45,7 @@ const KilterBoardLoader = ({ litUpHolds }) => {
       edgeRight={boardDetails.edge_right}
       edgeBottom={boardDetails.edge_bottom}
       edgeTop={boardDetails.edge_top}
-      litUpHolds={litUpHolds}
+      {...props}
     />
   );
 };

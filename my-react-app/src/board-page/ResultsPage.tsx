@@ -10,13 +10,14 @@ import {
 } from "@ant-design/icons";
 import { Button, Badge, Typography, Space, Layout, Row, Col } from "antd";
 import { useParams, useLocation, useSearchParams } from "react-router-dom";
-import { fetchResults, fetchResultsCount } from "./api";
+import { fetchResults, fetchResultsCount } from "../rest-api/api";
 import KilterBoardLoader from "../kilter-board/loader";
 import { boardLayouts } from "../kilter-board/board-data";
 import FilterDrawer from "./FilterDrawer";
 import { useSwipeable } from "react-swipeable";
 import { PAGE_LIMIT } from "./constants";
 import { ShareBoardButton } from "./share-button";
+import { BoulderProblem, SearchRequest } from "../rest-api/types";
  
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
@@ -26,7 +27,7 @@ const ResultsPage = () => {
   const location = useLocation();
   const set_ids = (boardLayouts[layout].find(([sizeId]) => sizeId == size) || [])[3] || "";
 
-  const [queryParameters, setQueryParameters] = useState({
+  const [queryParameters, setQueryParameters] = useState<Partial<SearchRequest>>({
     minGrade: 10,
     maxGrade: 33,
     name: "",
@@ -35,7 +36,7 @@ const ResultsPage = () => {
     sortBy: "ascents",
     sortOrder: "desc",
     minRating: 1.0,
-    onlyClassics: 0,
+    onlyClassics: false,
     gradeAccuracy: 1,
     settername: "",
     setternameSuggestion: "",
@@ -45,7 +46,7 @@ const ResultsPage = () => {
 
   const [results, setResults] = useState([]);
   const [resultsCount, setResultsCount] = useState(0);
-  const [currentClimb, setCurrentClimbState] = useState(null);
+  const [currentClimb, setCurrentClimbState] = useState<BoulderProblem>();
   const [pageNumber, setPageNumber] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
@@ -66,7 +67,7 @@ const ResultsPage = () => {
   useEffect(() => {
     if (receivedData) {
       console.log("New data received:", receivedData);
-      if (receivedData.type === "set-current-climb") {
+      if (receivedData && receivedData.type && receivedData.type === "set-current-climb") {
         setCurrentClimbState(receivedData.data);
       }
       // Handle the received data
@@ -137,6 +138,7 @@ const ResultsPage = () => {
   };
 
   useEffect(() => {
+    console.log('wtf2')
     const fetchData = async () => {
       try {
         const [fetchedResults] = await Promise.all([
@@ -172,6 +174,9 @@ const ResultsPage = () => {
   };
 
   const navigateClimbsLeft = () => {
+    if (!currentClimb) {
+      return;
+    }
     const currentIndex = results.findIndex((climb) => climb.uuid === currentClimb.uuid);
     if (currentIndex > 0) {
       setCurrentClimb(results[currentIndex - 1]);
@@ -210,7 +215,6 @@ const ResultsPage = () => {
   const handlers = useSwipeable({
     onSwipedLeft: () => navigateClimbsRight(),
     onSwipedRight: () => navigateClimbsLeft(),
-    preventDefaultTouchmoveEvent: true,
     trackMouse: true, // optional, enables mouse swipe events
   });
 
@@ -312,7 +316,7 @@ const ResultsPage = () => {
             backgroundColor: "#FFF",
           }}
         >
-          {currentClimb ? <KilterBoardLoader litUpHolds={currentClimb.holds} /> : <Text>No climb selected</Text>}
+          <KilterBoardLoader litUpHolds={currentClimb ? currentClimb.holds : null} />
         </Content>
       </Layout>
       <FilterDrawer

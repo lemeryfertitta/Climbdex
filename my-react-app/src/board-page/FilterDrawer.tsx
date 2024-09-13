@@ -17,8 +17,9 @@ import {
   Typography,
 } from "antd";
 
-import { fetchAngles, fetchGrades, fetchResultsCount } from "./api";
+import { fetchAngles, fetchGrades, fetchResultsCount } from "../rest-api/api";
 import { PAGE_LIMIT } from "./constants";
+import { BoulderProblem } from "../rest-api/types";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -54,8 +55,8 @@ const FilterDrawer = ({
   const [settername, setsettername] = useState("");
   const [roleMatch, setRoleMatch] = useState("strict");
   const [loading, setLoading] = useState(true);
-  const [fetchedGrades, setFetchedGrades] = useState(false);
-  const [fetchedAngles, setFetchedAngles] = useState(false);
+  const [fetchedGrades, setFetchedGrades] = useState(null);
+  const [fetchedAngles, setFetchedAngles] = useState(null);
   const [angles, setAngles] = useState([]);
   const [resultsCount, setResultsCount] = useState(9999);
 
@@ -369,7 +370,7 @@ const FilterDrawer = ({
       <List
         itemLayout="vertical"
         dataSource={climbs}
-        renderItem={(climb) => (
+        renderItem={(climb: BoulderProblem) => (
           <List.Item
             key={climb.uuid}
             onClick={() => handleClimbClick(climb)}
