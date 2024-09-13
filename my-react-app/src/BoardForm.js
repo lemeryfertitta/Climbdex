@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
-// import KilterBoard from "./KilterBoard";
+import { Form, Select, Input, Button, Row, Col, Typography } from "antd";
 import { PeerContext } from "./PeerProvider";
 import { Link } from "react-router-dom";
 import { defaultLayouts, boardLayouts } from "./kilter-board/board-data";
-const headers = new Headers({ "ngrok-skip-browser-warning": "true" });
+
+const { Option } = Select;
+const { Title } = Typography;
 
 const BoardForm = ({ setBoardName }) => {
   const [layouts, setLayouts] = useState(defaultLayouts);
@@ -14,12 +16,13 @@ const BoardForm = ({ setBoardName }) => {
   const [selectedSize, setSelectedSize] = useState(17);
   const [sizes, setSizes] = useState(boardLayouts[selectedLayout] || []);
 
-  const handleBoardChange = (e) => {
-    setSelectedBoard(e.target.value);
+  const handleBoardChange = (value) => {
+    setSelectedBoard(value);
   };
-  const onLayoutChange = (e) => {
-    setSelectedLayout(e.target.value);
-    setSizes(boardLayouts[e.target.value]);
+
+  const onLayoutChange = (value) => {
+    setSelectedLayout(value);
+    setSizes(boardLayouts[value]);
   };
 
   const { peer, peerId, receivedData, sendData, connectToPeer } = useContext(PeerContext);
@@ -30,7 +33,7 @@ const BoardForm = ({ setBoardName }) => {
       console.log("New data received:", receivedData);
       // Handle the received data
     }
-  }, [receivedData]); // Effect runs whenever receivedData changes
+  }, [receivedData]);
 
   const handleSendMessage = () => {
     sendData({ message });
@@ -39,103 +42,71 @@ const BoardForm = ({ setBoardName }) => {
   const onConnectButtonClick = (event) => {
     const connId = document.querySelector("#todo-remove-id").value;
     connectToPeer(connId);
-    //TODO: Don't connect here, go to the climb view connect there
     event.preventDefault();
   };
 
   const onStartSessionClick = (event) => {
-    // selectedLayout, selectedSize
     const connId = document.querySelector("#todo-remove-id").value;
     connectToPeer(connId);
-    //TODO: Don't connect here, go to the climb view connect there
     event.preventDefault();
   };
 
   return (
-    <div className="card p-3 bg-light">
-      <div className="input-group mb-3">
-        <span className="input-group-text">Board</span>
-        <select
-          className="form-select"
-          id="select-board"
-          name="board"
-          value={selectedBoard}
-          onChange={handleBoardChange}
-        >
-          <option value="decoy">Decoy</option>
-          <option value="grasshopper">Grasshopper</option>
-          <option value="kilter">Kilter</option>
-          <option value="tension">Tension</option>
-          <option value="touchstone">Touchstone</option>
-        </select>
-      </div>
-      <div className="input-group mb-3">
-        <span className="input-group-text">Layout</span>
-        <select
-          className="form-select"
-          id="select-layout"
-          name="layout"
-          value={selectedLayout}
-          onChange={onLayoutChange}
-        >
-          {(layouts || []).map(([layoutId, layoutName]) => (
-            <option key={layoutId} value={layoutId}>
-              {layoutName}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="input-group mb-3">
-        <span className="input-group-text">Size</span>
-        <select
-          className="form-select"
-          id="select-size"
-          name="size"
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-        >
-          {(sizes || []).map(([sizeId, sizeName, sizeDescription]) => (
-            <option key={sizeId} value={sizeId}>
-              {`${sizeName} ${sizeDescription}`}
-            </option>
-          ))}
-        </select>
-      </div>
-      {/* <div className="input-group mb-1 d-grid gap-2">
-        <button
-          id="button-login"
-          type="button"
-          className="btn btn-secondary"
-          data-bs-toggle="modal"
-          data-bs-target="#div-modal"
-          onClick={onLoginButtonClick}
-        >
-          Login
-        </button>
-      </div> */}
-      <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">
-          @
-        </span>
-        <input type="text" id="todo-remove-id" class="form-control" placeholder="Session ID" />
-      </div>
+    <div style={{ padding: "24px", background: "#f7f7f7", borderRadius: "8px" }}>
+      <Title level={4}>Board Settings</Title>
+      <Form layout="vertical">
+        <Form.Item label="Board">
+          <Select value={selectedBoard} onChange={handleBoardChange}>
+            <Option value="decoy">Decoy</Option>
+            <Option value="grasshopper">Grasshopper</Option>
+            <Option value="kilter">Kilter</Option>
+            <Option value="tension">Tension</Option>
+            <Option value="touchstone">Touchstone</Option>
+          </Select>
+        </Form.Item>
 
-      <div id="div-sets-inputs"></div>
-      <div className="input-group mb-3">
-        <div className="col d-grid me-1">
-          <button className="btn btn-success" onClick={onConnectButtonClick}>
-            Join a session
-          </button>
-        </div>
-        <div className="col d-grid ms-1">
-          <Link to={`/climb/${selectedBoard}/${selectedLayout}/${selectedSize}`}>
-            <button className="btn btn-primary" type="submit" id="button-next">
-              Start a session
-            </button>
-          </Link>
-        </div>
+        <Form.Item label="Layout">
+          <Select value={selectedLayout} onChange={onLayoutChange}>
+            {layouts.map(([layoutId, layoutName]) => (
+              <Option key={layoutId} value={layoutId}>
+                {layoutName}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Size">
+          <Select value={selectedSize} onChange={(value) => setSelectedSize(value)}>
+            {sizes.map(([sizeId, sizeName, sizeDescription]) => (
+              <Option key={sizeId} value={sizeId}>
+                {`${sizeName} ${sizeDescription}`}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Session ID">
+          <Input id="todo-remove-id" placeholder="Session ID" />
+        </Form.Item>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Button type="primary" block onClick={onConnectButtonClick}>
+              Join a session
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Link to={`/climb/${selectedBoard}/${selectedLayout}/${selectedSize}`}>
+              <Button type="primary" block>
+                Start a session
+              </Button>
+            </Link>
+          </Col>
+        </Row>
+      </Form>
+      <div style={{ marginTop: "16px" }}>
+        <Typography.Text type="secondary">Peer ID: {peerId}</Typography.Text>
       </div>
-      {peerId}
     </div>
   );
 };
