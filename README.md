@@ -50,4 +50,4 @@ To actually use most of the features of Climbdex, at least one of the local SQLi
 bin/sync_db.sh <board_name>
 ```
 
-where `<board_name>` is one of `decoy`, `grasshopper`, `kilter`, `tension` or `touchstone`.
+where `<board_name>` is one of `decoy`, `grasshopper`, `kilter`, `soill`, `tension` or `touchstone`.
