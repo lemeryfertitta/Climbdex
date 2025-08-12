@@ -177,7 +177,7 @@ def get_board_database(board_name):
     try:
         return flask.g.database
     except AttributeError:
-        flask.g.database = sqlite3.connect(f"data/{board_name}/db.sqlite3")
+        flask.g.database = sqlite3.connect(f"data/{board_name}/db.sqlite")
         return flask.g.database
 
 

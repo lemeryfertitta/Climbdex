@@ -3,8 +3,21 @@ import flask
 import climbdex.db
 import json
 import pandas
+from pathlib import Path
 
 blueprint = flask.Blueprint("view", __name__)
+
+
+@blueprint.route("/board-images/<board_name>/<path:filename>")
+def serve_board_image(board_name, filename):
+    """Serve local board images"""
+    script_dir = Path(__file__).parent.parent
+    image_path = script_dir / "data" / board_name / "images" / filename
+    
+    if not image_path.exists():
+        flask.abort(404)
+    
+    return flask.send_file(str(image_path))
 
 
 @blueprint.route("/")
@@ -116,7 +129,8 @@ def get_draw_board_kwargs(board_name, layout_id, size_id, set_ids):
             "image_filename",
             {"layout_id": layout_id, "size_id": size_id, "set_id": set_id},
         )[0][0]
-        image_url = f"{boardlib.api.aurora.API_HOSTS[board_name]}/img/{image_filename}"
+        # Use local image route instead of Aurora API
+        image_url = flask.url_for('view.serve_board_image', board_name=board_name, filename=image_filename)
         images_to_holds[image_url] = climbdex.db.get_data(
             board_name, "holds", {"layout_id": layout_id, "set_id": set_id}
         )
